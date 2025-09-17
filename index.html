@@ -36,7 +36,7 @@
             background-size: 16px 16px;
         }
 
-        /* Side boundaries with margin lines and diagonal pattern */
+        /* Side boundaries with margin lines and diagonal pattern - Hidden on mobile */
         .content-wrapper::before,
         .content-wrapper::after {
             content: '';
@@ -57,15 +57,25 @@
                     transparent 3px,
                     transparent 8px);
             background-size: 20px 100%, 10px 10px;
+            /* Hide on mobile and small tablets */
+            display: none;
         }
 
-        .content-wrapper::before {
-            left: max(0px, calc(50% - 32rem - 20px));
-            /* max-w-4xl + 20px boundary */
-        }
+        /* Show boundaries only on larger screens where content has enough space */
+        @media (min-width: 1200px) {
+            .content-wrapper::before,
+            .content-wrapper::after {
+                display: block;
+            }
 
-        .content-wrapper::after {
-            right: max(0px, calc(50% - 32rem - 20px));
+            .content-wrapper::before {
+                left: max(0px, calc(50% - 32rem - 20px));
+                /* max-w-4xl + 20px boundary */
+            }
+
+            .content-wrapper::after {
+                right: max(0px, calc(50% - 32rem - 20px));
+            }
         }
 
         .dark .content-wrapper::before,
