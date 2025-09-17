@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Enable class-based dark mode for Tailwind CSS v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-accent: #6366f1;
   --font-mono: ui-monospace, SFMono-Regular, monospace;
