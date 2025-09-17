@@ -370,6 +370,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Spotify Integration
     initSpotify();
+
+    // Handle responsive Spotify display on window resize
+    window.addEventListener('resize', function() {
+        if (window.currentTracks) {
+            displayRecentTracks(window.currentTracks);
+        }
+    });
 });
 
 // Spotify integration using backend API
@@ -508,8 +515,13 @@ function loadRecentTracks() {
 }
 
 function displayRecentTracks(tracks) {
+    // Store tracks globally for resize handling
+    if (typeof window !== 'undefined') {
+        window.currentTracks = tracks;
+    }
+
     const musicGrid = document.getElementById('music-grid');
-    const gridContainer = musicGrid.querySelector('.grid');
+    const gridContainer = musicGrid.querySelector('div');
 
     // Check if mobile view
     const isMobile = window.innerWidth < 768; // md breakpoint
