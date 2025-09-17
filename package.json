@@ -1,7 +1,7 @@
 {
-  "name": "rohiitspace-backend",
+  "name": "rohiitspace",
   "version": "1.0.0",
-  "description": "Backend server for Spotify integration",
+  "description": "Rohit's portfolio website with Spotify integration",
   "main": "index.html",
   "scripts": {
     "start": "npx http-server -p 3000 -c-1",
@@ -10,18 +10,15 @@
     "vercel-dev": "vercel dev"
   },
   "dependencies": {
-    "express": "^4.18.2",
+    "express": "^4.19.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "node-fetch": "^3.3.2",
-    "concurrently": "^8.2.2",
-    "http-server": "^14.1.1"
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1",
-    "vercel": "^34.2.4"
+    "http-server": "^14.1.1",
+    "vercel": "^37.6.1"
   },
-  "keywords": ["spotify", "portfolio", "music"],
+  "keywords": ["portfolio", "spotify", "music", "frontend", "serverless"],
   "author": "rohit",
   "license": "MIT"
 }
