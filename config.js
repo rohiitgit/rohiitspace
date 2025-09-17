@@ -15,8 +15,8 @@ const API_CONFIG = {
 
 // Auto-detect environment
 if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    // Production - update this URL when you deploy your backend
-    API_CONFIG.BACKEND_URL = 'https://your-backend-domain.vercel.app';
+    // Production - same domain for both frontend and backend
+    API_CONFIG.BACKEND_URL = window.location.origin;
 }
 
 // Export for use in other files

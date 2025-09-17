@@ -9,7 +9,7 @@
     "start:frontend": "npx http-server -p 3000 -c-1",
     "start:both": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
     "dev": "concurrently \"nodemon server.js\" \"npx http-server -p 3000 -c-1\"",
-    "build": "echo 'No build step needed'"
+    "build": "echo 'Build completed - static files ready'"
   },
   "dependencies": {
     "express": "^4.18.2",
