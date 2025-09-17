@@ -156,26 +156,7 @@
             margin-bottom: 20px;
         }
 
-        /* Theme transition ripple effect - keyframes can't use Tailwind */
-        .ripple-animate {
-            animation: rippleExpand 0.8s ease-out forwards;
-        }
-
-        @keyframes rippleExpand {
-            0% {
-                transform: scale(0);
-                opacity: 0.3;
-            }
-
-            30% {
-                opacity: 0.2;
-            }
-
-            100% {
-                transform: scale(3);
-                opacity: 0;
-            }
-        }
+        /* Ripple animation now in main CSS file */
 
         /* Timeline animation styles */
         .timeline-container {

@@ -1,14 +1,22 @@
 // Ripple animation function
 function createRippleAnimation(x, y, targetTheme, callback) {
-    // Create ripple container using Tailwind classes
+    // Create ripple container
     const rippleContainer = document.createElement('div');
-    rippleContainer.className = 'fixed inset-0 w-screen h-screen pointer-events-none z-[1000] overflow-hidden';
+    rippleContainer.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+        z-index: 1000;
+        overflow: hidden;
+    `;
     document.body.appendChild(rippleContainer);
 
-    // Create ripple circle using Tailwind classes
+    // Create ripple circle
     const ripple = document.createElement('div');
-    const bgColor = targetTheme === 'dark' ? 'bg-black' : 'bg-gray-50';
-    ripple.className = `absolute rounded-full scale-0 opacity-0 ${bgColor}`;
+    const bgColor = targetTheme === 'dark' ? '#000000' : '#f9fafb';
 
     // Calculate the maximum distance to cover the entire screen
     const maxDistance = Math.sqrt(
@@ -18,24 +26,32 @@ function createRippleAnimation(x, y, targetTheme, callback) {
 
     // Set initial position and size
     const size = maxDistance * 2;
-    ripple.style.width = size + 'px';
-    ripple.style.height = size + 'px';
-    ripple.style.left = (x - size / 2) + 'px';
-    ripple.style.top = (y - size / 2) + 'px';
+    ripple.style.cssText = `
+        position: absolute;
+        width: ${size}px;
+        height: ${size}px;
+        left: ${x - size / 2}px;
+        top: ${y - size / 2}px;
+        background-color: ${bgColor};
+        border-radius: 50%;
+        transform: scale(0);
+        opacity: 0;
+    `;
 
     rippleContainer.appendChild(ripple);
 
-    // Start ripple animation and theme change simultaneously for smooth transition
-    setTimeout(() => {
+    // Start ripple animation and theme change simultaneously
+    requestAnimationFrame(() => {
         ripple.classList.add('ripple-animate');
-        // Execute callback immediately to start theme transition alongside ripple
         callback();
-    }, 10);
+    });
 
     // Clean up after animation completes
     setTimeout(() => {
-        document.body.removeChild(rippleContainer);
-    }, 800);
+        if (document.body.contains(rippleContainer)) {
+            document.body.removeChild(rippleContainer);
+        }
+    }, 900);
 }
 
 // Theme toggle functionality
