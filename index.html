@@ -5,6 +5,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>rohiitspace</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Rohit's portfolio - Computer science grad building fullstack apps, computer vision solutions, and automation tools. SIH 2024 finalist.">
+    <meta name="keywords" content="rohit, portfolio, developer, computer science, fullstack, computer vision, python, javascript, react">
+    <meta name="author" content="Rohit">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.rohiit.space/">
+    <meta property="og:title" content="Rohit - Software Developer">
+    <meta property="og:description" content="Computer science grad building fullstack apps, computer vision solutions, and automation tools. SIH 2024 finalist working at OpenBlood.">
+    <meta property="og:image" content="https://www.rohiit.space/pfp.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="rohiitspace">
+
+    <!-- Twitter Card -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://www.rohiit.space/">
+    <meta property="twitter:title" content="Rohit - Software Developer">
+    <meta property="twitter:description" content="Computer science grad building fullstack apps, computer vision solutions, and automation tools. SIH 2024 finalist working at OpenBlood.">
+    <meta property="twitter:image" content="https://www.rohiit.space/pfp.png">
+
+    <!-- Favicons -->
     <link rel="icon" type="image/x-icon"
         href="https://media.licdn.com/dms/image/v2/D5603AQEfT67Uns4tJw/profile-displayphoto-crop_800_800/B56Zf4vxyoHUAI-/0/1752224965896?e=1761177600&v=beta&t=TKN2q9Sl986zN0b4U_JgroJj_dSma_uRCi6iGOAZzGQ">
     <link rel="apple-touch-icon"
@@ -12,7 +36,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="config.js"></script>
     <!-- Vercel Analytics -->
-    <script defer src="https://va.vercel-scripts.com/v1/script.debug.js"></script>
+    <script type="module">
+        import { inject } from 'https://cdn.skypack.dev/@vercel/analytics';
+        inject();
+    </script>
     <script>
         tailwind.config = {
             darkMode: 'class',
