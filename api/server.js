@@ -1,10 +1,11 @@
 const axios = require('axios');
 
 // Store tokens in memory (in production, use a database)
+// For serverless, we'll rely more on environment variables and refresh tokens
 let spotifyTokens = {
-    access_token: null,
-    refresh_token: null,
-    expires_at: null
+    access_token: process.env.SPOTIFY_ACCESS_TOKEN || null,
+    refresh_token: process.env.SPOTIFY_REFRESH_TOKEN || null,
+    expires_at: process.env.SPOTIFY_TOKEN_EXPIRY ? parseInt(process.env.SPOTIFY_TOKEN_EXPIRY) : null
 };
 
 // Spotify OAuth endpoints
@@ -125,7 +126,9 @@ async function handleCallback(req, res, searchParams) {
             expires_at: Date.now() + (tokenData.expires_in * 1000)
         };
 
-        console.log('✅ Spotify authentication successful!');
+        // Log refresh token for .env setup (remove after copying)
+        console.log('SPOTIFY_REFRESH_TOKEN=' + tokenData.refresh_token);
+
         res.redirect(`https://${req.headers.host}?success=true`);
 
     } catch (error) {
@@ -166,10 +169,8 @@ async function refreshAccessToken() {
         // Update refresh token if provided
         if (data.refresh_token) {
             spotifyTokens.refresh_token = data.refresh_token;
-            console.log('✅ New refresh token received and stored');
         }
 
-        console.log('✅ Token refreshed successfully');
         return spotifyTokens.access_token;
 
     } catch (error) {

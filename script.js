@@ -419,14 +419,8 @@ function initSpotify() {
 // Check backend authentication status and load tracks if authenticated
 async function checkAuthAndLoadTracks() {
     try {
-        const response = await fetch(`${window.API_CONFIG.BACKEND_URL}${window.API_CONFIG.ENDPOINTS.AUTH_STATUS}`);
-        const data = await response.json();
-
-        if (data.authenticated) {
-            loadYourRecentTracks();
-        } else {
-            showSpotifyConnect();
-        }
+        // Always try to load tracks first - the backend will handle auth
+        loadYourRecentTracks();
     } catch (error) {
         console.error('Error checking auth status:', error);
         showSpotifyConnect();
@@ -646,11 +640,16 @@ function showSpotifyError() {
 }
 
 // Load YOUR recent tracks from backend API
-async function loadYourRecentTracks() {
+async function loadYourRecentTracks(retryCount = 0) {
     showSpotifyLoading();
 
     try {
-        const response = await fetch(`${window.API_CONFIG.BACKEND_URL}${window.API_CONFIG.ENDPOINTS.RECENT_TRACKS}`);
+        const response = await fetch(`${window.API_CONFIG.BACKEND_URL}${window.API_CONFIG.ENDPOINTS.RECENT_TRACKS}`, {
+            cache: 'no-cache',
+            headers: {
+                'Cache-Control': 'no-cache'
+            }
+        });
 
         if (response.status === 401) {
             // Not authenticated, show connect button
@@ -666,11 +665,37 @@ async function loadYourRecentTracks() {
 
         if (data.items && data.items.length > 0) {
             displayRecentTracks(data.items);
+            // Store success state to avoid showing auth prompt on refresh
+            localStorage.setItem('spotify_last_success', Date.now().toString());
         } else {
-            showSpotifyError();
+            // If no tracks but API call succeeded, show a different message
+            showSpotifyNoTracks();
         }
     } catch (error) {
         console.error('Failed to load your tracks:', error);
-        showSpotifyError();
+
+        // Auto-retry once after 2 seconds if first attempt fails
+        if (retryCount === 0) {
+            setTimeout(() => {
+                loadYourRecentTracks(1);
+            }, 2000);
+        } else {
+            showSpotifyError();
+        }
+    }
+}
+
+// Show message when authenticated but no tracks available
+function showSpotifyNoTracks() {
+    document.getElementById('spotify-connect').classList.add('hidden');
+    document.getElementById('music-grid').classList.add('hidden');
+    document.getElementById('music-loading').classList.add('hidden');
+    document.getElementById('music-error').classList.remove('hidden');
+
+    // Update error message for no tracks
+    const errorDiv = document.getElementById('music-error');
+    const errorMessage = errorDiv.querySelector('p');
+    if (errorMessage) {
+        errorMessage.textContent = 'no recent tracks found - play some music on spotify first!';
     }
 }
