@@ -12,8 +12,18 @@ let spotifyTokens = {
     expires_at: null
 };
 
-// Load tokens from file on startup
+// Load tokens from environment variables (primary) and file (secondary)
 async function loadTokens() {
+    // First, try to load from environment variables (most reliable for serverless)
+    if (process.env.SPOTIFY_REFRESH_TOKEN) {
+        spotifyTokens.refresh_token = process.env.SPOTIFY_REFRESH_TOKEN;
+        spotifyTokens.access_token = process.env.SPOTIFY_ACCESS_TOKEN || null;
+        spotifyTokens.expires_at = process.env.SPOTIFY_TOKEN_EXPIRY ? parseInt(process.env.SPOTIFY_TOKEN_EXPIRY) : null;
+        console.log('Loaded tokens from environment variables');
+        return;
+    }
+
+    // Fallback: try to load from file
     try {
         const data = await fs.readFile(TOKENS_FILE, 'utf8');
         const tokens = JSON.parse(data);
@@ -24,18 +34,8 @@ async function loadTokens() {
             console.log('Loaded tokens from file');
         }
     } catch (error) {
-        // File doesn't exist or is corrupted, start fresh
-        console.log('No existing tokens found, starting fresh');
-
-        // Try to use environment variables as fallback
-        if (process.env.SPOTIFY_REFRESH_TOKEN) {
-            spotifyTokens.refresh_token = process.env.SPOTIFY_REFRESH_TOKEN;
-            spotifyTokens.access_token = process.env.SPOTIFY_ACCESS_TOKEN || null;
-            spotifyTokens.expires_at = process.env.SPOTIFY_TOKEN_EXPIRY ? parseInt(process.env.SPOTIFY_TOKEN_EXPIRY) : null;
-
-            // Save to file for future use
-            await saveTokens();
-        }
+        // No tokens available anywhere
+        console.log('No existing tokens found anywhere');
     }
 }
 
