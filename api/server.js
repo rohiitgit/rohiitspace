@@ -126,9 +126,7 @@ async function handleCallback(req, res, searchParams) {
             expires_at: Date.now() + (tokenData.expires_in * 1000)
         };
 
-        // Display refresh token on success page
-        const token = tokenData.refresh_token;
-        res.redirect(`https://${req.headers.host}?success=true&token=${encodeURIComponent(token)}`);
+        res.redirect(`https://${req.headers.host}?success=true`);
 
     } catch (error) {
         console.error('Error exchanging code for token:', error);
