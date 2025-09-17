@@ -1,8 +1,4 @@
-const express = require('express');
-const cors = require('cors');
 const fetch = require('node-fetch');
-
-const app = express();
 
 // Store tokens in memory (in production, use a database)
 let spotifyTokens = {
@@ -11,22 +7,70 @@ let spotifyTokens = {
     expires_at: null
 };
 
-app.use(cors({
-    origin: process.env.FRONTEND_URL || 'https://rohiit.space',
-    credentials: true
-}));
-
-app.use(express.json());
-
 // Spotify OAuth endpoints
 const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/authorize';
 const SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token';
 const SPOTIFY_API_URL = 'https://api.spotify.com/v1';
 
-// Step 1: Redirect to Spotify for authorization
-app.get('/auth/spotify', (req, res) => {
+// CORS headers
+const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+// Main handler function
+module.exports = async (req, res) => {
+    // Add CORS headers
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+        res.setHeader(key, value);
+    });
+
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+        res.status(200).end();
+        return;
+    }
+
+    const { url } = req;
+    const urlObj = new URL(url, `https://${req.headers.host}`);
+    const pathname = urlObj.pathname;
+    const searchParams = urlObj.searchParams;
+
+    try {
+        // Route handling
+        if (pathname.includes('/auth/spotify')) {
+            return await handleSpotifyAuth(req, res);
+        }
+
+        if (pathname.includes('/api/recent-tracks')) {
+            return await handleRecentTracks(req, res);
+        }
+
+        if (pathname.includes('/api/auth/status')) {
+            return await handleAuthStatus(req, res);
+        }
+
+        if (pathname.includes('/health')) {
+            return await handleHealth(req, res);
+        }
+
+        // Handle callback
+        if (searchParams.get('callback') === 'true') {
+            return await handleCallback(req, res, searchParams);
+        }
+
+        res.status(404).json({ error: 'Not found' });
+    } catch (error) {
+        console.error('Function error:', error);
+        res.status(500).json({ error: 'Internal server error', message: error.message });
+    }
+};
+
+// Handler functions
+async function handleSpotifyAuth(req, res) {
     const scopes = 'user-read-recently-played';
-    const redirectUri = `${req.headers.origin || 'https://rohiit.space'}/api/server?callback=true`;
+    const redirectUri = `https://${req.headers.host}/api/server?callback=true`;
 
     const authUrl = `${SPOTIFY_AUTH_URL}?` +
         `client_id=${process.env.SPOTIFY_CLIENT_ID}&` +
@@ -36,80 +80,59 @@ app.get('/auth/spotify', (req, res) => {
         `show_dialog=false`;
 
     res.redirect(authUrl);
-});
+}
 
-// Step 2: Handle Spotify callback and exchange code for tokens
-app.get('/api/server', async (req, res) => {
-    const { code, error, callback } = req.query;
+async function handleCallback(req, res, searchParams) {
+    const code = searchParams.get('code');
+    const error = searchParams.get('error');
 
-    if (callback && error) {
-        return res.redirect(`${process.env.FRONTEND_URL || 'https://rohiit.space'}?error=${error}`);
+    if (error) {
+        return res.redirect(`https://${req.headers.host}?error=${error}`);
     }
 
-    if (callback && !code) {
-        return res.redirect(`${process.env.FRONTEND_URL || 'https://rohiit.space'}?error=no_code`);
+    if (!code) {
+        return res.redirect(`https://${req.headers.host}?error=no_code`);
     }
 
-    if (callback && code) {
-        try {
-            const redirectUri = `${req.headers.origin || 'https://rohiit.space'}/api/server?callback=true`;
+    try {
+        const redirectUri = `https://${req.headers.host}/api/server?callback=true`;
 
-            // Exchange code for access token
-            const tokenResponse = await fetch(SPOTIFY_TOKEN_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Authorization': `Basic ${Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64')}`
-                },
-                body: new URLSearchParams({
-                    grant_type: 'authorization_code',
-                    code: code,
-                    redirect_uri: redirectUri
-                })
-            });
+        // Exchange code for access token
+        const tokenResponse = await fetch(SPOTIFY_TOKEN_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': `Basic ${Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64')}`
+            },
+            body: new URLSearchParams({
+                grant_type: 'authorization_code',
+                code: code,
+                redirect_uri: redirectUri
+            })
+        });
 
-            const tokenData = await tokenResponse.json();
+        const tokenData = await tokenResponse.json();
 
-            if (tokenData.error) {
-                return res.redirect(`${process.env.FRONTEND_URL || 'https://rohiit.space'}?error=${tokenData.error}`);
-            }
-
-            // Store tokens
-            spotifyTokens = {
-                access_token: tokenData.access_token,
-                refresh_token: tokenData.refresh_token,
-                expires_at: Date.now() + (tokenData.expires_in * 1000)
-            };
-
-            console.log('✅ Spotify authentication successful!');
-            res.redirect(`${process.env.FRONTEND_URL || 'https://rohiit.space'}?success=true`);
-
-        } catch (error) {
-            console.error('Error exchanging code for token:', error);
-            res.redirect(`${process.env.FRONTEND_URL || 'https://rohiit.space'}?error=token_exchange_failed`);
+        if (tokenData.error) {
+            return res.redirect(`https://${req.headers.host}?error=${tokenData.error}`);
         }
-        return;
+
+        // Store tokens
+        spotifyTokens = {
+            access_token: tokenData.access_token,
+            refresh_token: tokenData.refresh_token,
+            expires_at: Date.now() + (tokenData.expires_in * 1000)
+        };
+
+        console.log('✅ Spotify authentication successful!');
+        res.redirect(`https://${req.headers.host}?success=true`);
+
+    } catch (error) {
+        console.error('Error exchanging code for token:', error);
+        res.redirect(`https://${req.headers.host}?error=token_exchange_failed`);
     }
+}
 
-    // Handle other API requests
-    const path = req.path;
-
-    if (path.includes('/api/recent-tracks')) {
-        return handleRecentTracks(req, res);
-    }
-
-    if (path.includes('/api/auth/status')) {
-        return handleAuthStatus(req, res);
-    }
-
-    if (path.includes('/health')) {
-        return handleHealth(req, res);
-    }
-
-    res.status(404).json({ error: 'Not found' });
-});
-
-// Step 3: Refresh access token when needed
 async function refreshAccessToken() {
     if (!spotifyTokens.refresh_token) {
         throw new Error('No refresh token available');
@@ -138,7 +161,7 @@ async function refreshAccessToken() {
         spotifyTokens.access_token = data.access_token;
         spotifyTokens.expires_at = Date.now() + (data.expires_in * 1000);
 
-        // Update refresh token if provided (Spotify sometimes provides a new one)
+        // Update refresh token if provided
         if (data.refresh_token) {
             spotifyTokens.refresh_token = data.refresh_token;
             console.log('✅ New refresh token received and stored');
@@ -153,10 +176,9 @@ async function refreshAccessToken() {
     }
 }
 
-// Step 4: Get valid access token (refresh if needed)
 async function getValidAccessToken() {
     // Check if token exists and is not expired
-    if (spotifyTokens.access_token && Date.now() < spotifyTokens.expires_at - 60000) { // 1 minute buffer
+    if (spotifyTokens.access_token && Date.now() < spotifyTokens.expires_at - 60000) {
         return spotifyTokens.access_token;
     }
 
@@ -168,7 +190,6 @@ async function getValidAccessToken() {
     throw new Error('No valid token available, need to re-authenticate');
 }
 
-// API handlers
 async function handleRecentTracks(req, res) {
     try {
         const accessToken = await getValidAccessToken();
@@ -204,7 +225,7 @@ async function handleRecentTracks(req, res) {
     }
 }
 
-function handleAuthStatus(req, res) {
+async function handleAuthStatus(req, res) {
     res.json({
         authenticated: !!spotifyTokens.access_token,
         tokenExpiry: spotifyTokens.expires_at,
@@ -212,47 +233,10 @@ function handleAuthStatus(req, res) {
     });
 }
 
-function handleHealth(req, res) {
+async function handleHealth(req, res) {
     res.json({
         status: 'ok',
         authenticated: !!spotifyTokens.access_token,
         tokenExpiry: spotifyTokens.expires_at ? new Date(spotifyTokens.expires_at).toISOString() : null
     });
 }
-
-// For all HTTP methods
-app.all('*', (req, res) => {
-    // This catches all routes and methods
-    const path = req.path;
-
-    if (path.includes('/api/recent-tracks')) {
-        return handleRecentTracks(req, res);
-    }
-
-    if (path.includes('/api/auth/status')) {
-        return handleAuthStatus(req, res);
-    }
-
-    if (path.includes('/health')) {
-        return handleHealth(req, res);
-    }
-
-    if (path.includes('/auth/spotify')) {
-        const scopes = 'user-read-recently-played';
-        const redirectUri = `${req.headers.origin || 'https://rohiit.space'}/api/server?callback=true`;
-
-        const authUrl = `${SPOTIFY_AUTH_URL}?` +
-            `client_id=${process.env.SPOTIFY_CLIENT_ID}&` +
-            `response_type=code&` +
-            `redirect_uri=${encodeURIComponent(redirectUri)}&` +
-            `scope=${encodeURIComponent(scopes)}&` +
-            `show_dialog=false`;
-
-        res.redirect(authUrl);
-        return;
-    }
-
-    res.status(404).json({ error: 'Not found' });
-});
-
-module.exports = app;
