@@ -375,7 +375,8 @@
                             class="w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 mx-auto bg-gray-100 dark:bg-gray-900 rounded-xl border-2 border-accent transition-all duration-300 flex items-center justify-center overflow-hidden hover:shadow-lg">
                             <img src="https://media.licdn.com/dms/image/v2/D5603AQEfT67Uns4tJw/profile-displayphoto-crop_800_800/B56Zf4vxyoHUAI-/0/1752224965896?e=1761177600&v=beta&t=TKN2q9Sl986zN0b4U_JgroJj_dSma_uRCi6iGOAZzGQ"
                                 alt="Rohit's profile picture" class="w-full h-full object-cover"
-                                onerror="this.style.display='none'">
+                                loading="lazy"
+                                onerror="this.src='./pfp.png'; if(this.src.includes('pfp.png')) { this.style.display='none'; this.parentElement.innerHTML='<div class=\\'w-full h-full flex items-center justify-center text-4xl\\'>👨‍💻</div>'; }">
                         </div>
                     </div>
 
