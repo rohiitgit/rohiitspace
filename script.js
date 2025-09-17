@@ -511,16 +511,65 @@ function displayRecentTracks(tracks) {
     const musicGrid = document.getElementById('music-grid');
     const gridContainer = musicGrid.querySelector('.grid');
 
+    // Check if mobile view
+    const isMobile = window.innerWidth < 768; // md breakpoint
+
     // Clear existing content
     gridContainer.innerHTML = '';
 
-    tracks.forEach(item => {
-        const track = item.track;
-        const trackCard = createTrackCard(track);
-        gridContainer.appendChild(trackCard);
-    });
+    if (isMobile) {
+        // Mobile: List view
+        gridContainer.className = 'space-y-3';
+        tracks.forEach(item => {
+            const track = item.track;
+            const trackListItem = createTrackListItem(track);
+            gridContainer.appendChild(trackListItem);
+        });
+    } else {
+        // Desktop: Grid view
+        gridContainer.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4';
+        tracks.forEach(item => {
+            const track = item.track;
+            const trackCard = createTrackCard(track);
+            gridContainer.appendChild(trackCard);
+        });
+    }
 
     showMusicGrid();
+}
+
+function createTrackListItem(track) {
+    const listItem = document.createElement('div');
+    listItem.className = 'flex items-center space-x-3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200 dark:border-gray-800 rounded-lg p-3 hover:shadow-lg dark:hover:shadow-white/10 transition-all duration-300';
+
+    const imageUrl = track.album.images[0]?.url || '';
+    const trackName = track.name;
+    const artistName = track.artists.map(artist => artist.name).join(', ');
+    const albumName = track.album.name;
+    const spotifyUrl = track.external_urls.spotify;
+
+    listItem.innerHTML = `
+        <div class="w-12 h-12 bg-gray-200 dark:bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
+            ${imageUrl ? `<img src="${imageUrl}" alt="${albumName}" class="w-full h-full object-cover">` :
+              `<div class="w-full h-full flex items-center justify-center">
+                <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                </svg>
+              </div>`}
+        </div>
+        <div class="flex-1 min-w-0">
+            <h4 class="font-semibold text-sm truncate" title="${trackName}">${trackName}</h4>
+            <p class="text-gray-600 dark:text-gray-400 text-xs truncate" title="${artistName}">${artistName}</p>
+        </div>
+        <a href="${spotifyUrl}" target="_blank" rel="noopener noreferrer"
+           class="flex-shrink-0 text-green-600 hover:text-green-700 transition-colors">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.5 14.424c-.188.305-.516.457-.844.457-.188 0-.375-.047-.563-.152-1.266-.797-2.859-1.219-4.594-1.219-1.078 0-2.156.188-3.141.516-.328.109-.703-.047-.844-.375-.141-.328.047-.703.375-.844 1.172-.375 2.391-.609 3.609-.609 1.969 0 3.797.469 5.297 1.359.328.188.422.609.234.937zm1.078-2.391c-.234.375-.656.563-1.031.563-.234 0-.469-.063-.656-.188-1.547-.891-3.469-1.359-5.391-1.359-1.266 0-2.531.234-3.703.656-.422.141-.844-.094-.984-.516-.141-.422.094-.844.516-.984 1.406-.516 2.859-.797 4.313-.797 2.203 0 4.359.563 6.234 1.641.375.234.516.75.281 1.125zm.984-2.5c-.281.047-.516.141-.75.234-1.734-1.031-3.984-1.594-6.375-1.594-1.547 0-3.094.281-4.5.844-.469.188-.984-.047-1.172-.516s.047-.984.516-1.172c1.641-.656 3.375-.984 5.156-.984 2.75 0 5.344.656 7.359 1.875.422.281.563.844.281 1.266-.234.375-.656.563-1.031.563z"/>
+            </svg>
+        </a>
+    `;
+
+    return listItem;
 }
 
 function createTrackCard(track) {
