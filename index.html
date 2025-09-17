@@ -33,27 +33,12 @@
         href="https://media.licdn.com/dms/image/v2/D5603AQEfT67Uns4tJw/profile-displayphoto-crop_800_800/B56Zf4vxyoHUAI-/0/1752224965896?e=1761177600&v=beta&t=TKN2q9Sl986zN0b4U_JgroJj_dSma_uRCi6iGOAZzGQ">
     <link rel="apple-touch-icon"
         href="https://media.licdn.com/dms/image/v2/D5603AQEfT67Uns4tJw/profile-displayphoto-crop_800_800/B56Zf4vxyoHUAI-/0/1752224965896?e=1761177600&v=beta&t=TKN2q9Sl986zN0b4U_JgroJj_dSma_uRCi6iGOAZzGQ">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="dist/styles.css">
     <script src="config.js"></script>
     <!-- Vercel Analytics -->
     <script type="module">
         import { inject } from 'https://cdn.skypack.dev/@vercel/analytics';
         inject();
-    </script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        'mono': ['ui-monospace', 'SFMono-Regular', 'monospace'],
-                    },
-                    colors: {
-                        'accent': '#6366f1',
-                    }
-                }
-            }
-        }
     </script>
     <style>
         /* Notebook-style layout with grid boundaries */
