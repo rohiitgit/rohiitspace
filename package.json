@@ -2,14 +2,12 @@
   "name": "rohiitspace-backend",
   "version": "1.0.0",
   "description": "Backend server for Spotify integration",
-  "main": "server.js",
+  "main": "index.html",
   "scripts": {
-    "start": "npm run start:both",
-    "start:backend": "node server.js",
-    "start:frontend": "npx http-server -p 3000 -c-1",
-    "start:both": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
-    "dev": "concurrently \"nodemon server.js\" \"npx http-server -p 3000 -c-1\"",
-    "build": "echo 'Build completed - static files ready'"
+    "start": "npx http-server -p 3000 -c-1",
+    "dev": "npx http-server -p 3000 -c-1",
+    "build": "echo 'Build completed - static files ready'",
+    "vercel-dev": "vercel dev"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -20,7 +18,8 @@
     "http-server": "^14.1.1"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "vercel": "^34.2.4"
   },
   "keywords": ["spotify", "portfolio", "music"],
   "author": "rohit",

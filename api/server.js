@@ -1,10 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const fetch = require('node-fetch');
-require('dotenv').config();
 
 const app = express();
-const PORT = process.env.BACKEND_PORT || 3001;
 
 // Store tokens in memory (in production, use a database)
 let spotifyTokens = {
@@ -14,7 +12,7 @@ let spotifyTokens = {
 };
 
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: process.env.FRONTEND_URL || 'https://rohiit.space',
     credentials: true
 }));
 
@@ -28,7 +26,7 @@ const SPOTIFY_API_URL = 'https://api.spotify.com/v1';
 // Step 1: Redirect to Spotify for authorization
 app.get('/auth/spotify', (req, res) => {
     const scopes = 'user-read-recently-played';
-    const redirectUri = `${req.protocol}://${req.get('host')}/auth/spotify/callback`;
+    const redirectUri = `${req.headers.origin || 'https://rohiit.space'}/api/server?callback=true`;
 
     const authUrl = `${SPOTIFY_AUTH_URL}?` +
         `client_id=${process.env.SPOTIFY_CLIENT_ID}&` +
@@ -41,54 +39,74 @@ app.get('/auth/spotify', (req, res) => {
 });
 
 // Step 2: Handle Spotify callback and exchange code for tokens
-app.get('/auth/spotify/callback', async (req, res) => {
-    const { code, error } = req.query;
+app.get('/api/server', async (req, res) => {
+    const { code, error, callback } = req.query;
 
-    if (error) {
-        return res.redirect(`${process.env.FRONTEND_URL}?error=${error}`);
+    if (callback && error) {
+        return res.redirect(`${process.env.FRONTEND_URL || 'https://rohiit.space'}?error=${error}`);
     }
 
-    if (!code) {
-        return res.redirect(`${process.env.FRONTEND_URL}?error=no_code`);
+    if (callback && !code) {
+        return res.redirect(`${process.env.FRONTEND_URL || 'https://rohiit.space'}?error=no_code`);
     }
 
-    try {
-        const redirectUri = `${req.protocol}://${req.get('host')}/auth/spotify/callback`;
+    if (callback && code) {
+        try {
+            const redirectUri = `${req.headers.origin || 'https://rohiit.space'}/api/server?callback=true`;
 
-        // Exchange code for access token
-        const tokenResponse = await fetch(SPOTIFY_TOKEN_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': `Basic ${Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64')}`
-            },
-            body: new URLSearchParams({
-                grant_type: 'authorization_code',
-                code: code,
-                redirect_uri: redirectUri
-            })
-        });
+            // Exchange code for access token
+            const tokenResponse = await fetch(SPOTIFY_TOKEN_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': `Basic ${Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64')}`
+                },
+                body: new URLSearchParams({
+                    grant_type: 'authorization_code',
+                    code: code,
+                    redirect_uri: redirectUri
+                })
+            });
 
-        const tokenData = await tokenResponse.json();
+            const tokenData = await tokenResponse.json();
 
-        if (tokenData.error) {
-            return res.redirect(`${process.env.FRONTEND_URL}?error=${tokenData.error}`);
+            if (tokenData.error) {
+                return res.redirect(`${process.env.FRONTEND_URL || 'https://rohiit.space'}?error=${tokenData.error}`);
+            }
+
+            // Store tokens
+            spotifyTokens = {
+                access_token: tokenData.access_token,
+                refresh_token: tokenData.refresh_token,
+                expires_at: Date.now() + (tokenData.expires_in * 1000)
+            };
+
+            console.log('✅ Spotify authentication successful!');
+            res.redirect(`${process.env.FRONTEND_URL || 'https://rohiit.space'}?success=true`);
+
+        } catch (error) {
+            console.error('Error exchanging code for token:', error);
+            res.redirect(`${process.env.FRONTEND_URL || 'https://rohiit.space'}?error=token_exchange_failed`);
         }
-
-        // Store tokens
-        spotifyTokens = {
-            access_token: tokenData.access_token,
-            refresh_token: tokenData.refresh_token,
-            expires_at: Date.now() + (tokenData.expires_in * 1000)
-        };
-
-        console.log('✅ Spotify authentication successful!');
-        res.redirect(`${process.env.FRONTEND_URL}?success=true`);
-
-    } catch (error) {
-        console.error('Error exchanging code for token:', error);
-        res.redirect(`${process.env.FRONTEND_URL}?error=token_exchange_failed`);
+        return;
     }
+
+    // Handle other API requests
+    const path = req.path;
+
+    if (path.includes('/api/recent-tracks')) {
+        return handleRecentTracks(req, res);
+    }
+
+    if (path.includes('/api/auth/status')) {
+        return handleAuthStatus(req, res);
+    }
+
+    if (path.includes('/health')) {
+        return handleHealth(req, res);
+    }
+
+    res.status(404).json({ error: 'Not found' });
 });
 
 // Step 3: Refresh access token when needed
@@ -150,8 +168,8 @@ async function getValidAccessToken() {
     throw new Error('No valid token available, need to re-authenticate');
 }
 
-// API endpoint to get recent tracks
-app.get('/api/recent-tracks', async (req, res) => {
+// API handlers
+async function handleRecentTracks(req, res) {
     try {
         const accessToken = await getValidAccessToken();
 
@@ -184,29 +202,57 @@ app.get('/api/recent-tracks', async (req, res) => {
             });
         }
     }
-});
+}
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-    res.json({
-        status: 'ok',
-        authenticated: !!spotifyTokens.access_token,
-        tokenExpiry: spotifyTokens.expires_at ? new Date(spotifyTokens.expires_at).toISOString() : null
-    });
-});
-
-// Status endpoint to check authentication
-app.get('/api/auth/status', (req, res) => {
+function handleAuthStatus(req, res) {
     res.json({
         authenticated: !!spotifyTokens.access_token,
         tokenExpiry: spotifyTokens.expires_at,
         hasRefreshToken: !!spotifyTokens.refresh_token
     });
+}
+
+function handleHealth(req, res) {
+    res.json({
+        status: 'ok',
+        authenticated: !!spotifyTokens.access_token,
+        tokenExpiry: spotifyTokens.expires_at ? new Date(spotifyTokens.expires_at).toISOString() : null
+    });
+}
+
+// For all HTTP methods
+app.all('*', (req, res) => {
+    // This catches all routes and methods
+    const path = req.path;
+
+    if (path.includes('/api/recent-tracks')) {
+        return handleRecentTracks(req, res);
+    }
+
+    if (path.includes('/api/auth/status')) {
+        return handleAuthStatus(req, res);
+    }
+
+    if (path.includes('/health')) {
+        return handleHealth(req, res);
+    }
+
+    if (path.includes('/auth/spotify')) {
+        const scopes = 'user-read-recently-played';
+        const redirectUri = `${req.headers.origin || 'https://rohiit.space'}/api/server?callback=true`;
+
+        const authUrl = `${SPOTIFY_AUTH_URL}?` +
+            `client_id=${process.env.SPOTIFY_CLIENT_ID}&` +
+            `response_type=code&` +
+            `redirect_uri=${encodeURIComponent(redirectUri)}&` +
+            `scope=${encodeURIComponent(scopes)}&` +
+            `show_dialog=false`;
+
+        res.redirect(authUrl);
+        return;
+    }
+
+    res.status(404).json({ error: 'Not found' });
 });
 
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📱 Frontend URL: ${process.env.FRONTEND_URL}`);
-    console.log(`🎵 Spotify Client ID: ${process.env.SPOTIFY_CLIENT_ID}`);
-    console.log(`🔐 To authenticate, visit: http://localhost:${PORT}/auth/spotify`);
-});
+module.exports = app;
