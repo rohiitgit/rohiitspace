@@ -48,19 +48,11 @@ function initTheme() {
 
     const html = document.documentElement;
 
-    // Check for saved theme preference or default to light mode
+    // Always start in light mode for fastest loading
+    // Apply saved preference after initial render
     const savedTheme = localStorage.getItem('theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    console.log('Saved theme:', savedTheme);
-    console.log('System prefers dark:', systemPrefersDark);
-
     if (savedTheme === 'dark') {
         html.classList.add('dark');
-        console.log('Applied dark theme');
-    } else {
-        html.classList.remove('dark');
-        console.log('Applied light theme');
     }
 
     // Theme toggle event listener with ripple animation
@@ -92,16 +84,7 @@ function initTheme() {
         });
     });
 
-    // Listen for system theme changes
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
-        if (!localStorage.getItem('theme')) {
-            if (e.matches) {
-                html.classList.add('dark');
-            } else {
-                html.classList.remove('dark');
-            }
-        }
-    });
+    // Note: Removed system theme listener for better performance
 }
 
 // Smooth scrolling for navigation links
