@@ -1,4 +1,4 @@
-const fetch = require('node-fetch');
+const axios = require('axios');
 
 // Store tokens in memory (in production, use a database)
 let spotifyTokens = {
@@ -98,20 +98,21 @@ async function handleCallback(req, res, searchParams) {
         const redirectUri = `https://${req.headers.host}/api/server?callback=true`;
 
         // Exchange code for access token
-        const tokenResponse = await fetch(SPOTIFY_TOKEN_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': `Basic ${Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64')}`
-            },
-            body: new URLSearchParams({
+        const tokenResponse = await axios.post(SPOTIFY_TOKEN_URL,
+            new URLSearchParams({
                 grant_type: 'authorization_code',
                 code: code,
                 redirect_uri: redirectUri
-            })
-        });
+            }),
+            {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': `Basic ${Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64')}`
+                }
+            }
+        );
 
-        const tokenData = await tokenResponse.json();
+        const tokenData = tokenResponse.data;
 
         if (tokenData.error) {
             return res.redirect(`https://${req.headers.host}?error=${tokenData.error}`);
@@ -139,19 +140,20 @@ async function refreshAccessToken() {
     }
 
     try {
-        const response = await fetch(SPOTIFY_TOKEN_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': `Basic ${Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64')}`
-            },
-            body: new URLSearchParams({
+        const response = await axios.post(SPOTIFY_TOKEN_URL,
+            new URLSearchParams({
                 grant_type: 'refresh_token',
                 refresh_token: spotifyTokens.refresh_token
-            })
-        });
+            }),
+            {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': `Basic ${Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64')}`
+                }
+            }
+        );
 
-        const data = await response.json();
+        const data = response.data;
 
         if (data.error) {
             throw new Error(data.error_description || data.error);
@@ -194,17 +196,13 @@ async function handleRecentTracks(req, res) {
     try {
         const accessToken = await getValidAccessToken();
 
-        const response = await fetch(`${SPOTIFY_API_URL}/me/player/recently-played?limit=5`, {
+        const response = await axios.get(`${SPOTIFY_API_URL}/me/player/recently-played?limit=5`, {
             headers: {
                 'Authorization': `Bearer ${accessToken}`
             }
         });
 
-        if (!response.ok) {
-            throw new Error(`Spotify API error: ${response.status}`);
-        }
-
-        const data = await response.json();
+        const data = response.data;
         res.json(data);
 
     } catch (error) {
