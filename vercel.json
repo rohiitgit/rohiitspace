@@ -6,7 +6,7 @@
       "use": "@vercel/node"
     },
     {
-      "src": "index.html",
+      "src": "*.{html,css,js,png,jpg,jpeg,gif,svg,ico,pdf}",
       "use": "@vercel/static"
     }
   ],
@@ -24,13 +24,20 @@
       "dest": "/server.js"
     },
     {
+      "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|pdf))",
+      "dest": "/$1",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
       "src": "/(.*)",
       "dest": "/$1"
     }
   ],
-  "env": {
-    "SPOTIFY_CLIENT_ID": "@spotify_client_id",
-    "SPOTIFY_CLIENT_SECRET": "@spotify_client_secret",
-    "FRONTEND_URL": "https://rohiit.space"
+  "functions": {
+    "server.js": {
+      "maxDuration": 10
+    }
   }
 }
