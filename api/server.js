@@ -126,10 +126,9 @@ async function handleCallback(req, res, searchParams) {
             expires_at: Date.now() + (tokenData.expires_in * 1000)
         };
 
-        // Log refresh token for .env setup (remove after copying)
-        console.log('SPOTIFY_REFRESH_TOKEN=' + tokenData.refresh_token);
-
-        res.redirect(`https://${req.headers.host}?success=true`);
+        // Display refresh token on success page
+        const token = tokenData.refresh_token;
+        res.redirect(`https://${req.headers.host}?success=true&token=${encodeURIComponent(token)}`);
 
     } catch (error) {
         console.error('Error exchanging code for token:', error);

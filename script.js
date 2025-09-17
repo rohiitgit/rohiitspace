@@ -406,6 +406,11 @@ function initSpotify() {
     }
 
     if (success) {
+        const token = urlParams.get('token');
+        if (token) {
+            // Display the refresh token for .env setup
+            alert(`Add this to your .env file:\nSPOTIFY_REFRESH_TOKEN=${token}`);
+        }
         // Clean URL and load tracks
         window.history.replaceState({}, document.title, window.location.pathname);
         loadYourRecentTracks();
