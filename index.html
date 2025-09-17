@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>rohiitspace</title>
-    <link rel="icon" type="image/x-icon" href="https://pbs.twimg.com/profile_images/1951372472378355712/lM7iBtkf_400x400.jpg">
+    <link rel="icon" type="image/x-icon"
+        href="https://pbs.twimg.com/profile_images/1951372472378355712/lM7iBtkf_400x400.jpg">
     <link rel="apple-touch-icon" href="https://pbs.twimg.com/profile_images/1951372472378355712/lM7iBtkf_400x400.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="config.js"></script>
@@ -63,6 +64,7 @@
 
         /* Show boundaries only on larger screens where content has enough space */
         @media (min-width: 1200px) {
+
             .content-wrapper::before,
             .content-wrapper::after {
                 display: block;
@@ -202,6 +204,58 @@
         .dark .timeline-dot-animated {
             border-color: #000;
         }
+
+        /* TLDR Container Hover Glow Effect */
+        .tldr-container {
+            transition: all 0.3s ease;
+        }
+
+        .tldr-container:hover {
+            box-shadow:
+                0 0 20px rgba(99, 102, 241, 0.15),
+                0 0 40px rgba(99, 102, 241, 0.1),
+                0 4px 25px rgba(0, 0, 0, 0.1);
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .dark .tldr-container:hover {
+            box-shadow:
+                0 0 20px rgba(99, 102, 241, 0.2),
+                0 0 40px rgba(99, 102, 241, 0.15),
+                0 4px 25px rgba(0, 0, 0, 0.3);
+            border-color: rgba(99, 102, 241, 0.4);
+        }
+
+        /* Project Card Hover Glow Effect */
+        .project-card:hover {
+            box-shadow:
+                0 0 20px rgba(99, 102, 241, 0.15),
+                0 0 40px rgba(99, 102, 241, 0.1),
+                0 8px 25px rgba(0, 0, 0, 0.1);
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-4px);
+        }
+
+        .dark .project-card:hover {
+            box-shadow:
+                0 0 20px rgba(99, 102, 241, 0.2),
+                0 0 40px rgba(99, 102, 241, 0.15),
+                0 8px 25px rgba(0, 0, 0, 0.3);
+            border-color: rgba(99, 102, 241, 0.4);
+        }
+
+        /* Respect user's motion preferences */
+        @media (prefers-reduced-motion: reduce) {
+            .tldr-container,
+            .project-card {
+                transition: none;
+            }
+            .tldr-container:hover,
+            .project-card:hover {
+                transform: none;
+            }
+        }
     </style>
 </head>
 
@@ -283,23 +337,35 @@
             <!-- Hero Section -->
             <section id="hero" class="col-span-12 pt-8">
                 <div class="grid grid-cols-12 gap-6">
-                    <!-- Profile Image - Mobile: full width, Desktop: 4 columns centered -->
-                    <div class="col-span-12 md:col-start-5 md:col-span-4 text-center mb-6 md:mb-8">
+                    <!-- Profile Image - Mobile: centered, Desktop: 4 columns centered -->
+                    <div class="col-span-12 md:col-start-5 md:col-span-4 text-center mb-6 md:mb-4">
                         <div
-                            class="w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 mx-auto mb-4 md:mb-6 bg-gray-100 dark:bg-gray-900 rounded-xl border-2 border-gray-200 dark:border-gray-800 hover:border-accent transition-all duration-300 flex items-center justify-center overflow-hidden hover:shadow-lg">
+                            class="w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 mx-auto bg-gray-100 dark:bg-gray-900 rounded-xl border-2 border-gray-200 dark:border-gray-800 hover:border-accent transition-all duration-300 flex items-center justify-center overflow-hidden hover:shadow-lg">
                             <img src="https://pbs.twimg.com/profile_images/1951372472378355712/lM7iBtkf_400x400.jpg"
                                 alt="Rohit's profile picture" class="w-full h-full object-cover"
                                 onerror="this.style.display='none'">
                         </div>
                     </div>
 
-                    <!-- Hero Text - Mobile: full width, Desktop: 8 columns centered -->
-                    <div class="col-span-12 md:col-start-3 md:col-span-8 text-center px-4 md:px-0">
-                        <h1 class="text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6">hi, i'm rohit 👋</h1>
-                        <p class="text-gray-600 dark:text-gray-300 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
-                            high-agency developer experienced in building webapps, ml pipelines, and ai integrations.
-                            comfortable contributing across stacks and learning new technologies fast.
-                        </p>
+                    <!-- Hero Text - Mobile: full width with padding, Desktop: 10 columns centered -->
+                    <div class="col-span-12 md:col-start-2 md:col-span-10 text-center px-4 md:px-6">
+                        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 md:mb-6">hi, i'm rohit 👋</h1>
+                        <h2 class="text-lg sm:text-xl md:text-2xl font-semibold mb-6 md:mb-8 text-accent">tldr;</h2>
+                        <div
+                            class="tldr-container text-gray-600 dark:text-gray-300 text-sm sm:text-base md:text-lg leading-relaxed max-w-4xl mx-auto space-y-4 text-left bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-2xl p-6 md:p-8">
+                            <p>i'm obsessed with ideas (even if half of them don't show up).</p>
+
+                            <p>once interned at a 'linkedIn-only' startup as a '<strong>python intern</strong>' where
+                                they threw <strong>C++</strong> at me day 1. i didn't know it. <strong>still
+                                    cooked</strong>.</p>
+
+                            <p>now building at <a href="https://www.linkedin.com/company/openblood/posts/?feedView=all"
+                                    class="text-accent hover:text-indigo-700 transition-colors font-semibold">@openblood</a>
+                                + a few side things (scroll my profile).</p>
+
+                            <p><strong>don't ask my tech stack</strong>. no one boxed me in, so why should i?</p>
+
+                        </div>
                     </div>
                 </div>
             </section>
@@ -317,20 +383,14 @@
                 </div>
 
                 <!-- Content - Mobile: full width with padding, Desktop: 10 columns centered -->
-                <div class="col-span-12 px-2 md:col-start-2 md:col-span-10 md:px-0 space-y-4 md:space-y-6 text-gray-600 dark:text-gray-300">
+                <div
+                    class="col-span-12 px-2 md:col-start-2 md:col-span-10 md:px-0 space-y-4 md:space-y-6 text-gray-600 dark:text-gray-300">
                     <p class="text-sm sm:text-base leading-relaxed">
-                        i'm a computer science graduate with expertise in machine learning, web development,
-                        and automation. i specialize in building scalable webapps and ai integrations that
-                        solve real-world problems.
+                        i'm a computer science graduate who builds things that actually work. <strong>fullstack development</strong>, <strong>computer vision</strong>, <strong>automation</strong> - whatever gets the job done.
                     </p>
+
                     <p class="text-sm sm:text-base leading-relaxed">
-                        my experience spans across full-stack development, computer vision, and performance
-                        optimization. i've worked on everything from face recognition pipelines to real-time
-                        satellite image analysis.
-                    </p>
-                    <p class="text-sm sm:text-base leading-relaxed">
-                        currently based in lucknow, up, i'm always excited about learning new technologies
-                        and contributing to innovative projects that make a difference.
+                        currently in <strong>agra, up</strong>, working on solving real problems with code. <strong>high agency mindset</strong> means i don't wait for permission to ship.
                     </p>
                 </div>
             </div>
@@ -348,7 +408,28 @@
                 </div>
 
                 <!-- Timeline - Mobile: full width with padding, Desktop: 10 columns centered -->
-                <div class="col-span-12 px-2 md:col-start-2 md:col-span-10 md:px-0 space-y-6 md:space-y-8 timeline-container">
+                <div
+                    class="col-span-12 px-2 md:col-start-2 md:col-span-10 md:px-0 space-y-6 md:space-y-8 timeline-container">
+                    <div class="timeline-item border-l-2 border-gray-200 dark:border-gray-600 pl-4 md:pl-6 relative">
+                        <!-- Individual progress line -->
+                        <div class="timeline-item-progress" data-item="0"></div>
+                        <!-- Individual animated dot -->
+                        <div class="timeline-dot-animated" data-item="0"></div>
+                        <div class="space-y-2">
+                            <div>
+                                <h3 class="font-semibold text-sm sm:text-base">engineer intern</h3>
+                                <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm"><a
+                                        href="https://www.boundspec.com/"
+                                        class="hover:text-accent transition-colors">boundspec</a> • aug 2025 - present
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-gray-600 dark:text-gray-300 text-xs sm:text-sm leading-relaxed">
+                                    building openblood site and app
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                     <div class="timeline-item border-l-2 border-gray-200 dark:border-gray-600 pl-4 md:pl-6 relative">
                         <!-- Individual progress line -->
                         <div class="timeline-item-progress" data-item="0"></div>
@@ -357,15 +438,21 @@
                         <div class="space-y-2">
                             <div>
                                 <h3 class="font-semibold text-sm sm:text-base">software developer engineer</h3>
-                                <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">boundspec • apr 2025 - present</p>
+                                <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm"><a
+                                        href="https://www.boundspec.com/"
+                                        class="hover:text-accent transition-colors">boundspec</a> • apr 2025 - present
+                                </p>
                             </div>
                             <div>
                                 <p class="text-gray-600 dark:text-gray-300 text-xs sm:text-sm leading-relaxed">
-                                    built role-based dashboards for doctor-patient booking system with dynamic ui/ux.
-                                    developed core features for rydr, a biker community app including club creation and
-                                    feed with maps.
-                                    integrated sanity cms for dynamic content and contributed full-stack features using
-                                    react native + supabase.
+                                    built role-based dashboards for <strong>doctor-patient booking</strong> system with
+                                    dynamic ui/ux.
+                                    developed <strong>core features for rydr</strong>, a biker community app — club
+                                    creation, feed with maps.
+                                    integrated <strong>sanity cms</strong> for dynamic content across prajna and
+                                    boundspec websites.
+                                    contributed full-stack features for production apps, using <strong>react native +
+                                        supabase</strong>.
                                 </p>
                             </div>
                         </div>
@@ -379,33 +466,21 @@
                         <div class="space-y-2">
                             <div>
                                 <h3 class="font-semibold text-sm sm:text-base">remote python developer intern</h3>
-                                <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">celebrare • nov 2024 - apr 2025</p>
-                            </div>
-                            <div>
-                                <p class="text-gray-600 dark:text-gray-300 text-xs sm:text-sm leading-relaxed">
-                                    developed automated image processing pipelines using python and opencv.
-                                    rewrote face recognition pipeline from python to c++ achieving 5-8x performance gain.
-                                    optimized vision models, reducing average processing time by 91.11% while maintaining 99%
-                                    accuracy.
+                                <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm"><a
+                                        href="https://in.linkedin.com/company/celebrarecompany"
+                                        class="hover:text-accent transition-colors">celebrare</a> • nov 2024 - apr 2025
                                 </p>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="timeline-item border-l-2 border-gray-200 dark:border-gray-600 pl-4 md:pl-6 relative">
-                        <!-- Individual progress line -->
-                        <div class="timeline-item-progress" data-item="2"></div>
-                        <!-- Individual animated dot -->
-                        <div class="timeline-dot-animated" data-item="2"></div>
-                        <div class="space-y-2">
-                            <div>
-                                <h3 class="font-semibold text-sm sm:text-base">b.tech computer science</h3>
-                                <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">dr. a.p.j. abdul kalam technical university • 2021 - 2025</p>
-                            </div>
                             <div>
                                 <p class="text-gray-600 dark:text-gray-300 text-xs sm:text-sm leading-relaxed">
-                                    completed bachelor's degree in computer science with 6.0 sgpa.
-                                    focused on machine learning, web development, and software engineering principles.
+                                    developed <strong>automated image processing pipelines</strong> using python and
+                                    opencv.
+                                    rewrote <strong>face recognition pipeline</strong> from python to c++ achieving
+                                    <strong>5–8x performance gain</strong>.
+                                    optimized vision models, reducing <strong>average processing time by
+                                        91.11%</strong>.
+                                    maintained <strong>99% accuracy</strong>, added support for multiple
+                                    orientations/formats.
                                 </p>
                             </div>
                         </div>
@@ -425,87 +500,99 @@
                     <h2 class="text-lg sm:text-xl font-semibold mb-6 md:mb-8">projects</h2>
                 </div>
 
-                <!-- Project 1 -->
-                <div class="col-span-12 lg:col-span-6">
-                    <div class="h-full flex flex-col border border-gray-200 dark:border-gray-800 rounded-xl p-6 hover:shadow-lg dark:hover:shadow-white/10 transition-all duration-300 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm hover:-translate-y-1">
-                        <h3 class="font-semibold mb-3 text-lg">fynl-it</h3>
-                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-6 flex-grow leading-relaxed">
-                            fullstack tool to automate invoice follow-up emails with progressive ai tone.
-                            integrated secure payment detection using razorpay upi for streamlined financial management.
-                        </p>
-                        <div class="flex flex-wrap gap-2 mb-6">
-                            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">next.js</span>
-                            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">supabase</span>
-                            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">gemini ai</span>
-                            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">tailwindcss</span>
+                <!-- Projects Grid - Two-column card layout -->
+                <div class="col-span-12">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Project 1 -->
+                        <div
+                            class="project-card h-full flex flex-col border border-gray-200 dark:border-gray-800 rounded-xl p-6 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm transition-all duration-300">
+                            <h3 class="font-semibold mb-3 text-lg">fynl-it</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm mb-6 flex-grow leading-relaxed">
+                                fullstack tool to <strong>automate invoice follow-up emails</strong> with progressive ai
+                                tone.
+                                integrated <strong>secure payment detection</strong> using razorpay upi.
+                            </p>
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <span
+                                    class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">next.js</span>
+                                <span
+                                    class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">supabase</span>
+                                <span
+                                    class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">gemini
+                                    ai</span>
+                                <span
+                                    class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">tailwindcss</span>
+                            </div>
+                            <div class="flex gap-6 mt-auto">
+                                <a href="https://fynl-it.vercel.app/"
+                                    class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">live
+                                    →</a>
+                            </div>
                         </div>
-                        <div class="flex gap-6 mt-auto">
-                            <a href="#" class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">live demo →</a>
-                            <a href="#" class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">github →</a>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Project 2 -->
-                <div class="col-span-12 lg:col-span-6">
-                    <div class="h-full flex flex-col border border-gray-200 dark:border-gray-800 rounded-xl p-6 hover:shadow-lg dark:hover:shadow-white/10 transition-all duration-300 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm hover:-translate-y-1">
-                        <h3 class="font-semibold mb-3 text-lg">on-device semantic segmentation webapp</h3>
-                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-6 flex-grow leading-relaxed">
-                            real-time satellite image analysis via lightweight u-net model in-browser.
-                            led r&d + gpu deployment pipeline for inference at the edge with optimized performance.
-                        </p>
-                        <div class="flex flex-wrap gap-2 mb-6">
-                            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">react</span>
-                            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">python</span>
-                            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">tensorflow</span>
-                            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">webgl</span>
+                        <!-- Project 2 -->
+                        <div
+                            class="project-card h-full flex flex-col border border-gray-200 dark:border-gray-800 rounded-xl p-6 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm transition-all duration-300">
+                            <h3 class="font-semibold mb-3 text-lg">on-device semantic segmentation webapp</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm mb-6 flex-grow leading-relaxed">
+                                real-time satellite image analysis via <strong>lightweight u-net model</strong>
+                                in-browser.
+                                led <strong>r&d + gpu deployment pipeline</strong> for inference at the edge.
+                            </p>
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <span
+                                    class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">react</span>
+                                <span
+                                    class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">python</span>
+                                <span
+                                    class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">tensorflow</span>
+                            </div>
+                            <div class="flex gap-6 mt-auto">
+                                <a href="https://semseg.vercel.app/"
+                                    class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">live
+                                    →</a>
+                            </div>
                         </div>
-                        <div class="flex gap-6 mt-auto">
-                            <a href="#" class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">live demo →</a>
-                            <a href="#" class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">github →</a>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Project 3 -->
-                <div class="col-span-12 lg:col-span-6">
-                    <div class="h-full flex flex-col border border-gray-200 dark:border-gray-800 rounded-xl p-6 hover:shadow-lg dark:hover:shadow-white/10 transition-all duration-300 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm hover:-translate-y-1">
-                        <h3 class="font-semibold mb-3 text-lg">web3 referral platform landing page</h3>
-                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-6 flex-grow leading-relaxed">
-                            created responsive, animated landing page for blockchain referral startup.
-                            built reusable and performant ui components with modern design principles.
-                        </p>
-                        <div class="flex flex-wrap gap-2 mb-6">
-                            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">next.js</span>
-                            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">tailwindcss</span>
-                            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">framer motion</span>
-                            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">typescript</span>
+                        <!-- Project 3 -->
+                        <div
+                            class="project-card h-full flex flex-col border border-gray-200 dark:border-gray-800 rounded-xl p-6 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm transition-all duration-300">
+                            <h3 class="font-semibold mb-3 text-lg">web3 referral platform landing page</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm mb-6 flex-grow leading-relaxed">
+                                created <strong>responsive, animated landing page</strong> for blockchain referral
+                                startup.
+                                built <strong>reusable and performant ui components</strong>.
+                            </p>
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <span
+                                    class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">next.js</span>
+                                <span
+                                    class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">tailwindcss</span>
+                            </div>
+                            <div class="flex gap-6 mt-auto">
+                                <a href="https://web3-referral-landing.vercel.app/"
+                                    class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">live
+                                    →</a>
+                            </div>
                         </div>
-                        <div class="flex gap-6 mt-auto">
-                            <a href="#" class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">live demo →</a>
-                            <a href="#" class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">github →</a>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Project 4 -->
-                <div class="col-span-12 lg:col-span-6">
-                    <div class="h-full flex flex-col border border-gray-200 dark:border-gray-800 rounded-xl p-6 hover:shadow-lg dark:hover:shadow-white/10 transition-all duration-300 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm hover:-translate-y-1">
-                        <h3 class="font-semibold mb-3 text-lg">webgis solution for isro</h3>
-                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-6 flex-grow leading-relaxed">
-                            smart india hackathon 2024 finalist project. built webgis solution using meta's
-                            segment anything model v2 for precise satellite image segmentation.
-                        </p>
-                        <div class="flex flex-wrap gap-2 mb-6">
-                            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">python</span>
-                            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">sam v2</span>
-                            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">gis</span>
-                            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">computer vision</span>
-                        </div>
-                        <div class="flex gap-6 mt-auto">
-                            <a href="#" class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">live demo →</a>
-                            <a href="#" class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">github →</a>
-                        </div>
+                        <!-- Project 4 -->
+                        <!-- <div class="h-full flex flex-col border border-gray-200 dark:border-gray-800 rounded-xl p-6 hover:shadow-lg dark:hover:shadow-white/10 transition-all duration-300 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm hover:-translate-y-1">
+                            <h3 class="font-semibold mb-3 text-lg">webgis solution for isro</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm mb-6 flex-grow leading-relaxed">
+                                <strong>smart india hackathon 2024 finalist</strong> project. built <strong>webgis solution for isro</strong>
+                                using meta's <strong>segment anything model v2</strong> for precise satellite image segmentation.
+                            </p>
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">python</span>
+                                <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">sam v2</span>
+                                <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">gis</span>
+                                <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">computer vision</span>
+                            </div>
+                            <div class="flex gap-6 mt-auto">
+                                <a href="https://github.com/rohiitgit/webgis-isro" class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">github →</a>
+                            </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
@@ -524,14 +611,14 @@
 
                 <!-- Skills Grid - Mobile: stacked, Desktop: 3 columns -->
                 <div class="col-span-12 md:col-span-4 mb-6 md:mb-0">
-                    <h3 class="font-semibold mb-3 md:mb-4 text-accent text-sm sm:text-base">languages & frontend</h3>
+                    <h3 class="font-semibold mb-3 md:mb-4 text-accent text-sm sm:text-base">languages </h3>
                     <ul class="space-y-2 text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
-                        <li>• python</li>
-                        <li>• javascript</li>
-                        <li>• c/c++</li>
+                        <li>• <strong>python</strong></li>
+                        <li>• <strong>javascript</strong></li>
+                        <li>• <strong>c/c++</strong></li>
                         <li>• solidity</li>
-                        <li>• react</li>
-                        <li>• tailwindcss</li>
+                        <li>• <strong>react</strong></li>
+                        <li>• <strong>tailwindcss</strong></li>
                         <li>• html/css</li>
                     </ul>
                 </div>
@@ -539,26 +626,24 @@
                 <div class="col-span-12 md:col-span-4 mb-6 md:mb-0">
                     <h3 class="font-semibold mb-3 md:mb-4 text-accent text-sm sm:text-base">backend & ml/ai</h3>
                     <ul class="space-y-2 text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
-                        <li>• flask</li>
-                        <li>• node.js</li>
-                        <li>• rest apis</li>
-                        <li>• tensorflow</li>
-                        <li>• pytorch</li>
-                        <li>• opencv</li>
-                        <li>• computer vision</li>
+                        <li>• <strong>node.js</strong></li>
+                        <li>• <strong>flask</strong></li>
+                        <li>• <strong>rest apis</strong></li>
+                        <li>• <strong>computer vision</strong></li>
+                        <li>• <strong>opencv</strong></li>
                     </ul>
                 </div>
 
                 <div class="col-span-12 md:col-span-4">
-                    <h3 class="font-semibold mb-3 md:mb-4 text-accent text-sm sm:text-base">databases & tools</h3>
+                    <h3 class="font-semibold mb-3 md:mb-4 text-accent text-sm sm:text-base">tools</h3>
                     <ul class="space-y-2 text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
-                        <li>• mongodb</li>
-                        <li>• supabase</li>
-                        <li>• sanity cms</li>
-                        <li>• git</li>
+                        <li>• <strong>supabase</strong></li>
+                        <li>• <strong>mongodb</strong></li>
+                        <li>• <strong>sanity cms</strong></li>
+                        <li>• <strong>git</strong></li>
                         <li>• docker</li>
                         <li>• postman</li>
-                        <li>• arch linux</li>
+                        <li>• <strong>arch linux</strong></li>
                     </ul>
                 </div>
             </div>
@@ -580,10 +665,14 @@
                     <h3 class="font-semibold mb-3 md:mb-4 text-accent text-sm sm:text-base">achievements</h3>
                     <div class="space-y-3 md:space-y-4">
                         <div class="border-l-2 border-accent pl-3 md:pl-4">
-                            <h4 class="font-semibold text-xs sm:text-sm">smart india hackathon 2024 finalist</h4>
+                            <h4 class="font-semibold text-xs sm:text-sm">
+                                <a href="https://www.linkedin.com/posts/rohiitcodes_smart-india-hackathon-was-a-fabulous-experience-activity-7274397856336101376-Rh_Q?utm_source=share&utm_medium=member_desktop"
+                                    class="hover:text-accent transition-colors">smart india hackathon 2024 finalist</a>
+                            </h4>
                             <p class="text-gray-600 dark:text-gray-300 text-xs mt-1 leading-relaxed">
-                                finalist in national hackathon; built webgis solution for isro using
-                                meta's segment anything model v2 for precise satellite image segmentation.
+                                finalist in national hackathon; built <strong>webgis solution for isro</strong>.
+                                used meta's <strong>segment anything model v2</strong> for precise satellite image
+                                segmentation.
                             </p>
                         </div>
                     </div>
@@ -595,14 +684,20 @@
                     <div class="space-y-3">
                         <div class="flex justify-between items-start gap-2">
                             <div class="flex-1">
-                                <h4 class="font-semibold text-xs sm:text-sm">intermediate machine learning</h4>
+                                <h4 class="font-semibold text-xs sm:text-sm">
+                                    <a href="https://www.kaggle.com/learn/certification/rohiitcodes/intermediate-machine-learning"
+                                        class="hover:text-accent transition-colors">intermediate machine learning</a>
+                                </h4>
                                 <p class="text-gray-600 dark:text-gray-400 text-xs">kaggle</p>
                             </div>
                             <span class="text-gray-400 text-xs shrink-0">sep 2023</span>
                         </div>
                         <div class="flex justify-between items-start gap-2">
                             <div class="flex-1">
-                                <h4 class="font-semibold text-xs sm:text-sm">machine learning explainability</h4>
+                                <h4 class="font-semibold text-xs sm:text-sm">
+                                    <a href="https://www.kaggle.com/learn/certification/rohiitcodes/machine-learning-explainability"
+                                        class="hover:text-accent transition-colors">machine learning explainability</a>
+                                </h4>
                                 <p class="text-gray-600 dark:text-gray-400 text-xs">kaggle</p>
                             </div>
                             <span class="text-gray-400 text-xs shrink-0">sep 2023</span>
@@ -625,17 +720,20 @@
 
                 <!-- Spotify Connect Message -->
                 <div id="spotify-connect" class="col-span-12 text-center py-8 hidden">
-                    <div class="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-2xl p-8">
+                    <div
+                        class="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-2xl p-8">
                         <div class="w-16 h-16 mx-auto mb-4 bg-green-500 rounded-full flex items-center justify-center">
                             <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.5 14.424c-.188.305-.516.457-.844.457-.188 0-.375-.047-.563-.152-1.266-.797-2.859-1.219-4.594-1.219-1.078 0-2.156.188-3.141.516-.328.109-.703-.047-.844-.375-.141-.328.047-.703.375-.844 1.172-.375 2.391-.609 3.609-.609 1.969 0 3.797.469 5.297 1.359.328.188.422.609.234.937zm1.078-2.391c-.234.375-.656.563-1.031.563-.234 0-.469-.063-.656-.188-1.547-.891-3.469-1.359-5.391-1.359-1.266 0-2.531.234-3.703.656-.422.141-.844-.094-.984-.516-.141-.422.094-.844.516-.984 1.406-.516 2.859-.797 4.313-.797 2.203 0 4.359.563 6.234 1.641.375.234.516.75.281 1.125zm.984-2.5c-.281.047-.516.141-.75.234-1.734-1.031-3.984-1.594-6.375-1.594-1.547 0-3.094.281-4.5.844-.469.188-.984-.047-1.172-.516s.047-.984.516-1.172c1.641-.656 3.375-.984 5.156-.984 2.75 0 5.344.656 7.359 1.875.422.281.563.844.281 1.266-.234.375-.656.563-1.031.563z"/>
+                                <path
+                                    d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.5 14.424c-.188.305-.516.457-.844.457-.188 0-.375-.047-.563-.152-1.266-.797-2.859-1.219-4.594-1.219-1.078 0-2.156.188-3.141.516-.328.109-.703-.047-.844-.375-.141-.328.047-.703.375-.844 1.172-.375 2.391-.609 3.609-.609 1.969 0 3.797.469 5.297 1.359.328.188.422.609.234.937zm1.078-2.391c-.234.375-.656.563-1.031.563-.234 0-.469-.063-.656-.188-1.547-.891-3.469-1.359-5.391-1.359-1.266 0-2.531.234-3.703.656-.422.141-.844-.094-.984-.516-.141-.422.094-.844.516-.984 1.406-.516 2.859-.797 4.313-.797 2.203 0 4.359.563 6.234 1.641.375.234.516.75.281 1.125zm.984-2.5c-.281.047-.516.141-.75.234-1.734-1.031-3.984-1.594-6.375-1.594-1.547 0-3.094.281-4.5.844-.469.188-.984-.047-1.172-.516s.047-.984.516-1.172c1.641-.656 3.375-.984 5.156-.984 2.75 0 5.344.656 7.359 1.875.422.281.563.844.281 1.266-.234.375-.656.563-1.031.563z" />
                             </svg>
                         </div>
                         <h3 class="font-semibold mb-2">authenticate spotify</h3>
                         <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">
                             rohit needs to authenticate to show recently played tracks
                         </p>
-                        <button id="spotify-login" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors">
+                        <button id="spotify-login"
+                            class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors">
                             authenticate
                         </button>
                     </div>
@@ -650,7 +748,9 @@
 
                 <!-- Loading State -->
                 <div id="music-loading" class="col-span-12 text-center py-8 hidden">
-                    <div class="animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full mx-auto mb-4"></div>
+                    <div
+                        class="animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full mx-auto mb-4">
+                    </div>
                     <p class="text-gray-600 dark:text-gray-300 text-sm">loading your music...</p>
                 </div>
 
@@ -658,7 +758,8 @@
                 <div id="music-error" class="col-span-12 text-center py-8 hidden">
                     <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6">
                         <p class="text-red-600 dark:text-red-400 text-sm mb-4">failed to load spotify data</p>
-                        <button id="retry-spotify" class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">
+                        <button id="retry-spotify"
+                            class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">
                             try again →
                         </button>
                     </div>
@@ -666,6 +767,8 @@
             </div>
         </section>
 
+        <!-- Section Separator -->
+        <div class="section-separator"></div>
 
         <!-- Footer -->
         <footer class="transition-all duration-300 pb-20 mb-10">
