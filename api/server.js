@@ -100,6 +100,10 @@ module.exports = async (req, res) => {
             return await handleHealth(req, res);
         }
 
+        if (pathname.includes('/api/debug-tokens')) {
+            return await handleDebugTokens(req, res);
+        }
+
         // Handle callback
         if (searchParams.get('callback') === 'true') {
             return await handleCallback(req, res, searchParams);
@@ -285,4 +289,56 @@ async function handleHealth(req, res) {
         authenticated: !!spotifyTokens.access_token,
         tokenExpiry: spotifyTokens.expires_at ? new Date(spotifyTokens.expires_at).toISOString() : null
     });
+}
+
+async function handleDebugTokens(req, res) {
+    res.setHeader('Content-Type', 'text/html');
+    res.send(`
+        <html>
+        <head>
+            <title>Spotify Token Debug</title>
+            <style>
+                body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #00ff00; }
+                .token { background: #333; padding: 10px; margin: 10px 0; word-break: break-all; }
+                .copy-btn { background: #007acc; color: white; padding: 5px 10px; border: none; cursor: pointer; margin: 5px; }
+            </style>
+        </head>
+        <body>
+            <h1>🎵 Spotify Debug Tokens</h1>
+
+            <h3>Refresh Token (Copy this to SPOTIFY_REFRESH_TOKEN):</h3>
+            <div class="token" id="refresh-token">${spotifyTokens.refresh_token || 'Not available'}</div>
+            <button class="copy-btn" onclick="copyToClipboard('refresh-token')">Copy Refresh Token</button>
+
+            <h3>Access Token (Don't need this):</h3>
+            <div class="token" id="access-token">${spotifyTokens.access_token ? spotifyTokens.access_token.substring(0, 50) + '...' : 'Not available'}</div>
+
+            <h3>Token Status:</h3>
+            <div class="token">
+                Expires: ${spotifyTokens.expires_at ? new Date(spotifyTokens.expires_at).toISOString() : 'Unknown'}<br>
+                Has Refresh Token: ${!!spotifyTokens.refresh_token}<br>
+                Has Access Token: ${!!spotifyTokens.access_token}
+            </div>
+
+            <h3>Instructions:</h3>
+            <div class="token">
+                1. Copy the refresh token above<br>
+                2. Go to Vercel Dashboard → Settings → Environment Variables<br>
+                3. Add: SPOTIFY_REFRESH_TOKEN = [paste token here]<br>
+                4. Redeploy your site<br>
+                5. Delete this debug endpoint!
+            </div>
+
+            <script>
+                function copyToClipboard(elementId) {
+                    const element = document.getElementById(elementId);
+                    const text = element.textContent;
+                    navigator.clipboard.writeText(text).then(() => {
+                        alert('Copied to clipboard!');
+                    });
+                }
+            </script>
+        </body>
+        </html>
+    `);
 }
