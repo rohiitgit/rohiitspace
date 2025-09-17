@@ -8,6 +8,7 @@
     <link rel="icon" type="image/x-icon" href="https://pbs.twimg.com/profile_images/1951372472378355712/lM7iBtkf_400x400.jpg">
     <link rel="apple-touch-icon" href="https://pbs.twimg.com/profile_images/1951372472378355712/lM7iBtkf_400x400.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="config.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -605,6 +606,60 @@
         <!-- Section Separator -->
         <div class="section-separator"></div>
 
+        <!-- Recently Played Music Section -->
+        <section id="music" class="transition-all duration-300">
+            <div class="grid grid-cols-12 gap-6">
+                <!-- Section Title - 12 columns -->
+                <div class="col-span-12">
+                    <h2 class="text-lg sm:text-xl font-semibold mb-6 md:mb-8">recently played</h2>
+                </div>
+
+                <!-- Spotify Connect Message -->
+                <div id="spotify-connect" class="col-span-12 text-center py-8 hidden">
+                    <div class="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-2xl p-8">
+                        <div class="w-16 h-16 mx-auto mb-4 bg-green-500 rounded-full flex items-center justify-center">
+                            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.5 14.424c-.188.305-.516.457-.844.457-.188 0-.375-.047-.563-.152-1.266-.797-2.859-1.219-4.594-1.219-1.078 0-2.156.188-3.141.516-.328.109-.703-.047-.844-.375-.141-.328.047-.703.375-.844 1.172-.375 2.391-.609 3.609-.609 1.969 0 3.797.469 5.297 1.359.328.188.422.609.234.937zm1.078-2.391c-.234.375-.656.563-1.031.563-.234 0-.469-.063-.656-.188-1.547-.891-3.469-1.359-5.391-1.359-1.266 0-2.531.234-3.703.656-.422.141-.844-.094-.984-.516-.141-.422.094-.844.516-.984 1.406-.516 2.859-.797 4.313-.797 2.203 0 4.359.563 6.234 1.641.375.234.516.75.281 1.125zm.984-2.5c-.281.047-.516.141-.75.234-1.734-1.031-3.984-1.594-6.375-1.594-1.547 0-3.094.281-4.5.844-.469.188-.984-.047-1.172-.516s.047-.984.516-1.172c1.641-.656 3.375-.984 5.156-.984 2.75 0 5.344.656 7.359 1.875.422.281.563.844.281 1.266-.234.375-.656.563-1.031.563z"/>
+                            </svg>
+                        </div>
+                        <h3 class="font-semibold mb-2">authenticate spotify</h3>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">
+                            rohit needs to authenticate to show recently played tracks
+                        </p>
+                        <button id="spotify-login" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors">
+                            authenticate
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Music Grid - Hidden initially -->
+                <div id="music-grid" class="col-span-12 hidden">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <!-- Music cards will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="music-loading" class="col-span-12 text-center py-8 hidden">
+                    <div class="animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full mx-auto mb-4"></div>
+                    <p class="text-gray-600 dark:text-gray-300 text-sm">loading your music...</p>
+                </div>
+
+                <!-- Error State -->
+                <div id="music-error" class="col-span-12 text-center py-8 hidden">
+                    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6">
+                        <p class="text-red-600 dark:text-red-400 text-sm mb-4">failed to load spotify data</p>
+                        <button id="retry-spotify" class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">
+                            try again →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Separator -->
+        <div class="section-separator"></div>
+
         <!-- Contact Me Section -->
         <section id="contact" class="transition-all duration-300">
             <div class="grid grid-cols-12 gap-6">
@@ -663,8 +718,8 @@
                         built with ❤️ using html, tailwind css & vanilla js
 
                     </p>
-                    <p>inspired by <a href="https://tailwindcss.com/">tailwindcss</a> and <a
-                            href="https://www.bhooomika.me/">bhooomika</a></p>
+                    <p>inspired by <a href="https://tailwindcss.com/" class="underline">tailwindcss</a> and <a
+                            href="https://www.bhooomika.me/" class="underline">bhooomika</a></p>
                     <p class="text-gray-400 text-xs mt-2">
                         © 2025 rohit. all rights reserved.
                     </p>

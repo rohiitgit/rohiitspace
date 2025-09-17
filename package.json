@@ -1,0 +1,28 @@
+{
+  "name": "rohiitspace-backend",
+  "version": "1.0.0",
+  "description": "Backend server for Spotify integration",
+  "main": "server.js",
+  "scripts": {
+    "start": "npm run start:both",
+    "start:backend": "node server.js",
+    "start:frontend": "npx http-server -p 3000 -c-1",
+    "start:both": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "dev": "concurrently \"nodemon server.js\" \"npx http-server -p 3000 -c-1\"",
+    "build": "echo 'No build step needed'"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "node-fetch": "^3.3.2",
+    "concurrently": "^8.2.2",
+    "http-server": "^14.1.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["spotify", "portfolio", "music"],
+  "author": "rohit",
+  "license": "MIT"
+}

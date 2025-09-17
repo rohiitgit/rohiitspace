@@ -367,4 +367,249 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 1000);
         });
     }
+
+    // Spotify Integration
+    initSpotify();
 });
+
+// Spotify integration using backend API
+
+// Spotify Authentication and API Functions
+function initSpotify() {
+    const loginBtn = document.getElementById('spotify-login');
+    const retryBtn = document.getElementById('retry-spotify');
+
+    if (loginBtn) {
+        loginBtn.addEventListener('click', handleSpotifyAuth);
+    }
+
+    if (retryBtn) {
+        retryBtn.addEventListener('click', loadYourRecentTracks);
+    }
+
+    // Check if returning from successful auth
+    const urlParams = new URLSearchParams(window.location.search);
+    const success = urlParams.get('success');
+    const error = urlParams.get('error');
+
+    if (error) {
+        showSpotifyError();
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return;
+    }
+
+    if (success) {
+        // Clean URL and load tracks
+        window.history.replaceState({}, document.title, window.location.pathname);
+        loadYourRecentTracks();
+        return;
+    }
+
+    // Check authentication status and load tracks
+    checkAuthAndLoadTracks();
+}
+
+// Check backend authentication status and load tracks if authenticated
+async function checkAuthAndLoadTracks() {
+    try {
+        const response = await fetch(`${window.API_CONFIG.BACKEND_URL}${window.API_CONFIG.ENDPOINTS.AUTH_STATUS}`);
+        const data = await response.json();
+
+        if (data.authenticated) {
+            loadYourRecentTracks();
+        } else {
+            showSpotifyConnect();
+        }
+    } catch (error) {
+        console.error('Error checking auth status:', error);
+        showSpotifyConnect();
+    }
+}
+
+// Handle Spotify authentication through backend
+function handleSpotifyAuth() {
+    const authUrl = `${window.API_CONFIG.BACKEND_URL}${window.API_CONFIG.ENDPOINTS.SPOTIFY_AUTH}`;
+    window.location.href = authUrl;
+}
+
+function exchangeCodeForToken(code) {
+    showSpotifyLoading();
+
+    // Note: In production, this should be done on your backend for security
+    // This is a simplified example for demonstration
+    fetch('https://accounts.spotify.com/api/token', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            grant_type: 'authorization_code',
+            code: code,
+            redirect_uri: SPOTIFY_CONFIG.REDIRECT_URI,
+            client_id: SPOTIFY_CONFIG.CLIENT_ID,
+            // Note: client_secret should be handled on backend
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.access_token) {
+            // Store token and expiry
+            localStorage.setItem('spotify_access_token', data.access_token);
+            localStorage.setItem('spotify_token_expiry', Date.now() + (data.expires_in * 1000));
+
+            if (data.refresh_token) {
+                localStorage.setItem('spotify_refresh_token', data.refresh_token);
+            }
+
+            loadRecentTracks();
+        } else {
+            showSpotifyError();
+        }
+    })
+    .catch(error => {
+        console.error('Token exchange failed:', error);
+        showSpotifyError();
+    });
+}
+
+function loadRecentTracks() {
+    const accessToken = localStorage.getItem('spotify_access_token');
+    if (!accessToken) {
+        showSpotifyConnect();
+        return;
+    }
+
+    showSpotifyLoading();
+
+    fetch(`${SPOTIFY_CONFIG.API_BASE}/me/player/recently-played?limit=5`, {
+        headers: {
+            'Authorization': `Bearer ${accessToken}`
+        }
+    })
+    .then(response => {
+        if (response.status === 401) {
+            // Token expired, clear storage and show connect
+            localStorage.removeItem('spotify_access_token');
+            localStorage.removeItem('spotify_token_expiry');
+            showSpotifyConnect();
+            return null;
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data && data.items) {
+            displayRecentTracks(data.items);
+        }
+    })
+    .catch(error => {
+        console.error('Failed to load recent tracks:', error);
+        showSpotifyError();
+    });
+}
+
+function displayRecentTracks(tracks) {
+    const musicGrid = document.getElementById('music-grid');
+    const gridContainer = musicGrid.querySelector('.grid');
+
+    // Clear existing content
+    gridContainer.innerHTML = '';
+
+    tracks.forEach(item => {
+        const track = item.track;
+        const trackCard = createTrackCard(track);
+        gridContainer.appendChild(trackCard);
+    });
+
+    showMusicGrid();
+}
+
+function createTrackCard(track) {
+    const card = document.createElement('div');
+    card.className = 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200 dark:border-gray-800 rounded-xl p-4 hover:shadow-lg dark:hover:shadow-white/10 transition-all duration-300 hover:-translate-y-1';
+
+    const imageUrl = track.album.images[0]?.url || '';
+    const trackName = track.name;
+    const artistName = track.artists.map(artist => artist.name).join(', ');
+    const albumName = track.album.name;
+    const spotifyUrl = track.external_urls.spotify;
+
+    card.innerHTML = `
+        <div class="aspect-square bg-gray-200 dark:bg-gray-800 rounded-lg mb-3 overflow-hidden">
+            ${imageUrl ? `<img src="${imageUrl}" alt="${albumName}" class="w-full h-full object-cover">` :
+              `<div class="w-full h-full flex items-center justify-center">
+                <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                </svg>
+              </div>`}
+        </div>
+        <h4 class="font-semibold text-sm mb-1 truncate" title="${trackName}">${trackName}</h4>
+        <p class="text-gray-600 dark:text-gray-400 text-xs mb-2 truncate" title="${artistName}">${artistName}</p>
+        <a href="${spotifyUrl}" target="_blank" rel="noopener noreferrer"
+           class="inline-flex items-center text-green-600 hover:text-green-700 text-xs font-medium transition-colors">
+            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.5 14.424c-.188.305-.516.457-.844.457-.188 0-.375-.047-.563-.152-1.266-.797-2.859-1.219-4.594-1.219-1.078 0-2.156.188-3.141.516-.328.109-.703-.047-.844-.375-.141-.328.047-.703.375-.844 1.172-.375 2.391-.609 3.609-.609 1.969 0 3.797.469 5.297 1.359.328.188.422.609.234.937zm1.078-2.391c-.234.375-.656.563-1.031.563-.234 0-.469-.063-.656-.188-1.547-.891-3.469-1.359-5.391-1.359-1.266 0-2.531.234-3.703.656-.422.141-.844-.094-.984-.516-.141-.422.094-.844.516-.984 1.406-.516 2.859-.797 4.313-.797 2.203 0 4.359.563 6.234 1.641.375.234.516.75.281 1.125zm.984-2.5c-.281.047-.516.141-.75.234-1.734-1.031-3.984-1.594-6.375-1.594-1.547 0-3.094.281-4.5.844-.469.188-.984-.047-1.172-.516s.047-.984.516-1.172c1.641-.656 3.375-.984 5.156-.984 2.75 0 5.344.656 7.359 1.875.422.281.563.844.281 1.266-.234.375-.656.563-1.031.563z"/>
+            </svg>
+            play on spotify
+        </a>
+    `;
+
+    return card;
+}
+
+function showSpotifyConnect() {
+    document.getElementById('spotify-connect').classList.remove('hidden');
+    document.getElementById('music-grid').classList.add('hidden');
+    document.getElementById('music-loading').classList.add('hidden');
+    document.getElementById('music-error').classList.add('hidden');
+}
+
+function showMusicGrid() {
+    document.getElementById('spotify-connect').classList.add('hidden');
+    document.getElementById('music-grid').classList.remove('hidden');
+    document.getElementById('music-loading').classList.add('hidden');
+    document.getElementById('music-error').classList.add('hidden');
+}
+
+function showSpotifyLoading() {
+    document.getElementById('spotify-connect').classList.add('hidden');
+    document.getElementById('music-grid').classList.add('hidden');
+    document.getElementById('music-loading').classList.remove('hidden');
+    document.getElementById('music-error').classList.add('hidden');
+}
+
+function showSpotifyError() {
+    document.getElementById('spotify-connect').classList.add('hidden');
+    document.getElementById('music-grid').classList.add('hidden');
+    document.getElementById('music-loading').classList.add('hidden');
+    document.getElementById('music-error').classList.remove('hidden');
+}
+
+// Load YOUR recent tracks from backend API
+async function loadYourRecentTracks() {
+    showSpotifyLoading();
+
+    try {
+        const response = await fetch(`${window.API_CONFIG.BACKEND_URL}${window.API_CONFIG.ENDPOINTS.RECENT_TRACKS}`);
+
+        if (response.status === 401) {
+            // Not authenticated, show connect button
+            showSpotifyConnect();
+            return;
+        }
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        if (data.items && data.items.length > 0) {
+            displayRecentTracks(data.items);
+        } else {
+            showSpotifyError();
+        }
+    } catch (error) {
+        console.error('Failed to load your tracks:', error);
+        showSpotifyError();
+    }
+}
