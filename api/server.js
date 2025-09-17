@@ -228,16 +228,26 @@ async function refreshAccessToken() {
 }
 
 async function getValidAccessToken() {
+    console.log('getValidAccessToken called', {
+        hasAccessToken: !!spotifyTokens.access_token,
+        hasRefreshToken: !!spotifyTokens.refresh_token,
+        expiresAt: spotifyTokens.expires_at,
+        now: Date.now()
+    });
+
     // Check if token exists and is not expired
     if (spotifyTokens.access_token && Date.now() < spotifyTokens.expires_at - 60000) {
+        console.log('Using existing access token');
         return spotifyTokens.access_token;
     }
 
     // Token is expired or doesn't exist, try to refresh
     if (spotifyTokens.refresh_token) {
+        console.log('Attempting to refresh token');
         return await refreshAccessToken();
     }
 
+    console.log('No valid token available');
     throw new Error('No valid token available, need to re-authenticate');
 }
 
@@ -276,7 +286,14 @@ async function handleAuthStatus(req, res) {
     res.json({
         authenticated: !!spotifyTokens.access_token,
         tokenExpiry: spotifyTokens.expires_at,
-        hasRefreshToken: !!spotifyTokens.refresh_token
+        hasRefreshToken: !!spotifyTokens.refresh_token,
+        envRefreshToken: !!process.env.SPOTIFY_REFRESH_TOKEN,
+        debug: {
+            loadedFromEnv: !!process.env.SPOTIFY_REFRESH_TOKEN,
+            tokenInMemory: !!spotifyTokens.refresh_token,
+            hasClientId: !!process.env.SPOTIFY_CLIENT_ID,
+            hasClientSecret: !!process.env.SPOTIFY_CLIENT_SECRET
+        }
     });
 }
 
