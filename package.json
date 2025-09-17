@@ -10,15 +10,22 @@
     "vercel-dev": "vercel dev"
   },
   "dependencies": {
-    "express": "^4.19.2",
+    "axios": "^1.12.2",
     "cors": "^2.8.5",
-    "axios": "^1.7.2"
+    "dotenv": "^17.2.2",
+    "express": "^4.19.2"
   },
   "devDependencies": {
     "http-server": "^14.1.1",
     "vercel": "^37.6.1"
   },
-  "keywords": ["portfolio", "spotify", "music", "frontend", "serverless"],
+  "keywords": [
+    "portfolio",
+    "spotify",
+    "music",
+    "frontend",
+    "serverless"
+  ],
   "author": "rohit",
   "license": "MIT"
 }

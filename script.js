@@ -55,7 +55,7 @@ function initTheme() {
     console.log('Saved theme:', savedTheme);
     console.log('System prefers dark:', systemPrefersDark);
 
-    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+    if (savedTheme === 'dark') {
         html.classList.add('dark');
         console.log('Applied dark theme');
     } else {

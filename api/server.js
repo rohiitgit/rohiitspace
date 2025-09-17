@@ -1,12 +1,53 @@
 const axios = require('axios');
+const fs = require('fs').promises;
+const path = require('path');
 
-// Store tokens in memory (in production, use a database)
-// For serverless, we'll rely more on environment variables and refresh tokens
+// Path to store tokens in a temporary file
+const TOKENS_FILE = path.join('/tmp', 'spotify-tokens.json');
+
+// Default token structure
 let spotifyTokens = {
-    access_token: process.env.SPOTIFY_ACCESS_TOKEN || null,
-    refresh_token: process.env.SPOTIFY_REFRESH_TOKEN || null,
-    expires_at: process.env.SPOTIFY_TOKEN_EXPIRY ? parseInt(process.env.SPOTIFY_TOKEN_EXPIRY) : null
+    access_token: null,
+    refresh_token: null,
+    expires_at: null
 };
+
+// Load tokens from file on startup
+async function loadTokens() {
+    try {
+        const data = await fs.readFile(TOKENS_FILE, 'utf8');
+        const tokens = JSON.parse(data);
+
+        // Validate token structure
+        if (tokens.access_token || tokens.refresh_token) {
+            spotifyTokens = { ...spotifyTokens, ...tokens };
+            console.log('Loaded tokens from file');
+        }
+    } catch (error) {
+        // File doesn't exist or is corrupted, start fresh
+        console.log('No existing tokens found, starting fresh');
+
+        // Try to use environment variables as fallback
+        if (process.env.SPOTIFY_REFRESH_TOKEN) {
+            spotifyTokens.refresh_token = process.env.SPOTIFY_REFRESH_TOKEN;
+            spotifyTokens.access_token = process.env.SPOTIFY_ACCESS_TOKEN || null;
+            spotifyTokens.expires_at = process.env.SPOTIFY_TOKEN_EXPIRY ? parseInt(process.env.SPOTIFY_TOKEN_EXPIRY) : null;
+
+            // Save to file for future use
+            await saveTokens();
+        }
+    }
+}
+
+// Save tokens to file
+async function saveTokens() {
+    try {
+        await fs.writeFile(TOKENS_FILE, JSON.stringify(spotifyTokens, null, 2));
+        console.log('Tokens saved to file');
+    } catch (error) {
+        console.error('Failed to save tokens:', error);
+    }
+}
 
 // Spotify OAuth endpoints
 const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/authorize';
@@ -22,6 +63,9 @@ const corsHeaders = {
 
 // Main handler function
 module.exports = async (req, res) => {
+    // Load tokens on each request (for serverless)
+    await loadTokens();
+
     // Add CORS headers
     Object.entries(corsHeaders).forEach(([key, value]) => {
         res.setHeader(key, value);
@@ -126,6 +170,9 @@ async function handleCallback(req, res, searchParams) {
             expires_at: Date.now() + (tokenData.expires_in * 1000)
         };
 
+        // Save tokens to file for persistence
+        await saveTokens();
+
         res.redirect(`https://${req.headers.host}?success=true`);
 
     } catch (error) {
@@ -167,6 +214,9 @@ async function refreshAccessToken() {
         if (data.refresh_token) {
             spotifyTokens.refresh_token = data.refresh_token;
         }
+
+        // Save updated tokens to file
+        await saveTokens();
 
         return spotifyTokens.access_token;
 
