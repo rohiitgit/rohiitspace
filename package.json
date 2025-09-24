@@ -6,9 +6,9 @@
   "scripts": {
     "start": "npx http-server -p 3000 -c-1",
     "dev": "npx http-server -p 3000 -c-1",
-    "build": "npx @tailwindcss/cli -i ./styles.css -o ./dist/styles.css --minify && echo 'Build completed - static files ready'",
-    "build:css": "npx @tailwindcss/cli -i ./styles.css -o ./dist/styles.css",
-    "build:css:watch": "npx @tailwindcss/cli -i ./styles.css -o ./dist/styles.css --watch",
+    "build": "npx @tailwindcss/cli -i ./styles.css -o ./public/src/styles/tailwind.css --minify && echo 'Build completed - static files ready'",
+    "build:css": "npx @tailwindcss/cli -i ./styles.css -o ./public/src/styles/tailwind.css",
+    "build:css:watch": "npx @tailwindcss/cli -i ./styles.css -o ./public/src/styles/tailwind.css --watch",
     "vercel-dev": "vercel dev"
   },
   "dependencies": {
