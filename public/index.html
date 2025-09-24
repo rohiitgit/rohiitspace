@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>rohiitspace</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Rohit's portfolio - Computer science grad building fullstack apps, computer vision solutions, and automation tools. SIH 2024 finalist.">
+    <meta name="keywords" content="rohit, portfolio, developer, computer science, fullstack, computer vision, python, javascript, react">
+    <meta name="author" content="Rohit">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.rohiit.space/">
+    <meta property="og:title" content="Rohit - Software Developer">
+    <meta property="og:description" content="Computer science grad building fullstack apps, computer vision solutions, and automation tools. SIH 2024 finalist working at OpenBlood.">
+    <meta property="og:image" content="https://www.rohiit.space/pfp.webp">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="rohiitspace">
+
+    <!-- Twitter Card -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://www.rohiit.space/">
+    <meta property="twitter:title" content="Rohit - Software Developer">
+    <meta property="twitter:description" content="Computer science grad building fullstack apps, computer vision solutions, and automation tools. SIH 2024 finalist working at OpenBlood.">
+    <meta property="twitter:image" content="https://www.rohiit.space/pfp.webp">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon"
+        href="https://media.licdn.com/dms/image/v2/D5603AQEfT67Uns4tJw/profile-displayphoto-crop_800_800/B56Zf4vxyoHUAI-/0/1752224965896?e=1761177600&v=beta&t=TKN2q9Sl986zN0b4U_JgroJj_dSma_uRCi6iGOAZzGQ">
+    <link rel="apple-touch-icon"
+        href="https://media.licdn.com/dms/image/v2/D5603AQEfT67Uns4tJw/profile-displayphoto-crop_800_800/B56Zf4vxyoHUAI-/0/1752224965896?e=1761177600&v=beta&t=TKN2q9Sl986zN0b4U_JgroJj_dSma_uRCi6iGOAZzGQ">
+    <link rel="stylesheet" href="src/styles/tailwind.css">
+    <link rel="stylesheet" href="src/styles/main.css">
+    <script src="src/config/config.js"></script>
+    <script src="src/scripts/content.js"></script>
+</head>
+
+<body
+    class="bg-gray-50 dark:bg-black text-gray-900 dark:text-white font-mono text-sm leading-relaxed transition-all duration-300">
+    <!-- Header -->
+    <header
+        class="fixed top-0 left-0 right-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 z-50 transition-all duration-300">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <div class="grid grid-cols-12 gap-4 items-center">
+                <!-- Mobile: Hamburger Menu (left) + Theme Toggle (right) | Desktop: Logo (left) -->
+                <div class="col-span-2">
+                    <!-- Logo - Desktop Only -->
+                    <a href="#" class="hidden md:block font-semibold text-accent" data-content="personal.name">rohit</a>
+                    <!-- Hamburger Menu - Mobile Only -->
+                    <button id="mobile-menu-toggle"
+                        class="md:hidden p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
+                        aria-label="Toggle mobile menu">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Navigation - Desktop Only (8 columns) -->
+                <nav class="hidden md:block col-span-8">
+                    <div class="flex justify-between items-center" data-content="navigation">
+                        <!-- Navigation items will be populated dynamically -->
+                    </div>
+                </nav>
+
+                <!-- Mobile Navigation Spacer - 8 columns on mobile -->
+                <div class="md:hidden col-span-8"></div>
+
+                <!-- Theme Toggle - 2 columns (both mobile and desktop) -->
+                <div class="col-span-2 text-right">
+                    <button id="theme-toggle"
+                        class="p-2 rounded-lg bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
+                        aria-label="Toggle dark mode">
+                        <span id="theme-toggle-light" class="block dark:hidden">
+                            <svg class="w-5 h-5 text-gray-900" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                            </svg>
+                        </span>
+                        <span id="theme-toggle-dark" class="hidden dark:block">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75zM7.5 12a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0zM18.894 6.166a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 1 0 1.06 1.061l1.591-1.59zM21.75 12a.75.75 0 0 1-.75.75h-2.25a.75.75 0 0 1 0-1.5H21a.75.75 0 0 1 .75.75zM17.834 18.894a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 1 0-1.061 1.06l1.59 1.591zM12 18a.75.75 0 0 1 .75.75V21a.75.75 0 0 1-1.5 0v-2.25A.75.75 0 0 1 12 18zM7.758 17.303a.75.75 0 0 0-1.061-1.06l-1.591 1.59a.75.75 0 0 0 1.06 1.061l1.591-1.59zM6 12a.75.75 0 0 1-.75.75H3a.75.75 0 0 1 0-1.5h2.25A.75.75 0 0 1 6 12zM6.697 7.757a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 0 0-1.061 1.06l1.59 1.591z" />
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Navigation Menu - Full Width -->
+            <div id="mobile-nav" class="hidden md:hidden mt-4 py-4 border-t border-gray-200 dark:border-gray-800">
+                <div class="grid grid-cols-1 gap-4 text-center" data-content="navigation-mobile">
+                    <!-- Mobile navigation items will be populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Content Wrapper for boundaries -->
+    <div class="content-wrapper"></div>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 pt-20">
+        <div class="grid grid-cols-12 gap-4">
+            <!-- Hero Section -->
+            <section id="hero" class="col-span-12 pt-8">
+                <div class="grid grid-cols-12 gap-6">
+                    <!-- Profile Image - Mobile: centered, Desktop: 4 columns centered -->
+                    <div class="col-span-12 md:col-start-5 md:col-span-4 text-center mb-6 md:mb-4">
+                        <div
+                            class="w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 mx-auto bg-gray-100 dark:bg-gray-900 rounded-xl border-2 border-accent transition-all duration-300 flex items-center justify-center overflow-hidden hover:shadow-lg">
+                            <img src="https://media.licdn.com/dms/image/v2/D5603AQEfT67Uns4tJw/profile-displayphoto-crop_800_800/B56Zf4vxyoHUAI-/0/1752224965896?e=1761177600&v=beta&t=TKN2q9Sl986zN0b4U_JgroJj_dSma_uRCi6iGOAZzGQ"
+                                alt="Rohit's profile picture" class="w-full h-full object-cover"
+                                loading="lazy"
+                                onerror="this.src='./pfp.webp'; if(this.src.includes('pfp.webp')) { this.style.display='none'; this.parentElement.innerHTML='&lt;div class=&quot;w-full h-full flex items-center justify-center text-4xl&quot;&gt;👨‍💻&lt;/div&gt;'; }">
+                        </div>
+                    </div>
+
+                    <!-- Hero Text - Mobile: full width with padding, Desktop: 10 columns centered -->
+                    <div class="col-span-12 md:col-start-2 md:col-span-10 text-center px-4 md:px-6">
+                        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 md:mb-6" data-content="hero.greeting">hi, i'm rohit 👋</h1>
+
+                        <!-- Section Separator -->
+                        <div class="section-separator"></div>
+
+                        <h2 class="text-lg sm:text-xl md:text-2xl font-semibold mb-6 md:mb-8 text-accent" data-content="hero.tldrTitle">tldr;</h2>
+                        <div
+                            class="text-gray-600 dark:text-gray-300 text-sm sm:text-base md:text-lg leading-relaxed max-w-4xl mx-auto space-y-4 text-left" data-content="hero.tldrContent">
+                            <!-- TLDR content will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Section Separator -->
+        <div class="section-separator"></div>
+
+        <!-- About Section -->
+        <section id="about" class="transition-all duration-300">
+            <div class="grid grid-cols-12 gap-6">
+                <!-- Section Title - 12 columns -->
+                <div class="col-span-12">
+                    <h2 class="text-lg sm:text-xl font-semibold mb-6 md:mb-8" data-content="about.title">about me</h2>
+                </div>
+
+                <!-- Content - Mobile: full width with padding, Desktop: 10 columns centered -->
+                <div
+                    class="col-span-12 px-2 md:col-start-2 md:col-span-10 md:px-0 space-y-4 md:space-y-6 text-gray-600 dark:text-gray-300" data-content="about.content">
+                    <!-- About content will be populated dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Separator -->
+        <div class="section-separator"></div>
+
+        <!-- Experience Section -->
+        <section id="experience" class="transition-all duration-300">
+            <div class="grid grid-cols-12 gap-6">
+                <!-- Section Title - 12 columns -->
+                <div class="col-span-12">
+                    <h2 class="text-lg sm:text-xl font-semibold mb-6 md:mb-8" data-content="experience.title">experience</h2>
+                </div>
+
+                <!-- Timeline - Mobile: full width with padding, Desktop: 10 columns centered -->
+                <div
+                    class="col-span-12 px-2 md:col-start-2 md:col-span-10 md:px-0 space-y-6 md:space-y-8 timeline-container" data-content="experience.jobs">
+                    <!-- Experience timeline will be populated dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Separator -->
+        <div class="section-separator"></div>
+
+        <!-- Projects Section -->
+        <section id="projects" class="transition-all duration-300">
+            <div class="grid grid-cols-12 gap-6">
+                <!-- Section Title - 12 columns -->
+                <div class="col-span-12">
+                    <h2 class="text-lg sm:text-xl font-semibold mb-6 md:mb-8" data-content="projects.title">projects</h2>
+                </div>
+
+                <!-- Projects Grid - Two-column card layout -->
+                <div class="col-span-12" data-content="projects.items">
+                    <!-- Projects will be populated dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Separator -->
+        <div class="section-separator"></div>
+
+        <!-- Skills Section -->
+        <section id="skills" class="transition-all duration-300">
+            <div class="grid grid-cols-12 gap-6">
+                <!-- Section Title - 12 columns -->
+                <div class="col-span-12">
+                    <h2 class="text-lg sm:text-xl font-semibold mb-6 md:mb-8" data-content="skills.title">skills</h2>
+                </div>
+
+                <!-- Skills Grid - Mobile: stacked, Desktop: 4 columns -->
+                <div class="col-span-12" data-content="skills.categories">
+                    <!-- Skills categories will be populated dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Separator -->
+        <div class="section-separator"></div>
+
+        <!-- Achievements & Certifications Section -->
+        <section id="achievements" class="transition-all duration-300">
+            <div class="grid grid-cols-12 gap-6">
+                <!-- Section Title - 12 columns -->
+                <div class="col-span-12">
+                    <h2 class="text-lg sm:text-xl font-semibold mb-6 md:mb-8" data-content="achievements.title">achievements & certifications</h2>
+                </div>
+
+                <!-- Achievements and Certifications Content -->
+                <div class="col-span-12 grid grid-cols-1 md:grid-cols-2 gap-6" data-content="achievements">
+                    <!-- Achievements and certifications will be populated dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Separator -->
+        <div class="section-separator"></div>
+
+        <!-- Recently Played Music Section -->
+        <section id="music" class="transition-all duration-300">
+            <div class="grid grid-cols-12 gap-6">
+                <!-- Section Title - 12 columns -->
+                <div class="col-span-12">
+                    <h2 class="text-lg sm:text-xl font-semibold mb-6 md:mb-8" data-content="music.title">recently played</h2>
+                </div>
+
+                <!-- Spotify Connect Message -->
+                <div id="spotify-connect" class="col-span-12 text-center py-8 hidden">
+                    <div
+                        class="bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-2xl p-8">
+                        <div class="w-16 h-16 mx-auto mb-4 bg-green-500 rounded-full flex items-center justify-center">
+                            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.5 14.424c-.188.305-.516.457-.844.457-.188 0-.375-.047-.563-.152-1.266-.797-2.859-1.219-4.594-1.219-1.078 0-2.156.188-3.141.516-.328.109-.703-.047-.844-.375-.141-.328.047-.703.375-.844 1.172-.375 2.391-.609 3.609-.609 1.969 0 3.797.469 5.297 1.359.328.188.422.609.234.937zm1.078-2.391c-.234.375-.656.563-1.031.563-.234 0-.469-.063-.656-.188-1.547-.891-3.469-1.359-5.391-1.359-1.266 0-2.531.234-3.703.656-.422.141-.844-.094-.984-.516-.141-.422.094-.844.516-.984 1.406-.516 2.859-.797 4.313-.797 2.203 0 4.359.563 6.234 1.641.375.234.516.75.281 1.125zm.984-2.5c-.281.047-.516.141-.75.234-1.734-1.031-3.984-1.594-6.375-1.594-1.547 0-3.094.281-4.5.844-.469.188-.984-.047-1.172-.516s.047-.984.516-1.172c1.641-.656 3.375-.984 5.156-.984 2.75 0 5.344.656 7.359 1.875.422.281.563.844.281 1.266-.234.375-.656.563-1.031.563z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-semibold mb-2">authenticate spotify</h3>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">
+                            rohit needs to authenticate to show recently played tracks
+                        </p>
+                        <button id="spotify-login"
+                            class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors">
+                            authenticate
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Music Grid - Hidden initially -->
+                <div id="music-grid" class="col-span-12 hidden">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <!-- Music cards will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="music-loading" class="col-span-12 text-center py-8 hidden">
+                    <div
+                        class="animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full mx-auto mb-4">
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-300 text-sm">loading your music...</p>
+                </div>
+
+                <!-- Error State -->
+                <div id="music-error" class="col-span-12 text-center py-8 hidden">
+                    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6">
+                        <p class="text-red-600 dark:text-red-400 text-sm mb-4">failed to load spotify data</p>
+                        <button id="retry-spotify"
+                            class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">
+                            try again →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Separator -->
+        <div class="section-separator"></div>
+
+        <!-- Footer -->
+        <footer class="transition-all duration-300 pb-20 mb-10">
+            <div class="grid grid-cols-12 gap-4">
+                <div class="col-span-12 text-center">
+                    <div data-content="footer">
+                        <!-- Footer content will be populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Floating Social Tab -->
+    <div
+        class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-black/90 dark:bg-white/90 backdrop-blur-sm border border-white/10 dark:border-black/10 rounded-full px-5 py-3 flex gap-4 z-[100] shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl md:bottom-5 md:px-5 md:py-3 md:gap-4">
+        <div data-content="social">
+            <!-- Social links will be populated dynamically -->
+        </div>
+    </div>
+
+    <script src="src/scripts/main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,223 @@
+/* Custom Website Styles */
+
+/* Prevent FOUC - Hide content until populated */
+[data-content] {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+[data-content].populated {
+    opacity: 1;
+}
+
+/* Notebook-style layout with grid boundaries */
+body {
+    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.15) 1px, transparent 1px);
+    background-size: 16px 16px;
+}
+
+.dark body {
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+    background-size: 16px 16px;
+}
+
+/* Side boundaries with margin lines and diagonal pattern - Hidden on mobile */
+.content-wrapper::before,
+.content-wrapper::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 20px;
+    z-index: 10;
+    background-image:
+        /* Two vertical lines 20px apart */
+        linear-gradient(90deg, rgba(0, 0, 0, 0.2) 1px, transparent 1px, transparent 19px, rgba(0, 0, 0, 0.2) 1px),
+        /* Diagonal lines between the verticals */
+        repeating-linear-gradient(45deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.1) 2px,
+            rgba(0, 0, 0, 0.1) 3px,
+            transparent 3px,
+            transparent 8px);
+    background-size: 20px 100%, 10px 10px;
+    /* Hide on mobile and small tablets */
+    display: none;
+}
+
+/* Show boundaries only on larger screens where content has enough space */
+@media (min-width: 1200px) {
+
+    .content-wrapper::before,
+    .content-wrapper::after {
+        display: block;
+    }
+
+    .content-wrapper::before {
+        left: max(0px, calc(50% - 32rem - 20px));
+        /* max-w-4xl + 20px boundary */
+    }
+
+    .content-wrapper::after {
+        right: max(0px, calc(50% - 32rem - 20px));
+    }
+}
+
+.dark .content-wrapper::before,
+.dark .content-wrapper::after {
+    background-image:
+        /* Two vertical lines 20px apart */
+        linear-gradient(90deg, rgba(255, 255, 255, 0.2) 1px, transparent 1px, transparent 19px, rgba(255, 255, 255, 0.2) 1px),
+        /* Diagonal lines between the verticals */
+        repeating-linear-gradient(45deg,
+            transparent,
+            transparent 2px,
+            rgba(255, 255, 255, 0.1) 2px,
+            rgba(255, 255, 255, 0.1) 3px,
+            transparent 3px,
+            transparent 8px);
+    background-size: 20px 100%, 10px 10px;
+}
+
+/* Prevent horizontal scrollbar */
+html,
+body {
+    overflow-x: hidden;
+}
+
+/* Section separators - full width */
+.section-separator {
+    position: relative;
+    margin: 3rem 0;
+    width: 100vw;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 40px;
+}
+
+.section-separator::before,
+.section-separator::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.section-separator::before {
+    top: 0;
+}
+
+.section-separator::after {
+    top: 40px;
+}
+
+.dark .section-separator::before,
+.dark .section-separator::after {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Adjust section content positioning */
+section {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+/* Timeline animation styles */
+.timeline-container {
+    position: relative;
+}
+
+.timeline-item {
+    position: relative;
+}
+
+.timeline-item-progress {
+    position: absolute;
+    left: -2px;
+    top: 0;
+    width: 2px;
+    height: 0%;
+    background: linear-gradient(to bottom, #6366f1, #8b5cf6);
+    transition: height 0.3s ease;
+    z-index: 1;
+}
+
+.timeline-dot-animated {
+    position: absolute;
+    left: -8px;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    background: #6366f1;
+    border: 2px solid white;
+    border-radius: 50%;
+    z-index: 2;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    opacity: 0;
+}
+
+.timeline-dot-animated.visible {
+    opacity: 1;
+}
+
+.dark .timeline-dot-animated {
+    border-color: #000;
+}
+
+/* TLDR Container Hover Glow Effect */
+.tldr-container {
+    transition: all 0.3s ease;
+}
+
+.tldr-container:hover {
+    box-shadow:
+        0 0 20px rgba(99, 102, 241, 0.15),
+        0 0 40px rgba(99, 102, 241, 0.1),
+        0 4px 25px rgba(0, 0, 0, 0.1);
+    border-color: rgba(99, 102, 241, 0.3);
+    transform: translateY(-2px);
+}
+
+.dark .tldr-container:hover {
+    box-shadow:
+        0 0 20px rgba(99, 102, 241, 0.2),
+        0 0 40px rgba(99, 102, 241, 0.15),
+        0 4px 25px rgba(0, 0, 0, 0.3);
+    border-color: rgba(99, 102, 241, 0.4);
+}
+
+/* Project Card Hover Glow Effect */
+.project-card:hover {
+    box-shadow:
+        0 0 20px rgba(99, 102, 241, 0.15),
+        0 0 40px rgba(99, 102, 241, 0.1),
+        0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: rgba(99, 102, 241, 0.3);
+    transform: translateY(-4px);
+}
+
+.dark .project-card:hover {
+    box-shadow:
+        0 0 20px rgba(99, 102, 241, 0.2),
+        0 0 40px rgba(99, 102, 241, 0.15),
+        0 8px 25px rgba(0, 0, 0, 0.3);
+    border-color: rgba(99, 102, 241, 0.4);
+}
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+
+    .tldr-container,
+    .project-card {
+        transition: none;
+    }
+
+    .tldr-container:hover,
+    .project-card:hover {
+        transform: none;
+    }
+}
