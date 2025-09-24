@@ -72,7 +72,7 @@ function initTheme() {
     }
 
     // Theme toggle event listener with ripple animation
-    themeToggle.addEventListener('click', function() {
+    themeToggle.addEventListener('click', function () {
         console.log('Theme toggle clicked');
 
         // Get the button position for ripple origin
@@ -85,7 +85,7 @@ function initTheme() {
         const targetTheme = isDarkMode ? 'light' : 'dark';
 
         // Create ripple animation
-        createRippleAnimation(centerX, centerY, targetTheme, function() {
+        createRippleAnimation(centerX, centerY, targetTheme, function () {
             // Toggle theme after ripple animation starts
             html.classList.toggle('dark');
 
@@ -103,15 +103,348 @@ function initTheme() {
     // Note: Removed system theme listener for better performance
 }
 
+// Content Population Functions
+function populateContent() {
+    if (!window.siteContent) {
+        console.error('Site content not loaded');
+        return;
+    }
+
+    const content = window.siteContent;
+
+    // Populate meta tags
+    updateMetaTags(content.meta);
+
+    // Populate navigation
+    populateNavigation(content.navigation);
+
+    // Populate personal info
+    populatePersonalInfo(content.personal);
+
+    // Populate hero section
+    populateHeroSection(content.hero);
+
+    // Populate about section
+    populateAboutSection(content.about);
+
+    // Populate experience section
+    populateExperienceSection(content.experience);
+
+    // Populate projects section
+    populateProjectsSection(content.projects);
+
+    // Populate skills section
+    populateSkillsSection(content.skills);
+
+    // Populate achievements section
+    populateAchievementsSection(content.achievements);
+
+    // Populate footer
+    populateFooter(content.footer);
+
+    // Populate social links
+    populateSocialLinks(content.social);
+
+    // Mark all content as populated to show it
+    document.querySelectorAll('[data-content]').forEach(element => {
+        element.classList.add('populated');
+    });
+}
+
+// Populate content immediately when this script loads (after content.js)
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', populateContent);
+} else {
+    populateContent();
+}
+
+function updateMetaTags(meta) {
+    document.title = meta.title;
+
+    const metaTags = [
+        { selector: 'meta[name="description"]', attr: 'content', value: meta.description },
+        { selector: 'meta[name="keywords"]', attr: 'content', value: meta.keywords },
+        { selector: 'meta[name="author"]', attr: 'content', value: meta.author },
+        { selector: 'meta[property="og:url"]', attr: 'content', value: meta.url },
+        { selector: 'meta[property="og:title"]', attr: 'content', value: meta.ogTitle },
+        { selector: 'meta[property="og:description"]', attr: 'content', value: meta.ogDescription },
+        { selector: 'meta[property="og:image"]', attr: 'content', value: meta.ogImage },
+        { selector: 'meta[property="og:site_name"]', attr: 'content', value: meta.siteName },
+        { selector: 'meta[property="twitter:url"]', attr: 'content', value: meta.url },
+        { selector: 'meta[property="twitter:title"]', attr: 'content', value: meta.twitterTitle },
+        { selector: 'meta[property="twitter:description"]', attr: 'content', value: meta.twitterDescription },
+        { selector: 'meta[property="twitter:image"]', attr: 'content', value: meta.twitterImage }
+    ];
+
+    metaTags.forEach(tag => {
+        const element = document.querySelector(tag.selector);
+        if (element) {
+            element.setAttribute(tag.attr, tag.value);
+        }
+    });
+}
+
+function populateNavigation(navigation) {
+    // Desktop navigation
+    const desktopNav = document.querySelector('[data-content="navigation"]');
+    if (desktopNav) {
+        desktopNav.innerHTML = navigation.map(item =>
+            `<a href="${item.href}" class="hover:text-accent transition-colors">${item.name}</a>`
+        ).join('');
+    }
+
+    // Mobile navigation
+    const mobileNav = document.querySelector('[data-content="navigation-mobile"]');
+    if (mobileNav) {
+        mobileNav.innerHTML = navigation.map(item =>
+            `<a href="${item.href}" class="py-2 hover:text-accent transition-colors">${item.name}</a>`
+        ).join('');
+    }
+}
+
+function populatePersonalInfo(personal) {
+    const nameElement = document.querySelector('[data-content="personal.name"]');
+    if (nameElement) {
+        nameElement.textContent = personal.name;
+    }
+
+    const profileImage = document.querySelector('[data-content="personal.profileImage"]');
+    if (profileImage) {
+        profileImage.src = personal.profileImage;
+        profileImage.alt = `${personal.name}'s profile picture`;
+    }
+}
+
+function populateHeroSection(hero) {
+    const greetingElement = document.querySelector('[data-content="hero.greeting"]');
+    if (greetingElement) {
+        greetingElement.textContent = hero.greeting;
+    }
+
+    const tldrTitleElement = document.querySelector('[data-content="hero.tldrTitle"]');
+    if (tldrTitleElement) {
+        tldrTitleElement.textContent = hero.tldrTitle;
+    }
+
+    const tldrContentElement = document.querySelector('[data-content="hero.tldrContent"]');
+    if (tldrContentElement) {
+        tldrContentElement.innerHTML = hero.tldrContent.map(paragraph =>
+            `<p>${paragraph}</p>`
+        ).join('');
+    }
+}
+
+function populateAboutSection(about) {
+    const titleElement = document.querySelector('[data-content="about.title"]');
+    if (titleElement) {
+        titleElement.textContent = about.title;
+    }
+
+    const contentElement = document.querySelector('[data-content="about.content"]');
+    if (contentElement) {
+        contentElement.innerHTML = about.content.map(paragraph =>
+            `<p class="text-sm sm:text-base leading-relaxed">${paragraph}</p>`
+        ).join('');
+    }
+}
+
+function populateExperienceSection(experience) {
+    const titleElement = document.querySelector('[data-content="experience.title"]');
+    if (titleElement) {
+        titleElement.textContent = experience.title;
+    }
+
+    const jobsContainer = document.querySelector('[data-content="experience.jobs"]');
+    if (jobsContainer) {
+        jobsContainer.innerHTML = experience.jobs.map((job, index) => `
+            <div class="timeline-item border-l-2 border-gray-200 dark:border-gray-600 pl-4 md:pl-6 relative">
+                <div class="timeline-item-progress" data-item="${index}"></div>
+                <div class="timeline-dot-animated" data-item="${index}"></div>
+                <div class="space-y-2">
+                    <div>
+                        <h3 class="font-semibold text-sm sm:text-base">${job.title}</h3>
+                        <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
+                            <a href="${job.companyUrl}" class="hover:text-accent transition-colors">${job.company}</a> • ${job.duration}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600 dark:text-gray-300 text-xs sm:text-sm leading-relaxed">
+                            ${job.description}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+}
+
+function populateProjectsSection(projects) {
+    const titleElement = document.querySelector('[data-content="projects.title"]');
+    if (titleElement) {
+        titleElement.textContent = projects.title;
+    }
+
+    const projectsContainer = document.querySelector('[data-content="projects.items"]');
+    if (projectsContainer) {
+        projectsContainer.innerHTML = `
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                ${projects.items.map(project => `
+                    <div class="project-card h-full flex flex-col border border-gray-200 dark:border-gray-800 rounded-xl p-6 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm transition-all duration-300">
+                        <h3 class="font-semibold mb-3 text-lg">${project.title}</h3>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm mb-6 flex-grow leading-relaxed">
+                            ${project.description}
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-6">
+                            ${project.technologies.map(tech => `
+                                <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">${tech}</span>
+                            `).join('')}
+                        </div>
+                        <div class="flex gap-6 mt-auto">
+                            ${project.links.live ? `
+                                <a href="${project.links.live}" class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">live →</a>
+                            ` : ''}
+                            ${project.links.github ? `
+                                <a href="${project.links.github}" class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">github →</a>
+                            ` : ''}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+}
+
+function populateSkillsSection(skills) {
+    const titleElement = document.querySelector('[data-content="skills.title"]');
+    if (titleElement) {
+        titleElement.textContent = skills.title;
+    }
+
+    const skillsContainer = document.querySelector('[data-content="skills.categories"]');
+    if (skillsContainer) {
+        skillsContainer.innerHTML = `
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+                ${skills.categories.map(category => `
+                    <div class="mb-6 md:mb-0">
+                        <h3 class="font-semibold mb-3 md:mb-4 text-accent text-sm sm:text-base">${category.title}</h3>
+                        <ul class="space-y-2 text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
+                            ${category.items.map(item => `
+                                <li>• ${item.highlight ? `<strong>${item.name}</strong>` : item.name}</li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+}
+
+function populateAchievementsSection(achievements) {
+    const titleElement = document.querySelector('[data-content="achievements.title"]');
+    if (titleElement) {
+        titleElement.textContent = achievements.title;
+    }
+
+    const achievementsContainer = document.querySelector('[data-content="achievements"]');
+    if (achievementsContainer) {
+        achievementsContainer.innerHTML = `
+            <!-- Achievements - Mobile: full width, Desktop: 6 columns -->
+            <div class="mb-6 md:mb-0">
+                <h3 class="font-semibold mb-3 md:mb-4 text-accent text-sm sm:text-base">achievements</h3>
+                <div class="space-y-3 md:space-y-4">
+                    ${achievements.achievements.map(achievement => `
+                        <div class="border-l-2 border-accent pl-3 md:pl-4">
+                            <h4 class="font-semibold text-xs sm:text-sm">
+                                <a href="${achievement.url}" class="hover:text-accent transition-colors">${achievement.title}</a>
+                            </h4>
+                            <p class="text-gray-600 dark:text-gray-300 text-xs mt-1 leading-relaxed">
+                                ${achievement.description}
+                            </p>
+                            ${achievement.image ? `
+                                <div class="mt-3">
+                                    <img src="${achievement.image}" alt="${achievement.imageAlt}"
+                                         class="w-full max-w-sm rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-300" loading="lazy">
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <!-- Certifications - Mobile: full width, Desktop: 6 columns -->
+            <div>
+                <h3 class="font-semibold mb-3 md:mb-4 text-accent text-sm sm:text-base">certifications</h3>
+                <div class="space-y-3">
+                    ${achievements.certifications.map(cert => `
+                        <div class="border-l-2 border-accent pl-3 md:pl-4">
+                            <div class="flex justify-between items-start gap-2">
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-xs sm:text-sm">
+                                        <a href="${cert.url}" class="hover:text-accent transition-colors">${cert.title}</a>
+                                    </h4>
+                                    <p class="text-gray-600 dark:text-gray-400 text-xs">${cert.organization}</p>
+                                </div>
+                                <span class="text-gray-400 text-xs shrink-0">${cert.date}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+}
+
+function populateFooter(footer) {
+    const footerElement = document.querySelector('[data-content="footer"]');
+    if (footerElement) {
+        footerElement.innerHTML = `
+            <p class="text-gray-600 dark:text-gray-400 text-sm">${footer.built}</p>
+            <p>${footer.inspired}</p>
+            <p class="text-gray-400 text-xs mt-2">${footer.copyright}</p>
+        `;
+    }
+}
+
+function populateSocialLinks(social) {
+    const socialElement = document.querySelector('[data-content="social"]');
+    if (socialElement) {
+        // Set parent container to flex to match expected layout
+        socialElement.className = 'flex gap-4';
+        socialElement.innerHTML = `
+            <a href="mailto:${social.email}"
+                class="w-10 h-10 rounded-full flex items-center justify-center bg-transparent text-gray-300 dark:text-gray-600 transition-all duration-300 hover:bg-accent hover:text-white hover:scale-110 md:w-10 md:h-10"
+                aria-label="Email" title="Email">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.89 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+                </svg>
+            </a>
+            <a href="${social.github}"
+                class="w-10 h-10 rounded-full flex items-center justify-center bg-transparent text-gray-300 dark:text-gray-600 transition-all duration-300 hover:bg-accent hover:text-white hover:scale-110 md:w-10 md:h-10"
+                aria-label="GitHub" title="GitHub">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                </svg>
+            </a>
+            <a href="${social.linkedin}"
+                class="w-10 h-10 rounded-full flex items-center justify-center bg-transparent text-gray-300 dark:text-gray-600 transition-all duration-300 hover:bg-accent hover:text-white hover:scale-110 md:w-10 md:h-10"
+                aria-label="LinkedIn" title="LinkedIn">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg>
+            </a>
+        `;
+    }
+}
+
 // Smooth scrolling for navigation links
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Initialize theme
     initTheme();
     // Get all navigation links
     const navLinks = document.querySelectorAll('nav a[href^="#"]');
 
     navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             e.preventDefault();
 
             const targetId = this.getAttribute('href');
@@ -165,7 +498,7 @@ document.addEventListener('DOMContentLoaded', function() {
         rootMargin: '0px 0px -50px 0px'
     };
 
-    const observer = new IntersectionObserver(function(entries) {
+    const observer = new IntersectionObserver(function (entries) {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.style.opacity = '1';
@@ -186,12 +519,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add hover effects for project cards
     const projectCards = document.querySelectorAll('#projects .border');
     projectCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
+        card.addEventListener('mouseenter', function () {
             this.style.transform = 'translateY(-2px)';
             this.style.transition = 'transform 0.2s ease';
         });
 
-        card.addEventListener('mouseleave', function() {
+        card.addEventListener('mouseleave', function () {
             this.style.transform = 'translateY(0)';
         });
     });
@@ -221,7 +554,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const mobileNav = document.getElementById('mobile-nav');
 
         if (mobileMenuToggle && mobileNav) {
-            mobileMenuToggle.addEventListener('click', function() {
+            mobileMenuToggle.addEventListener('click', function () {
                 const isHidden = mobileNav.classList.contains('hidden');
 
                 if (isHidden) {
@@ -235,7 +568,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Close mobile menu when clicking on a link
             mobileNav.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', function() {
+                link.addEventListener('click', function () {
                     mobileNav.classList.add('hidden');
                     mobileMenuToggle.innerHTML = '<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
                 });
@@ -326,7 +659,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Contact form submission
     const contactForm = document.getElementById('contact-form');
     if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
+        contactForm.addEventListener('submit', function (e) {
             e.preventDefault();
 
             const email = document.getElementById('email').value;
@@ -371,7 +704,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initSpotify();
 
     // Handle responsive Spotify display on window resize
-    window.addEventListener('resize', function() {
+    window.addEventListener('resize', function () {
         if (window.currentTracks) {
             displayRecentTracks(window.currentTracks);
         }
@@ -450,26 +783,26 @@ function exchangeCodeForToken(code) {
             // Note: client_secret should be handled on backend
         })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.access_token) {
-            // Store token and expiry
-            localStorage.setItem('spotify_access_token', data.access_token);
-            localStorage.setItem('spotify_token_expiry', Date.now() + (data.expires_in * 1000));
+        .then(response => response.json())
+        .then(data => {
+            if (data.access_token) {
+                // Store token and expiry
+                localStorage.setItem('spotify_access_token', data.access_token);
+                localStorage.setItem('spotify_token_expiry', Date.now() + (data.expires_in * 1000));
 
-            if (data.refresh_token) {
-                localStorage.setItem('spotify_refresh_token', data.refresh_token);
+                if (data.refresh_token) {
+                    localStorage.setItem('spotify_refresh_token', data.refresh_token);
+                }
+
+                loadRecentTracks();
+            } else {
+                showSpotifyError();
             }
-
-            loadRecentTracks();
-        } else {
+        })
+        .catch(error => {
+            console.error('Token exchange failed:', error);
             showSpotifyError();
-        }
-    })
-    .catch(error => {
-        console.error('Token exchange failed:', error);
-        showSpotifyError();
-    });
+        });
 }
 
 function loadRecentTracks() {
@@ -486,25 +819,25 @@ function loadRecentTracks() {
             'Authorization': `Bearer ${accessToken}`
         }
     })
-    .then(response => {
-        if (response.status === 401) {
-            // Token expired, clear storage and show connect
-            localStorage.removeItem('spotify_access_token');
-            localStorage.removeItem('spotify_token_expiry');
-            showSpotifyConnect();
-            return null;
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data && data.items) {
-            displayRecentTracks(data.items);
-        }
-    })
-    .catch(error => {
-        console.error('Failed to load recent tracks:', error);
-        showSpotifyError();
-    });
+        .then(response => {
+            if (response.status === 401) {
+                // Token expired, clear storage and show connect
+                localStorage.removeItem('spotify_access_token');
+                localStorage.removeItem('spotify_token_expiry');
+                showSpotifyConnect();
+                return null;
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data && data.items) {
+                displayRecentTracks(data.items);
+            }
+        })
+        .catch(error => {
+            console.error('Failed to load recent tracks:', error);
+            showSpotifyError();
+        });
 }
 
 function displayRecentTracks(tracks) {
@@ -556,7 +889,7 @@ function createTrackListItem(track) {
     listItem.innerHTML = `
         <div class="w-12 h-12 bg-gray-200 dark:bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
             ${imageUrl ? `<img src="${imageUrl}" alt="${albumName}" class="w-full h-full object-cover">` :
-              `<div class="w-full h-full flex items-center justify-center">
+            `<div class="w-full h-full flex items-center justify-center">
                 <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
                 </svg>
@@ -590,7 +923,7 @@ function createTrackCard(track) {
     card.innerHTML = `
         <div class="aspect-square bg-gray-200 dark:bg-gray-800 rounded-lg mb-3 overflow-hidden">
             ${imageUrl ? `<img src="${imageUrl}" alt="${albumName}" class="w-full h-full object-cover">` :
-              `<div class="w-full h-full flex items-center justify-center">
+            `<div class="w-full h-full flex items-center justify-center">
                 <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
                 </svg>

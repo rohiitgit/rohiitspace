@@ -54,19 +54,36 @@ const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/authorize';
 const SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token';
 const SPOTIFY_API_URL = 'https://api.spotify.com/v1';
 
-// CORS headers
-const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+// CORS configuration
+const allowedOrigins = [
+    'https://rohiit.space',
+    'https://www.rohiit.space',
+    'https://rohiitspace.vercel.app',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000'
+];
+
+function getCorsHeaders(origin) {
+    const isAllowedOrigin = allowedOrigins.includes(origin) ||
+                          (origin && origin.includes('vercel.app'));
+
+    return {
+        'Access-Control-Allow-Origin': isAllowedOrigin ? origin : allowedOrigins[0],
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Credentials': 'true',
+        'Access-Control-Max-Age': '86400'
+    };
+}
 
 // Main handler function
 module.exports = async (req, res) => {
     // Load tokens on each request (for serverless)
     await loadTokens();
 
-    // Add CORS headers
+    // Add CORS headers based on origin
+    const origin = req.headers.origin;
+    const corsHeaders = getCorsHeaders(origin);
     Object.entries(corsHeaders).forEach(([key, value]) => {
         res.setHeader(key, value);
     });
