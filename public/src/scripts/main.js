@@ -323,7 +323,7 @@ function populateSkillsSection(skills) {
     const skillsContainer = document.querySelector('[data-content="skills.categories"]');
     if (skillsContainer) {
         skillsContainer.innerHTML = `
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+<div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
                 ${skills.categories.map(category => `
                     <div class="mb-6 md:mb-0">
                         <h3 class="font-semibold mb-3 md:mb-4 text-accent text-sm sm:text-base">${category.title}</h3>
