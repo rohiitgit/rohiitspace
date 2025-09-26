@@ -34,7 +34,8 @@ const siteContent = {
         { name: "experience", href: "#experience" },
         { name: "projects", href: "#projects" },
         { name: "skills", href: "#skills" },
-        { name: "achievements", href: "#achievements" }
+        { name: "achievements", href: "#achievements" },
+        { name: "blogs", href: "blogs.html" }
     ],
 
     // Hero Section

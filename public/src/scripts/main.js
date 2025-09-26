@@ -185,21 +185,9 @@ function updateMetaTags(meta) {
 }
 
 function populateNavigation(navigation) {
-    // Desktop navigation
-    const desktopNav = document.querySelector('[data-content="navigation"]');
-    if (desktopNav) {
-        desktopNav.innerHTML = navigation.map(item =>
-            `<a href="${item.href}" class="hover:text-accent transition-colors">${item.name}</a>`
-        ).join('');
-    }
-
-    // Mobile navigation
-    const mobileNav = document.querySelector('[data-content="navigation-mobile"]');
-    if (mobileNav) {
-        mobileNav.innerHTML = navigation.map(item =>
-            `<a href="${item.href}" class="py-2 hover:text-accent transition-colors">${item.name}</a>`
-        ).join('');
-    }
+    // Navigation is now static in HTML to prevent flash
+    // This function is kept for compatibility but doesn't modify existing content
+    // The static navigation in HTML will be enhanced by the active section highlighting
 }
 
 function populatePersonalInfo(personal) {
@@ -491,6 +479,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Initial call to highlight correct section on page load
     highlightActiveSection();
+
+    // Handle anchor links when page loads (from external navigation)
+    if (window.location.hash) {
+        setTimeout(() => {
+            const targetSection = document.querySelector(window.location.hash);
+            if (targetSection) {
+                const headerHeight = document.querySelector('header').offsetHeight;
+                const targetPosition = targetSection.offsetTop - headerHeight - 20;
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        }, 100); // Small delay to ensure page is fully loaded
+    }
 
     // Add fade-in animation for sections on scroll
     const observerOptions = {

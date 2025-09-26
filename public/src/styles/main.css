@@ -1,6 +1,6 @@
 /* Custom Website Styles */
 
-/* Prevent FOUC - Hide content until populated */
+/* Prevent FOUC - Hide content until populated, but exclude structural elements */
 [data-content] {
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -8,6 +8,15 @@
 
 [data-content].populated {
     opacity: 1;
+}
+
+/* Always show navigation and logo immediately */
+[data-content="personal.name"],
+[data-content="navigation"],
+[data-content="navigation-mobile"],
+header,
+nav {
+    opacity: 1 !important;
 }
 
 /* Notebook-style layout with grid boundaries */
