@@ -41,3 +41,6 @@ Thumbs.db
 # Build outputs
 dist/
 build/
+
+#Ignore vscode AI rules
+.github/instructions/codacy.instructions.md

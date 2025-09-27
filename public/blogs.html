@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blogs - rohiitspace</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Thoughts, tutorials, and insights on software development, technology, and life as a developer.">
+    <meta name="keywords" content="rohit, blog, software development, programming, tutorials, tech, developer insights">
+    <meta name="author" content="Rohit">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.rohiit.space/blogs.html">
+    <meta property="og:title" content="Rohit's Blog - Developer Insights">
+    <meta property="og:description" content="Thoughts, tutorials, and insights on software development, technology, and life as a developer.">
+    <meta property="og:image" content="https://www.rohiit.space/pfp.webp">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="rohiitspace">
+
+    <!-- Twitter Card -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://www.rohiit.space/blogs.html">
+    <meta property="twitter:title" content="Rohit's Blog - Developer Insights">
+    <meta property="twitter:description" content="Thoughts, tutorials, and insights on software development, technology, and life as a developer.">
+    <meta property="twitter:image" content="https://www.rohiit.space/pfp.webp">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon"
+        href="https://media.licdn.com/dms/image/v2/D5603AQEfT67Uns4tJw/profile-displayphoto-crop_800_800/B56Zf4vxyoHUAI-/0/1752224965896?e=1761177600&v=beta&t=TKN2q9Sl986zN0b4U_JgroJj_dSma_uRCi6iGOAZzGQ">
+    <link rel="apple-touch-icon"
+        href="https://media.licdn.com/dms/image/v2/D5603AQEfT67Uns4tJw/profile-displayphoto-crop_800_800/B56Zf4vxyoHUAI-/0/1752224965896?e=1761177600&v=beta&t=TKN2q9Sl986zN0b4U_JgroJj_dSma_uRCi6iGOAZzGQ">
+    <link rel="stylesheet" href="src/styles/tailwind.css">
+    <link rel="stylesheet" href="src/styles/main.css">
+    <script src="src/config/config.js"></script>
+    <script src="src/scripts/content.js"></script>
+    <script src="src/scripts/blogs.js"></script>
+
+    <!-- Prevent theme flash -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+</head>
+
+<body
+    class="bg-gray-50 dark:bg-black text-gray-900 dark:text-white font-mono text-sm leading-relaxed transition-all duration-300">
+    <!-- Content Wrapper -->
+    <div class="content-wrapper min-h-screen">
+        <!-- Header -->
+        <header
+            class="fixed top-0 left-0 right-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 z-50 transition-all duration-300">
+            <div class="max-w-4xl mx-auto px-4 py-4">
+                <div class="grid grid-cols-12 gap-4 items-center">
+                    <!-- Mobile: Hamburger Menu (left) + Theme Toggle (right) | Desktop: Logo (left) -->
+                    <div class="col-span-2">
+                        <!-- Logo - Desktop Only -->
+                        <a href="index.html" class="hidden md:block font-semibold text-accent" data-content="personal.name">rohit</a>
+                        <!-- Hamburger Menu - Mobile Only -->
+                        <button id="mobile-menu-toggle"
+                            class="md:hidden p-3 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                            aria-label="Toggle mobile menu">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Navigation - Desktop Only (8 columns) -->
+                    <nav class="hidden md:block col-span-8">
+                        <div class="flex justify-between items-center" data-content="navigation">
+                            <a href="index.html#about" class="hover:text-accent transition-colors">about</a>
+                            <a href="index.html#experience" class="hover:text-accent transition-colors">experience</a>
+                            <a href="index.html#projects" class="hover:text-accent transition-colors">projects</a>
+                            <a href="index.html#skills" class="hover:text-accent transition-colors">skills</a>
+                            <a href="index.html#achievements" class="hover:text-accent transition-colors">achievements</a>
+                            <a href="blogs.html" class="hover:text-accent transition-colors">blogs</a>
+                        </div>
+                    </nav>
+
+                    <!-- Mobile Navigation Spacer - 8 columns on mobile -->
+                    <div class="md:hidden col-span-8"></div>
+
+                    <!-- Theme Toggle - 2 columns (both mobile and desktop) -->
+                    <div class="col-span-2 text-right">
+                        <button id="theme-toggle"
+                            class="p-3 rounded-lg bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                            aria-label="Toggle dark mode">
+                            <span id="theme-toggle-light" class="block dark:hidden">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z" />
+                                </svg>
+                            </span>
+                            <span id="theme-toggle-dark" class="hidden dark:block">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,18.36l.71.71a1,1,0,0,0,1.41,0,1,1,0,0,0,0-1.41ZM12,6.5A5.5,5.5,0,1,0,17.5,12,5.51,5.51,0,0,0,12,6.5Zm0,9A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z" />
+                                </svg>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile Navigation Menu -->
+                <div id="mobile-nav"
+                    class="md:hidden hidden mt-4 py-4 border-t border-gray-200 dark:border-gray-800">
+                    <nav class="flex flex-col space-y-2" data-content="navigation-mobile">
+                        <a href="index.html#about" class="py-2 hover:text-accent transition-colors">about</a>
+                        <a href="index.html#experience" class="py-2 hover:text-accent transition-colors">experience</a>
+                        <a href="index.html#projects" class="py-2 hover:text-accent transition-colors">projects</a>
+                        <a href="index.html#skills" class="py-2 hover:text-accent transition-colors">skills</a>
+                        <a href="index.html#achievements" class="py-2 hover:text-accent transition-colors">achievements</a>
+                        <a href="blogs.html" class="py-2 hover:text-accent transition-colors">blogs</a>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="pt-20 pb-20">
+            <div class="max-w-4xl mx-auto px-4">
+
+                <!-- All Blogs -->
+                <section id="all-blogs">
+                    <div class="grid grid-cols-12 gap-6">
+                        <div class="col-span-12">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 md:mb-8">
+                                <h2 class="text-lg sm:text-xl font-semibold text-accent">all posts</h2>
+                                <div id="tag-filter-container" class="flex items-center gap-2">
+                                    <div id="tag-filters" class="flex flex-wrap gap-2">
+                                        <button class="tag-filter active" data-tag="all">all</button>
+                                        <!-- Dynamic tag filters will be added here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-span-12">
+                            <div id="all-blogs-container">
+                                <!-- All blogs will be populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="py-8 border-t border-gray-200 dark:border-gray-800">
+            <div class="max-w-4xl mx-auto px-4">
+                <div class="flex flex-col items-center text-center space-y-4">
+                    <!-- Back to Portfolio -->
+                    <a href="index.html" class="text-accent hover:text-indigo-700 transition-colors font-medium">← back to portfolio</a>
+
+                    <!-- Social Links -->
+                    <div class="flex gap-4" data-content="social">
+                        <!-- Social links will be populated dynamically -->
+                    </div>
+
+                    <!-- Footer Text -->
+                    <div class="text-center space-y-1" data-content="footer">
+                        <!-- Footer content will be populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Tag Filter Styles -->
+    <style>
+        .tag-filter {
+            padding: 0.75rem 1rem;
+            border: 1px solid;
+            border-color: rgb(209 213 219);
+            color: rgb(107 114 128);
+            background: transparent;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+            min-height: 44px;
+            min-width: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+
+        .dark .tag-filter {
+            border-color: rgb(75 85 99);
+            color: rgb(156 163 175);
+        }
+
+        .tag-filter:hover {
+            border-color: var(--color-accent);
+            color: var(--color-accent);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .tag-filter.active {
+            border-color: var(--color-accent);
+            color: white;
+            background: var(--color-accent);
+        }
+
+        .tag-filter.active:hover {
+            background: rgb(79 70 229);
+        }
+
+        :root {
+            --color-accent: #6366f1;
+        }
+    </style>
+
+    <script src="src/scripts/blog-main.js"></script>
+</body>
+
+</html>

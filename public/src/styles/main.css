@@ -1,6 +1,6 @@
 /* Custom Website Styles */
 
-/* Prevent FOUC - Hide content until populated */
+/* Prevent FOUC - Hide content until populated, but exclude structural elements */
 [data-content] {
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -8,6 +8,15 @@
 
 [data-content].populated {
     opacity: 1;
+}
+
+/* Always show navigation and logo immediately */
+[data-content="personal.name"],
+[data-content="navigation"],
+[data-content="navigation-mobile"],
+header,
+nav {
+    opacity: 1 !important;
 }
 
 /* Notebook-style layout with grid boundaries */
@@ -220,4 +229,104 @@ section {
     .project-card:hover {
         transform: none;
     }
+}
+
+/* Mobile touch target improvements */
+@media (max-width: 768px) {
+    /* Ensure all interactive elements meet minimum touch target size */
+    button, a[href], [role="button"], [tabindex="0"] {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 0.75rem;
+        touch-action: manipulation;
+    }
+
+    /* Improve spacing for mobile */
+    .grid {
+        gap: 1rem;
+    }
+
+    /* Better mobile navigation spacing */
+    nav a {
+        padding: 0.75rem 1rem;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Mobile-friendly form elements */
+    input, textarea, select {
+        min-height: 44px;
+        padding: 0.75rem;
+    }
+
+    /* Prevent zoom on inputs */
+    input[type="text"],
+    input[type="email"],
+    input[type="search"],
+    textarea {
+        font-size: 16px;
+    }
+
+    /* Improve readability on mobile */
+    .text-xs {
+        font-size: 0.875rem;
+    }
+
+    /* Better mobile spacing for cards */
+    .project-card,
+    .tldr-container {
+        padding: 1.5rem;
+    }
+
+    /* Larger click areas for navigation */
+    header nav a {
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* Focus styles for accessibility */
+*:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Improve button focus states */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .border-gray-200 {
+        border-color: #000;
+    }
+
+    .dark .border-gray-800 {
+        border-color: #fff;
+    }
+
+    .text-gray-600 {
+        color: #000;
+    }
+
+    .dark .text-gray-400 {
+        color: #fff;
+    }
+}
+
+/* Smooth scrolling and hash navigation */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Offset sections for fixed header - This makes hash navigation work properly */
+section[id] {
+    scroll-margin-top: 100px;
 }
