@@ -72,7 +72,7 @@ function initTheme() {
     }
 
     // Theme toggle event listener with ripple animation
-    themeToggle.addEventListener('click', function () {
+    const themeClickHandler = function () {
         console.log('Theme toggle clicked');
 
         // Get the button position for ripple origin
@@ -98,7 +98,9 @@ function initTheme() {
                 console.log('Switched to light theme');
             }
         });
-    });
+    };
+
+    addEventListenerWithCleanup(themeToggle, 'click', themeClickHandler);
 
     // Note: Removed system theme listener for better performance
 }
@@ -424,34 +426,32 @@ function populateSocialLinks(social) {
     }
 }
 
+
+// Store cleanup functions to prevent memory leaks
+const eventCleanupFunctions = [];
+
+// Helper function to add event listener with cleanup tracking
+function addEventListenerWithCleanup(element, event, handler, options = {}) {
+    element.addEventListener(event, handler, options);
+    eventCleanupFunctions.push(() => {
+        element.removeEventListener(event, handler, options);
+    });
+}
+
+// Cleanup function to remove all event listeners
+function cleanupEventListeners() {
+    eventCleanupFunctions.forEach(cleanup => cleanup());
+    eventCleanupFunctions.length = 0;
+}
+
 // Smooth scrolling for navigation links
 document.addEventListener('DOMContentLoaded', function () {
     // Initialize theme
     initTheme();
-    // Get all navigation links
-    const navLinks = document.querySelectorAll('nav a[href^="#"]');
 
-    navLinks.forEach(link => {
-        link.addEventListener('click', function (e) {
-            e.preventDefault();
+    // Highlight active section in navigation with throttling
+    let highlightTicking = false;
 
-            const targetId = this.getAttribute('href');
-            const targetSection = document.querySelector(targetId);
-
-            if (targetSection) {
-                // Calculate offset for fixed header
-                const headerHeight = document.querySelector('header').offsetHeight;
-                const targetPosition = targetSection.offsetTop - headerHeight - 20;
-
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
-            }
-        });
-    });
-
-    // Highlight active section in navigation
     function highlightActiveSection() {
         const sections = document.querySelectorAll('section[id]');
         const navLinks = document.querySelectorAll('nav a[href^="#"]');
@@ -472,10 +472,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 link.classList.add('text-accent');
             }
         });
+
+        highlightTicking = false;
     }
 
-    // Listen for scroll events
-    window.addEventListener('scroll', highlightActiveSection);
+    function requestHighlightTick() {
+        if (!highlightTicking) {
+            requestAnimationFrame(highlightActiveSection);
+            highlightTicking = true;
+        }
+    }
+
+    // Listen for scroll events with throttling
+    addEventListenerWithCleanup(window, 'scroll', requestHighlightTick, { passive: true });
 
     // Initial call to highlight correct section on page load
     highlightActiveSection();
@@ -522,14 +531,16 @@ document.addEventListener('DOMContentLoaded', function () {
     // Add hover effects for project cards
     const projectCards = document.querySelectorAll('#projects .border');
     projectCards.forEach(card => {
-        card.addEventListener('mouseenter', function () {
+        const mouseEnterHandler = function () {
             this.style.transform = 'translateY(-2px)';
             this.style.transition = 'transform 0.2s ease';
-        });
-
-        card.addEventListener('mouseleave', function () {
+        };
+        const mouseLeaveHandler = function () {
             this.style.transform = 'translateY(0)';
-        });
+        };
+
+        addEventListenerWithCleanup(card, 'mouseenter', mouseEnterHandler);
+        addEventListenerWithCleanup(card, 'mouseleave', mouseLeaveHandler);
     });
 
     // Add typing animation for hero text (optional)
@@ -557,7 +568,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const mobileNav = document.getElementById('mobile-nav');
 
         if (mobileMenuToggle && mobileNav) {
-            mobileMenuToggle.addEventListener('click', function () {
+            const mobileMenuClickHandler = function () {
                 const isHidden = mobileNav.classList.contains('hidden');
 
                 if (isHidden) {
@@ -567,14 +578,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     mobileNav.classList.add('hidden');
                     mobileMenuToggle.innerHTML = '<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
                 }
-            });
+            };
+
+            addEventListenerWithCleanup(mobileMenuToggle, 'click', mobileMenuClickHandler);
 
             // Close mobile menu when clicking on a link
             mobileNav.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', function () {
+                const linkClickHandler = function () {
                     mobileNav.classList.add('hidden');
                     mobileMenuToggle.innerHTML = '<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-                });
+                };
+                addEventListenerWithCleanup(link, 'click', linkClickHandler);
             });
         }
     }
@@ -590,6 +604,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (timelineItems.length === 0) {
             return;
         }
+
+        let timelineTicking = false;
 
         function updateTimelineAnimation() {
             const windowHeight = window.innerHeight;
@@ -647,11 +663,20 @@ document.addEventListener('DOMContentLoaded', function () {
                     dot.classList.remove('visible');
                 }
             });
+
+            timelineTicking = false;
         }
 
-        // Listen for scroll events
-        window.addEventListener('scroll', updateTimelineAnimation);
-        window.addEventListener('resize', updateTimelineAnimation);
+        function requestTimelineTick() {
+            if (!timelineTicking) {
+                requestAnimationFrame(updateTimelineAnimation);
+                timelineTicking = true;
+            }
+        }
+
+        // Listen for scroll events with throttling
+        addEventListenerWithCleanup(window, 'scroll', requestTimelineTick, { passive: true });
+        addEventListenerWithCleanup(window, 'resize', requestTimelineTick, { passive: true });
 
         // Initial call
         updateTimelineAnimation();
@@ -662,7 +687,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Contact form submission
     const contactForm = document.getElementById('contact-form');
     if (contactForm) {
-        contactForm.addEventListener('submit', function (e) {
+        const contactFormSubmitHandler = function (e) {
             e.preventDefault();
 
             const email = document.getElementById('email').value;
@@ -700,18 +725,24 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }, 5000);
             }, 1000);
-        });
+        };
+
+        addEventListenerWithCleanup(contactForm, 'submit', contactFormSubmitHandler);
     }
 
     // Spotify Integration
     initSpotify();
 
     // Handle responsive Spotify display on window resize
-    window.addEventListener('resize', function () {
+    const resizeHandler = function () {
         if (window.currentTracks) {
             displayRecentTracks(window.currentTracks);
         }
-    });
+    };
+    addEventListenerWithCleanup(window, 'resize', resizeHandler);
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', cleanupEventListeners);
 });
 
 // Spotify integration using backend API
@@ -722,11 +753,11 @@ function initSpotify() {
     const retryBtn = document.getElementById('retry-spotify');
 
     if (loginBtn) {
-        loginBtn.addEventListener('click', handleSpotifyAuth);
+        addEventListenerWithCleanup(loginBtn, 'click', handleSpotifyAuth);
     }
 
     if (retryBtn) {
-        retryBtn.addEventListener('click', loadYourRecentTracks);
+        addEventListenerWithCleanup(retryBtn, 'click', loadYourRecentTracks);
     }
 
     // Check if returning from successful auth

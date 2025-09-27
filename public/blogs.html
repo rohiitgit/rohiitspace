@@ -65,7 +65,7 @@
                         <a href="index.html" class="hidden md:block font-semibold text-accent" data-content="personal.name">rohit</a>
                         <!-- Hamburger Menu - Mobile Only -->
                         <button id="mobile-menu-toggle"
-                            class="md:hidden p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
+                            class="md:hidden p-3 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                             aria-label="Toggle mobile menu">
                             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2"
@@ -92,7 +92,7 @@
                     <!-- Theme Toggle - 2 columns (both mobile and desktop) -->
                     <div class="col-span-2 text-right">
                         <button id="theme-toggle"
-                            class="p-2 rounded-lg bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
+                            class="p-3 rounded-lg bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                             aria-label="Toggle dark mode">
                             <span id="theme-toggle-light" class="block dark:hidden">
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -126,39 +126,20 @@
         <!-- Main Content -->
         <main class="pt-20 pb-20">
             <div class="max-w-4xl mx-auto px-4">
-                <!-- Blog Header -->
-                <section class="py-12 md:py-20">
-                    <div class="grid grid-cols-12 gap-6">
-                        <div class="col-span-12 text-center">
-                            <div class="inline-block">
-                                <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-accent to-indigo-700 bg-clip-text text-transparent" data-content="blog.title">blogs</h1>
-                                <div class="w-24 h-1 bg-gradient-to-r from-accent to-indigo-700 mx-auto mb-6 rounded-full"></div>
-                            </div>
-                            <p class="text-xl sm:text-2xl text-gray-600 dark:text-gray-300 mb-8 font-medium" data-content="blog.subtitle">thoughts, tutorials, and insights on code & life</p>
-                            <p class="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed" data-content="blog.description">welcome to my corner of the internet where i share what i learn, build, and discover along the way.</p>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Featured Blogs -->
-                <section id="featured-blogs" class="mb-20">
-                    <div class="grid grid-cols-12 gap-6">
-                        <div class="col-span-12">
-                            <h2 class="text-lg sm:text-xl font-semibold mb-6 md:mb-8 text-accent">featured posts</h2>
-                        </div>
-                        <div class="col-span-12">
-                            <div id="featured-blogs-container" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                <!-- Featured blogs will be populated dynamically -->
-                            </div>
-                        </div>
-                    </div>
-                </section>
 
                 <!-- All Blogs -->
                 <section id="all-blogs">
                     <div class="grid grid-cols-12 gap-6">
                         <div class="col-span-12">
-                            <h2 class="text-lg sm:text-xl font-semibold mb-6 md:mb-8 text-accent">all posts</h2>
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 md:mb-8">
+                                <h2 class="text-lg sm:text-xl font-semibold text-accent">all posts</h2>
+                                <div id="tag-filter-container" class="flex items-center gap-2">
+                                    <div id="tag-filters" class="flex flex-wrap gap-2">
+                                        <button class="tag-filter active" data-tag="all">all</button>
+                                        <!-- Dynamic tag filters will be added here -->
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-span-12">
                             <div id="all-blogs-container">
@@ -192,6 +173,53 @@
     </div>
 
     <!-- Scripts -->
+    <!-- Tag Filter Styles -->
+    <style>
+        .tag-filter {
+            padding: 0.75rem 1rem;
+            border: 1px solid;
+            border-color: rgb(209 213 219);
+            color: rgb(107 114 128);
+            background: transparent;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+            min-height: 44px;
+            min-width: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+
+        .dark .tag-filter {
+            border-color: rgb(75 85 99);
+            color: rgb(156 163 175);
+        }
+
+        .tag-filter:hover {
+            border-color: var(--color-accent);
+            color: var(--color-accent);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .tag-filter.active {
+            border-color: var(--color-accent);
+            color: white;
+            background: var(--color-accent);
+        }
+
+        .tag-filter.active:hover {
+            background: rgb(79 70 229);
+        }
+
+        :root {
+            --color-accent: #6366f1;
+        }
+    </style>
+
     <script src="src/scripts/blog-main.js"></script>
 </body>
 

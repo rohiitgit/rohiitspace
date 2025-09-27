@@ -1,5 +1,22 @@
 // Blog Main JavaScript - Handles both blogs listing and individual blog pages
 
+// Store cleanup functions to prevent memory leaks
+const eventCleanupFunctions = [];
+
+// Helper function to add event listener with cleanup tracking
+function addEventListenerWithCleanup(element, event, handler, options = {}) {
+    element.addEventListener(event, handler, options);
+    eventCleanupFunctions.push(() => {
+        element.removeEventListener(event, handler, options);
+    });
+}
+
+// Cleanup function to remove all event listeners
+function cleanupEventListeners() {
+    eventCleanupFunctions.forEach(cleanup => cleanup());
+    eventCleanupFunctions.length = 0;
+}
+
 // Initialize the blog functionality when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize theme and mobile menu (same as main site)
@@ -15,12 +32,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (isListingPage) {
         initBlogListingPage();
+        initTagFiltering();
     } else if (isIndividualBlogPage) {
         initIndividualBlogPage();
+        initShareButtons();
+        initReadingProgress();
+        initRelatedPosts();
+        initCopyCodeButtons();
     }
 
     // Add navigation highlighting for blogs
     highlightActiveNavigation();
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', cleanupEventListeners);
 });
 
 // Theme toggle functionality (same as main site)
@@ -34,7 +59,7 @@ function initTheme() {
         html.classList.add('dark');
     }
 
-    themeToggle.addEventListener('click', function() {
+    const themeClickHandler = function() {
         const rect = themeToggle.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
@@ -49,7 +74,9 @@ function initTheme() {
                 localStorage.setItem('theme', 'light');
             }
         });
-    });
+    };
+
+    addEventListenerWithCleanup(themeToggle, 'click', themeClickHandler);
 }
 
 // Mobile menu functionality (same as main site)
@@ -58,7 +85,7 @@ function initMobileMenu() {
     const mobileNav = document.getElementById('mobile-nav');
 
     if (mobileMenuToggle && mobileNav) {
-        mobileMenuToggle.addEventListener('click', function() {
+        const mobileMenuClickHandler = function() {
             const isHidden = mobileNav.classList.contains('hidden');
             if (isHidden) {
                 mobileNav.classList.remove('hidden');
@@ -67,14 +94,17 @@ function initMobileMenu() {
                 mobileNav.classList.add('hidden');
                 mobileMenuToggle.innerHTML = '<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
             }
-        });
+        };
+
+        addEventListenerWithCleanup(mobileMenuToggle, 'click', mobileMenuClickHandler);
 
         // Close mobile menu when clicking on a link
         mobileNav.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', function() {
+            const linkClickHandler = function() {
                 mobileNav.classList.add('hidden');
                 mobileMenuToggle.innerHTML = '<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-            });
+            };
+            addEventListenerWithCleanup(link, 'click', linkClickHandler);
         });
     }
 }
@@ -211,6 +241,8 @@ function initBlogListingPage() {
             </div>
         `;
     }
+
+
 }
 
 // Create blog card HTML
@@ -234,7 +266,7 @@ function createBlogCard(blog, isFeatured = false) {
                 </div>
                 <div class="flex flex-wrap gap-2 mb-6">
                     ${blog.tags.map((tech, index) => `
-                        <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium ${index === 0 ? 'bg-accent/10 text-accent' : ''}">${tech}</span>
+                        <button class="tag-link px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium hover:bg-accent/10 hover:text-accent transition-colors ${index === 0 ? 'bg-accent/10 text-accent' : ''}" data-tag="${tech}">${tech}</button>
                     `).join('')}
                 </div>
                 <div class="flex gap-6 mt-auto">
@@ -261,7 +293,7 @@ function createBlogCard(blog, isFeatured = false) {
                 </div>
                 <div class="flex flex-wrap gap-2 mb-6">
                     ${blog.tags.map((tech, index) => `
-                        <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium ${index === 0 ? 'bg-accent/10 text-accent' : ''}">${tech}</span>
+                        <button class="tag-link px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium hover:bg-accent/10 hover:text-accent transition-colors ${index === 0 ? 'bg-accent/10 text-accent' : ''}" data-tag="${tech}">${tech}</button>
                     `).join('')}
                 </div>
                 <div class="flex gap-6 mt-auto">
@@ -274,9 +306,6 @@ function createBlogCard(blog, isFeatured = false) {
 
 // Initialize individual blog page
 function initIndividualBlogPage() {
-    console.log('Initializing individual blog page...');
-    console.log('Blog content available:', !!window.blogContent);
-
     if (!window.blogContent) {
         console.error('Blog content not loaded');
         showErrorState();
@@ -285,7 +314,6 @@ function initIndividualBlogPage() {
 
     const urlParams = new URLSearchParams(window.location.search);
     const slug = urlParams.get('slug');
-    console.log('Slug from URL:', slug);
 
     if (!slug) {
         console.error('No slug found in URL');
@@ -294,7 +322,6 @@ function initIndividualBlogPage() {
     }
 
     const blog = window.blogContent.blogs.find(b => b.id === slug);
-    console.log('Found blog:', !!blog);
 
     if (!blog) {
         console.error('Blog not found for slug:', slug);
@@ -437,4 +464,399 @@ function showErrorState() {
 function formatDate(dateString) {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-US', options);
+}
+
+// Initialize share buttons functionality
+function initShareButtons() {
+    const shareTwitter = document.getElementById('share-twitter');
+    const shareLinkedIn = document.getElementById('share-linkedin');
+    const shareCopy = document.getElementById('share-copy');
+
+    if (!shareTwitter || !shareLinkedIn || !shareCopy) return;
+
+    const currentUrl = window.location.href;
+    const postTitle = document.getElementById('post-title')?.textContent || 'Check out this blog post';
+
+    // Twitter share
+    const twitterShareHandler = function() {
+        const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(postTitle)}&via=rohiitcodes`;
+        window.open(twitterUrl, '_blank', 'width=550,height=420');
+    };
+    addEventListenerWithCleanup(shareTwitter, 'click', twitterShareHandler);
+
+    // LinkedIn share
+    const linkedInShareHandler = function() {
+        const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(currentUrl)}`;
+        window.open(linkedInUrl, '_blank', 'width=550,height=420');
+    };
+    addEventListenerWithCleanup(shareLinkedIn, 'click', linkedInShareHandler);
+
+    // Copy link
+    const copyShareHandler = async function() {
+        try {
+            await navigator.clipboard.writeText(currentUrl);
+            showToast('Link copied to clipboard!');
+        } catch (err) {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = currentUrl;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showToast('Link copied to clipboard!');
+        }
+    };
+    addEventListenerWithCleanup(shareCopy, 'click', copyShareHandler);
+}
+
+// Initialize reading progress bar
+function initReadingProgress() {
+    const progressBar = document.getElementById('reading-progress-bar');
+    const postContent = document.getElementById('post-content');
+
+    if (!progressBar || !postContent) return;
+
+    let ticking = false;
+
+    function updateProgress() {
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight - windowHeight;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+        // Calculate progress based on content area
+        const contentTop = postContent.offsetTop;
+        const contentHeight = postContent.offsetHeight;
+        const contentBottom = contentTop + contentHeight;
+
+        let progress = 0;
+
+        if (scrollTop >= contentTop) {
+            if (scrollTop >= contentBottom - windowHeight) {
+                progress = 100;
+            } else {
+                const contentScrolled = scrollTop - contentTop;
+                const totalContentToScroll = contentHeight - windowHeight;
+                progress = (contentScrolled / totalContentToScroll) * 100;
+            }
+        }
+
+        progress = Math.max(0, Math.min(100, progress));
+        progressBar.style.width = `${progress}%`;
+        ticking = false;
+    }
+
+    function requestTick() {
+        if (!ticking) {
+            requestAnimationFrame(updateProgress);
+            ticking = true;
+        }
+    }
+
+    // Throttled scroll event listener
+    addEventListenerWithCleanup(window, 'scroll', requestTick, { passive: true });
+    addEventListenerWithCleanup(window, 'resize', requestTick, { passive: true });
+
+    // Initial update
+    updateProgress();
+}
+
+// Show toast notification
+function showToast(message) {
+    // Remove existing toast
+    const existingToast = document.getElementById('toast-notification');
+    if (existingToast) {
+        existingToast.remove();
+    }
+
+    // Create toast
+    const toast = document.createElement('div');
+    toast.id = 'toast-notification';
+    toast.className = 'fixed bottom-4 right-4 bg-accent text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-all duration-300 transform translate-y-2 opacity-0';
+    toast.textContent = message;
+
+    document.body.appendChild(toast);
+
+    // Animate in
+    setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+    }, 100);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.classList.add('translate-y-2', 'opacity-0');
+        setTimeout(() => {
+            if (document.body.contains(toast)) {
+                document.body.removeChild(toast);
+            }
+        }, 300);
+    }, 3000);
+}
+
+// Initialize tag filtering functionality
+function initTagFiltering() {
+    if (!window.blogContent) return;
+
+    const content = window.blogContent;
+    const tagFiltersContainer = document.getElementById('tag-filters');
+    const allBlogsContainer = document.getElementById('all-blogs-container');
+
+    if (!tagFiltersContainer || !allBlogsContainer) return;
+
+    // Get all unique tags
+    const allTags = [...new Set(content.blogs.flatMap(blog => blog.tags))].sort();
+
+    // Create filter buttons for each tag
+    allTags.forEach(tag => {
+        const button = document.createElement('button');
+        button.className = 'tag-filter';
+        button.setAttribute('data-tag', tag);
+        button.textContent = tag;
+        tagFiltersContainer.appendChild(button);
+    });
+
+    // Handle filter button clicks
+    const tagFilterClickHandler = function(e) {
+        if (e.target.classList.contains('tag-filter')) {
+            const selectedTag = e.target.getAttribute('data-tag');
+
+            // Update active state
+            tagFiltersContainer.querySelectorAll('.tag-filter').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            e.target.classList.add('active');
+
+            // Filter blogs
+            filterBlogsByTag(selectedTag);
+
+            // Update URL
+            const url = new URL(window.location);
+            if (selectedTag === 'all') {
+                url.searchParams.delete('tag');
+            } else {
+                url.searchParams.set('tag', selectedTag);
+            }
+            window.history.pushState({}, '', url);
+        }
+    };
+    addEventListenerWithCleanup(tagFiltersContainer, 'click', tagFilterClickHandler);
+
+    // Handle tag clicks from blog cards
+    const documentTagClickHandler = function(e) {
+        if (e.target.classList.contains('tag-link')) {
+            e.preventDefault();
+            const selectedTag = e.target.getAttribute('data-tag');
+
+            // Update filter UI
+            tagFiltersContainer.querySelectorAll('.tag-filter').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-tag') === selectedTag) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Filter blogs
+            filterBlogsByTag(selectedTag);
+
+            // Update URL
+            const url = new URL(window.location);
+            url.searchParams.set('tag', selectedTag);
+            window.history.pushState({}, '', url);
+        }
+    };
+    addEventListenerWithCleanup(document, 'click', documentTagClickHandler);
+
+    // Check for initial tag filter from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialTag = urlParams.get('tag');
+    if (initialTag && allTags.includes(initialTag)) {
+        // Update active state
+        tagFiltersContainer.querySelectorAll('.tag-filter').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.getAttribute('data-tag') === initialTag) {
+                btn.classList.add('active');
+            }
+        });
+        // Apply filter
+        setTimeout(() => filterBlogsByTag(initialTag), 100);
+    }
+}
+
+// Filter blogs by tag
+function filterBlogsByTag(tag) {
+    if (!window.blogContent) return;
+
+    const content = window.blogContent;
+    const allBlogsContainer = document.getElementById('all-blogs-container');
+
+    if (!allBlogsContainer) return;
+
+    let filteredBlogs;
+    if (tag === 'all') {
+        filteredBlogs = content.blogs;
+    } else {
+        filteredBlogs = content.blogs.filter(blog => blog.tags.includes(tag));
+    }
+
+    // Update container with filtered blogs
+    allBlogsContainer.innerHTML = `
+        <div class="grid grid-cols-1 gap-6">
+            ${filteredBlogs.length > 0
+                ? filteredBlogs.map(blog => createBlogCard(blog, false)).join('')
+                : '<div class="col-span-1 text-center py-12"><p class="text-gray-500 dark:text-gray-400">No posts found with this tag.</p></div>'
+            }
+        </div>
+    `;
+}
+
+// Initialize related posts functionality
+function initRelatedPosts() {
+    if (!window.blogContent) return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const slug = urlParams.get('slug');
+
+    if (!slug) return;
+
+    const currentBlog = window.blogContent.blogs.find(b => b.id === slug);
+    if (!currentBlog) return;
+
+    const relatedPostsContainer = document.getElementById('related-posts-container');
+    const relatedPostsSection = document.getElementById('related-posts');
+
+    if (!relatedPostsContainer || !relatedPostsSection) return;
+
+    // Find related posts based on shared tags
+    const relatedPosts = window.blogContent.blogs
+        .filter(blog => blog.id !== slug) // Exclude current post
+        .map(blog => {
+            // Calculate similarity score based on shared tags
+            const sharedTags = blog.tags.filter(tag => currentBlog.tags.includes(tag));
+            return {
+                ...blog,
+                similarity: sharedTags.length
+            };
+        })
+        .filter(blog => blog.similarity > 0) // Only include posts with shared tags
+        .sort((a, b) => b.similarity - a.similarity) // Sort by similarity
+        .slice(0, 2); // Limit to 2 related posts
+
+    if (relatedPosts.length === 0) {
+        // Hide the section if no related posts
+        relatedPostsSection.style.display = 'none';
+        return;
+    }
+
+    // Populate related posts
+    relatedPostsContainer.innerHTML = relatedPosts.map(blog => createRelatedPostCard(blog)).join('');
+}
+
+// Create related post card HTML
+function createRelatedPostCard(blog) {
+    return `
+        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 hover:border-accent/50 hover:shadow-lg transition-all duration-300">
+            <h4 class="font-semibold mb-3 text-lg leading-tight">
+                <a href="blog.html?slug=${blog.id}" class="hover:text-accent transition-colors">
+                    ${blog.title}
+                </a>
+            </h4>
+            <p class="text-gray-600 dark:text-gray-300 text-sm mb-4 leading-relaxed line-clamp-3">
+                ${blog.excerpt}
+            </p>
+            <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-4">
+                <time>${formatDate(blog.date)}</time>
+                <span>•</span>
+                <span>${blog.readTime}</span>
+            </div>
+            <div class="flex flex-wrap gap-2 mb-4">
+                ${blog.tags.slice(0, 3).map((tag, index) => `
+                    <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs font-medium ${index === 0 ? 'bg-accent/10 text-accent' : ''}">${tag}</span>
+                `).join('')}
+                ${blog.tags.length > 3 ? '<span class="text-xs text-gray-500">+' + (blog.tags.length - 3) + ' more</span>' : ''}
+            </div>
+            <a href="blog.html?slug=${blog.id}" class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">
+                read article →
+            </a>
+        </div>
+    `;
+}
+
+// Initialize copy code buttons functionality
+function initCopyCodeButtons() {
+    // Wait for content to be loaded
+    setTimeout(() => {
+        const codeBlocks = document.querySelectorAll('pre code');
+
+        codeBlocks.forEach((codeBlock, index) => {
+            const pre = codeBlock.parentElement;
+
+            // Skip if copy button already exists
+            if (pre.querySelector('.copy-code-btn')) return;
+
+            // Add relative positioning to pre element
+            pre.style.position = 'relative';
+
+            // Create copy button
+            const copyButton = document.createElement('button');
+            copyButton.className = 'copy-code-btn absolute top-2 right-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded transition-all duration-200 opacity-80 hover:opacity-100 min-h-[44px] min-w-[44px] flex items-center justify-center touch-action-manipulation';
+            copyButton.innerHTML = `
+                <div class="flex items-center gap-1.5">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                    </svg>
+                    <span>Copy</span>
+                </div>
+            `;
+            copyButton.setAttribute('aria-label', 'Copy code to clipboard');
+
+            // Add click handler
+            const copyCodeHandler = async function() {
+                const code = codeBlock.textContent;
+
+                try {
+                    await navigator.clipboard.writeText(code);
+
+                    // Update button to show success
+                    copyButton.innerHTML = `
+                        <div class="flex items-center gap-1.5">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span>Copied!</span>
+                        </div>
+                    `;
+                    copyButton.className = 'absolute top-2 right-2 px-3 py-2 bg-green-600 text-white text-xs rounded transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center';
+
+                    // Reset button after 2 seconds
+                    setTimeout(() => {
+                        copyButton.innerHTML = `
+                            <div class="flex items-center gap-1.5">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                </svg>
+                                <span>Copy</span>
+                            </div>
+                        `;
+                        copyButton.className = 'absolute top-2 right-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded transition-all duration-200 opacity-80 hover:opacity-100 min-h-[44px] min-w-[44px] flex items-center justify-center touch-action-manipulation';
+                    }, 2000);
+
+                } catch (err) {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = code;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+
+                    // Show success feedback
+                    showToast('Code copied to clipboard!');
+                }
+            };
+            addEventListenerWithCleanup(copyButton, 'click', copyCodeHandler);
+
+            // Add button to pre element
+            pre.appendChild(copyButton);
+        });
+    }, 500); // Delay to ensure content is fully loaded
 }
