@@ -217,6 +217,27 @@ section {
     border-color: rgba(99, 102, 241, 0.4);
 }
 
+/* Side Projects Heading Underline Animation */
+.side-projects-heading {
+    position: relative;
+    display: inline-block;
+}
+
+.side-projects-heading::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.side-projects-heading.animate-underline::after {
+    width: 100%;
+}
+
 /* Respect user's motion preferences */
 @media (prefers-reduced-motion: reduce) {
 

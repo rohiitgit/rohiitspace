@@ -135,8 +135,8 @@ function populateContent() {
     // Populate projects section
     populateProjectsSection(content.projects);
 
-    // Populate skills section
-    populateSkillsSection(content.skills);
+    // Populate side projects section
+    populateSideProjectsSection(content.sideProjects);
 
     // Populate achievements section
     populateAchievementsSection(content.achievements);
@@ -151,6 +151,9 @@ function populateContent() {
     document.querySelectorAll('[data-content]').forEach(element => {
         element.classList.add('populated');
     });
+
+    // Setup side projects heading animation
+    setupSideProjectsHeadingAnimation();
 }
 
 // Populate content immediately when this script loads (after content.js)
@@ -304,28 +307,45 @@ function populateProjectsSection(projects) {
     }
 }
 
-function populateSkillsSection(skills) {
-    const titleElement = document.querySelector('[data-content="skills.title"]');
+function populateSideProjectsSection(sideProjects) {
+    const titleElement = document.querySelector('[data-content="sideProjects.title"]');
     if (titleElement) {
-        titleElement.textContent = skills.title;
+        titleElement.textContent = sideProjects.title;
     }
 
-    const skillsContainer = document.querySelector('[data-content="skills.categories"]');
-    if (skillsContainer) {
-        skillsContainer.innerHTML = `
-<div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
-                ${skills.categories.map(category => `
-                    <div class="mb-6 md:mb-0">
-                        <h3 class="font-semibold mb-3 md:mb-4 text-accent text-sm sm:text-base">${category.title}</h3>
-                        <ul class="space-y-2 text-gray-600 dark:text-gray-300 text-xs sm:text-sm">
-                            ${category.items.map(item => `
-                                <li>• ${item.highlight ? `<strong>${item.name}</strong>` : item.name}</li>
-                            `).join('')}
-                        </ul>
+    const sideProjectsContainer = document.querySelector('[data-content="sideProjects.items"]');
+    if (sideProjectsContainer && sideProjects.items.length > 0) {
+        sideProjectsContainer.innerHTML = `
+            <div class="space-y-3">
+                ${sideProjects.items.map(project => `
+                    <div class="group p-4 rounded-lg bg-gradient-to-r from-gray-50/50 to-transparent dark:from-gray-800/30 dark:to-transparent hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-all duration-300">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div class="flex-1">
+                                <div class="flex items-baseline gap-2 mb-2">
+                                    <h4 class="font-bold text-base text-gray-900 dark:text-gray-100">${project.title}</h4>
+                                    <div class="flex gap-2">
+                                        ${project.links.live ? `
+                                            <a href="${project.links.live}" class="text-accent hover:text-indigo-700 text-xs font-medium transition-colors">live →</a>
+                                        ` : ''}
+                                        ${project.links.github ? `
+                                            <a href="${project.links.github}" class="text-accent hover:text-indigo-700 text-xs font-medium transition-colors">github →</a>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-2">${project.description}</p>
+                                <div class="flex flex-wrap gap-2">
+                                    ${project.technologies.map(tech => `
+                                        <span class="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs">${tech}</span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 `).join('')}
             </div>
         `;
+    } else if (sideProjectsContainer) {
+        sideProjectsContainer.innerHTML = '';
     }
 }
 
@@ -1071,4 +1091,28 @@ function showSpotifyNoTracks() {
     if (errorMessage) {
         errorMessage.textContent = 'no recent tracks found - play some music on spotify first!';
     }
+}
+
+// Setup side projects heading underline animation
+function setupSideProjectsHeadingAnimation() {
+    const heading = document.querySelector('.side-projects-heading');
+    if (!heading) return;
+
+    // Create an Intersection Observer
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !heading.classList.contains('animate-underline')) {
+                // Add the animation class once when it comes into view
+                heading.classList.add('animate-underline');
+                // Disconnect observer since we only want this to happen once
+                observer.disconnect();
+            }
+        });
+    }, {
+        threshold: 0,
+        rootMargin: '-30% 0px -30% 0px' // Trigger when heading reaches 70% from top (100% - 30% = 70%)
+    });
+
+    // Start observing the heading
+    observer.observe(heading);
 }

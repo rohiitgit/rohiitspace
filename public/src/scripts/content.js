@@ -33,7 +33,6 @@ const siteContent = {
         { name: "about", href: "#about" },
         { name: "experience", href: "#experience" },
         { name: "projects", href: "#projects" },
-        { name: "skills", href: "#skills" },
         { name: "achievements", href: "#achievements" },
         { name: "blogs", href: "blogs.html" }
     ],
@@ -118,49 +117,18 @@ const siteContent = {
         ]
     },
 
-    // Skills Section
-    skills: {
-        title: "skills",
-        categories: [
+    // Side Projects Section
+    sideProjects: {
+        title: "i made it cuz im lazy",
+        items: [
             {
-                title: "languages",
-                items: [
-                    { name: "python", highlight: true },
-                    { name: "javascript", highlight: true },
-                    { name: "c/c++", highlight: true },
-                    { name: "solidity", highlight: false },
-                    { name: "react", highlight: true },
-                    { name: "tailwindcss", highlight: true },
-                    { name: "html/css", highlight: false }
-                ]
-            },
-            {
-                title: "backend",
-                items: [
-                    { name: "node.js", highlight: true },
-                    { name: "flask", highlight: true },
-                    { name: "rest apis", highlight: true }
-                ]
-            },
-            {
-                title: "tools",
-                items: [
-                    { name: "supabase", highlight: true },
-                    { name: "mongodb", highlight: true },
-                    { name: "sanity cms", highlight: true },
-                    { name: "git", highlight: true },
-                    { name: "docker", highlight: false },
-                    { name: "postman", highlight: false },
-                    { name: "arch linux", highlight: true }
-                ]
-            },
-            {
-                title: "ml/ai",
-                items: [
-                    { name: "computer vision", highlight: true },
-                    { name: "opencv", highlight: true },
-                    { name: "meta's SAM-2", highlight: true }
-                ]
+                title: "nodemaid",
+                description: "cli tool to find and delete all node_modules folders in a directory. because manually searching for them is exhausting.",
+                technologies: ["node.js", "cli"],
+                links: {
+                    live: "https://www.npmjs.com/package/nodemaid",
+                    github: "https://github.com/rohiitgit/nodemaid"
+                }
             }
         ]
     },
