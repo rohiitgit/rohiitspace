@@ -71,7 +71,7 @@ const siteContent = {
                 description: "building <strong>openblood website</strong> with <strong>GSAP</strong>, <strong>HTML</strong>, <strong>TailwindCSS</strong> with smooth animations, modern UI, clean design system."
             },
             {
-                title: "software developer engineer",
+                title: "software development engineer",
                 company: "boundspec",
                 companyUrl: "https://www.boundspec.com/",
                 duration: "apr 2025 - sept 2025",
