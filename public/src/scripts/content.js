@@ -207,10 +207,10 @@ const siteContent = {
 
     // Social Links
     social: {
-        email: "rohitcodes03@gmail.com",
-        github: "https://github.com/rohiitgit",
+        twitter: "https://x.com/rohiitspace",
         linkedin: "https://linkedin.com/in/rohiitcodes",
-        twitter: "https://x.com/rohiitspace"
+        github: "https://github.com/rohiitgit",
+        cal: "https://cal.com/rohiitcodes/15min"
     }
 };
 
