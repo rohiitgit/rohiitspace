@@ -107,6 +107,14 @@ const siteContent = {
                 }
             },
             {
+                title: "open blood landing page",
+                description: "designed and built <strong>landing page for nationwide blood donation network</strong>. features qr-based donor identification, automated alerts, and <strong>modern ui with smooth animations</strong>.",
+                technologies: ["html", "css", "vanilla js", "gsap", "lenis"],
+                links: {
+                    live: "https://landing-theta-red-48.vercel.app/"
+                }
+            },
+            {
                 title: "web3 referral platform landing page",
                 description: "created <strong>responsive, animated landing page</strong> for blockchain referral startup. built <strong>reusable and performant ui components</strong>.",
                 technologies: ["next.js", "tailwindcss"],
