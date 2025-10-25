@@ -19,7 +19,7 @@ const siteContent = {
     // Personal Information
     personal: {
         name: "rohit",
-        profileImage: "https://media.licdn.com/dms/image/v2/D5603AQEfT67Uns4tJw/profile-displayphoto-crop_800_800/B56Zf4vxyoHUAI-/0/1752224965896?e=1761177600&v=beta&t=TKN2q9Sl986zN0b4U_JgroJj_dSma_uRCi6iGOAZzGQ",
+        profileImage: "assets/images/pfp.webp",
         fallbackImage: "assets/images/pfp.webp",
         location: "agra, UP",
         currentCompany: {
@@ -149,7 +149,7 @@ const siteContent = {
                 title: "smart india hackathon 2024 finalist",
                 url: "https://www.linkedin.com/posts/rohiitcodes_smart-india-hackathon-was-a-fabulous-experience-activity-7274397856336101376-Rh_Q?utm_source=share&utm_medium=member_desktop",
                 description: "finalist in national hackathon; built <strong>webgis solution for isro</strong>. used meta's <strong>segment anything model v2</strong> for precise satellite image segmentation.",
-                image: "https://media.licdn.com/dms/image/v2/D5622AQFtlSU8SO8orw/feedshare-shrink_2048_1536/B56ZPPaQa5G8As-/0/1734351591846?e=1761177600&v=beta&t=W_5AxIVXytuX9V5mwq_3mK0iSAyzIR1s_BY0g2QccTU",
+                image: "assets/images/sih.webp",
                 imageAlt: "Smart India Hackathon 2024 Certificate"
             }
         ],

@@ -31,9 +31,20 @@ function validateContent(content, schema) {
     return true;
 }
 
-// Safe URL validator (basic check for http/https)
+// Safe URL validator (supports both absolute URLs and relative paths)
 function isSafeUrl(url) {
     if (!url || typeof url !== 'string') return false;
+
+    // Allow relative paths (for local assets)
+    if (url.startsWith('/') || url.startsWith('./') || url.startsWith('../') || !url.includes('://')) {
+        // Simple validation: no script tags or javascript: protocol
+        if (url.toLowerCase().includes('javascript:') || url.toLowerCase().includes('<script')) {
+            return false;
+        }
+        return true;
+    }
+
+    // For absolute URLs, validate protocol
     try {
         const parsed = new URL(url);
         return ['http:', 'https:'].includes(parsed.protocol);
@@ -526,57 +537,82 @@ function populateSideProjectsSection(sideProjects) {
 }
 
 function populateAchievementsSection(achievements) {
-    const titleElement = document.querySelector('[data-content="achievements.title"]');
-    if (titleElement) {
-        titleElement.textContent = achievements.title;
+    if (!validateContent(achievements, ['title'])) {
+        console.error('Achievements section validation failed');
+        return;
     }
 
-    const achievementsContainer = document.querySelector('[data-content="achievements"]');
-    if (achievementsContainer) {
-        achievementsContainer.innerHTML = `
-            <!-- Achievements - Mobile: full width, Desktop: 6 columns -->
-            <div class="mb-6 md:mb-0">
-                <h3 class="font-semibold mb-3 md:mb-4 text-accent text-sm sm:text-base">achievements</h3>
-                <div class="space-y-3 md:space-y-4">
-                    ${achievements.achievements.map(achievement => `
+    try {
+        const titleElement = document.querySelector('[data-content="achievements.title"]');
+        if (titleElement && achievements.title) {
+            titleElement.textContent = achievements.title;
+        }
+
+        const achievementsContainer = document.querySelector('[data-content="achievements"]');
+        if (achievementsContainer) {
+            const achievementsHtml = Array.isArray(achievements.achievements) && achievements.achievements.length > 0
+                ? achievements.achievements.map(achievement => {
+                    // Validate image URL if present
+                    const hasValidImage = achievement.image && isSafeUrl(achievement.image);
+
+                    return `
                         <div class="border-l-2 border-accent pl-3 md:pl-4">
                             <h4 class="font-semibold text-xs sm:text-sm">
-                                <a href="${achievement.url}" class="hover:text-accent transition-colors">${achievement.title}</a>
+                                <a href="${achievement.url || '#'}" class="hover:text-accent transition-colors">${achievement.title || 'Achievement'}</a>
                             </h4>
                             <p class="text-gray-600 dark:text-gray-300 text-xs mt-1 leading-relaxed">
-                                ${achievement.description}
+                                ${achievement.description || ''}
                             </p>
-                            ${achievement.image ? `
+                            ${hasValidImage ? `
                                 <div class="mt-3">
-                                    <img src="${achievement.image}" alt="${achievement.imageAlt}"
-                                         class="w-full max-w-sm rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-300" loading="lazy">
+                                    <img src="${achievement.image}"
+                                         alt="${achievement.imageAlt || achievement.title || 'Achievement image'}"
+                                         class="w-full max-w-sm rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-300"
+                                         loading="lazy"
+                                         onerror="console.error('Failed to load image for ${achievement.title}:', this.src); this.parentElement.innerHTML='<p class=\\'text-sm text-gray-500 dark:text-gray-400 italic\\'>Image unavailable (LinkedIn hotlink protection)</p>';">
                                 </div>
                             ` : ''}
                         </div>
-                    `).join('')}
-                </div>
-            </div>
+                    `;
+                }).join('')
+                : '<p class="text-gray-600 dark:text-gray-400 text-sm">No achievements to display.</p>';
 
-            <!-- Certifications - Mobile: full width, Desktop: 6 columns -->
-            <div>
-                <h3 class="font-semibold mb-3 md:mb-4 text-accent text-sm sm:text-base">certifications</h3>
-                <div class="space-y-3">
-                    ${achievements.certifications.map(cert => `
-                        <div class="border-l-2 border-accent pl-3 md:pl-4">
-                            <div class="flex justify-between items-start gap-2">
-                                <div class="flex-1">
-                                    <h4 class="font-semibold text-xs sm:text-sm">
-                                        <a href="${cert.url}" class="hover:text-accent transition-colors">${cert.title}</a>
-                                    </h4>
-                                    <p class="text-gray-600 dark:text-gray-400 text-xs">${cert.organization}</p>
-                                </div>
-                                <span class="text-gray-400 text-xs shrink-0">${cert.date}</span>
+            const certificationsHtml = Array.isArray(achievements.certifications) && achievements.certifications.length > 0
+                ? achievements.certifications.map(cert => `
+                    <div class="border-l-2 border-accent pl-3 md:pl-4">
+                        <div class="flex justify-between items-start gap-2">
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-xs sm:text-sm">
+                                    <a href="${cert.url || '#'}" class="hover:text-accent transition-colors">${cert.title || 'Certification'}</a>
+                                </h4>
+                                <p class="text-gray-600 dark:text-gray-400 text-xs">${cert.organization || ''}</p>
                             </div>
+                            <span class="text-gray-400 text-xs shrink-0">${cert.date || ''}</span>
                         </div>
-                    `).join('')}
+                    </div>
+                `).join('')
+                : '<p class="text-gray-600 dark:text-gray-400 text-sm">No certifications to display.</p>';
+
+            achievementsContainer.innerHTML = `
+                <!-- Achievements - Mobile: full width, Desktop: 6 columns -->
+                <div class="mb-6 md:mb-0">
+                    <h3 class="font-semibold mb-3 md:mb-4 text-accent text-sm sm:text-base">achievements</h3>
+                    <div class="space-y-3 md:space-y-4">
+                        ${achievementsHtml}
+                    </div>
                 </div>
-            </div>
-        `;
+
+                <!-- Certifications - Mobile: full width, Desktop: 6 columns -->
+                <div>
+                    <h3 class="font-semibold mb-3 md:mb-4 text-accent text-sm sm:text-base">certifications</h3>
+                    <div class="space-y-3">
+                        ${certificationsHtml}
+                    </div>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error populating achievements section:', error.message);
     }
 }
 

@@ -29,10 +29,8 @@
     <meta property="twitter:image" content="https://www.rohiit.space/pfp.webp">
 
     <!-- Favicons -->
-    <link rel="icon" type="image/x-icon"
-        href="https://media.licdn.com/dms/image/v2/D5603AQEfT67Uns4tJw/profile-displayphoto-crop_800_800/B56Zf4vxyoHUAI-/0/1752224965896?e=1762992000&v=beta&t=nxzjj8YOorsE7dgI5tfmnnv48VfwqI1iaWriNaCllvs">
-    <link rel="apple-touch-icon"
-        href="https://media.licdn.com/dms/image/v2/D5603AQEfT67Uns4tJw/profile-displayphoto-crop_800_800/B56Zf4vxyoHUAI-/0/1752224965896?e=1761177600&v=beta&t=TKN2q9Sl986zN0b4U_JgroJj_dSma_uRCi6iGOAZzGQ">
+    <link rel="icon" type="image/webp" href="assets/images/pfp.webp">
+    <link rel="apple-touch-icon" href="assets/images/pfp.webp">
     <link rel="stylesheet" href="src/styles/tailwind.css">
     <link rel="stylesheet" href="src/styles/main.css">
 
@@ -165,10 +163,12 @@
                     <div class="col-span-12 md:col-start-5 md:col-span-4 text-center mb-6 md:mb-4">
                         <div
                             class="w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 mx-auto bg-gray-100 dark:bg-gray-900 rounded-xl border-2 border-accent transition-all duration-300 flex items-center justify-center overflow-hidden hover:shadow-lg">
-                            <img src="https://media.licdn.com/dms/image/v2/D5603AQEfT67Uns4tJw/profile-displayphoto-crop_800_800/B56Zf4vxyoHUAI-/0/1752224965896?e=1762992000&v=beta&t=nxzjj8YOorsE7dgI5tfmnnv48VfwqI1iaWriNaCllvs"
-                                alt="Rohit's profile picture" class="w-full h-full object-cover"
+                            <img src="assets/images/pfp.webp"
+                                alt="Rohit's profile picture"
+                                class="w-full h-full object-cover"
                                 loading="lazy"
-                                onerror="this.src='./pfp.webp'; if(this.src.includes('pfp.webp')) { this.style.display='none'; this.parentElement.innerHTML='&lt;div class=&quot;w-full h-full flex items-center justify-center text-4xl&quot;&gt;👨‍💻&lt;/div&gt;'; }">
+                                data-content="personal.profileImage"
+                                onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;w-full h-full flex items-center justify-center text-4xl&quot;>👨‍💻</div>';">
                         </div>
                     </div>
 
