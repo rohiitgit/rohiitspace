@@ -24,7 +24,7 @@ const siteContent = {
         location: "agra, UP",
         currentCompany: {
             name: "openblood",
-            url: "https://www.linkedin.com/company/openblood/posts/?feedView=all"
+            url: "https://openblood.app/"
         }
     },
 
@@ -44,7 +44,7 @@ const siteContent = {
         tldrContent: [
             "i'm obsessed with ideas (even if half of them don't show up).",
             "interned at a startup as a '<strong>python intern</strong>' where they threw <strong>C++</strong> at me day 1. i didn't know it. <strong>still cooked</strong>.",
-            "currently building at <a href=\"https://www.linkedin.com/company/openblood/posts/?feedView=all\" class=\"text-accent hover:text-indigo-700 transition-colors font-semibold\">@openblood.</a>",
+            "currently building at <a href=\"https://openblood.app/\" class=\"text-accent hover:text-indigo-700 transition-colors font-semibold\">@openblood.</a>",
             "i adapt fast. tools change, but shipping matters more."
         ]
     },
@@ -65,7 +65,7 @@ const siteContent = {
             {
                 title: "engineer intern",
                 company: "openblood",
-                companyUrl: "https://www.linkedin.com/company/openblood/posts/?feedView=all",
+                companyUrl: "https://openblood.app/",
                 duration: "aug 2025 - present",
                 description: "building <strong>openblood website</strong> with <strong>GSAP</strong>, <strong>HTML</strong>, <strong>TailwindCSS</strong> with smooth animations, modern UI, clean design system."
             },
