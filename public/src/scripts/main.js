@@ -1,3 +1,56 @@
+// ===========================
+// Utility Functions
+// ===========================
+
+// HTML escaping utility to prevent XSS
+function escapeHtml(unsafe) {
+    if (unsafe === null || unsafe === undefined) return '';
+    return String(unsafe)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+// Validate and sanitize content object
+function validateContent(content, schema) {
+    if (!content || typeof content !== 'object') {
+        console.error('Invalid content structure');
+        return false;
+    }
+
+    // Check if required properties exist
+    for (const key of schema) {
+        if (!(key in content)) {
+            console.error(`Missing required content property: ${key}`);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// Safe URL validator (basic check for http/https)
+function isSafeUrl(url) {
+    if (!url || typeof url !== 'string') return false;
+    try {
+        const parsed = new URL(url);
+        return ['http:', 'https:'].includes(parsed.protocol);
+    } catch {
+        return false;
+    }
+}
+
+// Store active ripple timeouts for cleanup
+const activeRippleTimeouts = [];
+
+// Store active observers for cleanup
+const activeObservers = [];
+
+// Store Lenis instance for cleanup
+let lenisInstance = null;
+
 // Ripple animation function
 function createRippleAnimation(x, y, targetTheme, callback) {
     // Create ripple container
@@ -46,12 +99,34 @@ function createRippleAnimation(x, y, targetTheme, callback) {
         callback();
     });
 
-    // Clean up after animation completes
-    setTimeout(() => {
+    // Clean up after animation completes with timeout tracking
+    const timeoutId = setTimeout(() => {
         if (document.body.contains(rippleContainer)) {
             document.body.removeChild(rippleContainer);
         }
+        // Remove this timeout from active list
+        const index = activeRippleTimeouts.indexOf(timeoutId);
+        if (index > -1) {
+            activeRippleTimeouts.splice(index, 1);
+        }
     }, 900);
+
+    // Track timeout for cleanup
+    activeRippleTimeouts.push(timeoutId);
+}
+
+// Cleanup function for ripple animations
+function cleanupRippleAnimations() {
+    activeRippleTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+    activeRippleTimeouts.length = 0;
+
+    // Remove any remaining ripple containers
+    const rippleContainers = document.querySelectorAll('div[style*="z-index: 1000"]');
+    rippleContainers.forEach(container => {
+        if (container.style.position === 'fixed' && document.body.contains(container)) {
+            document.body.removeChild(container);
+        }
+    });
 }
 
 // Theme toggle functionality
@@ -109,51 +184,87 @@ function initTheme() {
 function populateContent() {
     if (!window.siteContent) {
         console.error('Site content not loaded');
+        showContentLoadError();
         return;
     }
 
     const content = window.siteContent;
 
-    // Populate meta tags
-    updateMetaTags(content.meta);
+    // Validate content structure
+    if (typeof content !== 'object') {
+        console.error('Invalid content structure');
+        showContentLoadError();
+        return;
+    }
 
-    // Populate navigation
-    populateNavigation(content.navigation);
+    try {
+        // Populate meta tags
+        if (content.meta) updateMetaTags(content.meta);
 
-    // Populate personal info
-    populatePersonalInfo(content.personal);
+        // Populate navigation
+        if (content.navigation) populateNavigation(content.navigation);
 
-    // Populate hero section
-    populateHeroSection(content.hero);
+        // Populate personal info
+        if (content.personal) populatePersonalInfo(content.personal);
 
-    // Populate about section
-    populateAboutSection(content.about);
+        // Populate hero section
+        if (content.hero) populateHeroSection(content.hero);
 
-    // Populate experience section
-    populateExperienceSection(content.experience);
+        // Populate about section
+        if (content.about) populateAboutSection(content.about);
 
-    // Populate projects section
-    populateProjectsSection(content.projects);
+        // Populate experience section
+        if (content.experience) populateExperienceSection(content.experience);
 
-    // Populate side projects section
-    populateSideProjectsSection(content.sideProjects);
+        // Populate projects section
+        if (content.projects) populateProjectsSection(content.projects);
 
-    // Populate achievements section
-    populateAchievementsSection(content.achievements);
+        // Populate side projects section
+        if (content.sideProjects) populateSideProjectsSection(content.sideProjects);
 
-    // Populate footer
-    populateFooter(content.footer);
+        // Populate achievements section
+        if (content.achievements) populateAchievementsSection(content.achievements);
 
-    // Populate social links
-    populateSocialLinks(content.social);
+        // Populate footer
+        if (content.footer) populateFooter(content.footer);
 
-    // Mark all content as populated to show it
-    document.querySelectorAll('[data-content]').forEach(element => {
-        element.classList.add('populated');
-    });
+        // Populate social links
+        if (content.social) populateSocialLinks(content.social);
 
-    // Setup side projects heading animation
-    setupSideProjectsHeadingAnimation();
+        // Mark all content as populated to show it
+        document.querySelectorAll('[data-content]').forEach(element => {
+            element.classList.add('populated');
+        });
+
+        // Setup side projects heading animation
+        setupSideProjectsHeadingAnimation();
+    } catch (error) {
+        console.error('Error populating content:', error.message);
+        showContentLoadError();
+    }
+}
+
+// Show user-friendly error message when content fails to load
+function showContentLoadError() {
+    const mainContent = document.querySelector('main');
+    if (mainContent) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'fixed inset-0 flex items-center justify-center bg-gray-50 dark:bg-black z-50';
+        errorDiv.innerHTML = `
+            <div class="text-center p-8 max-w-md">
+                <div class="text-6xl mb-4">⚠️</div>
+                <h2 class="text-2xl font-bold mb-4">Content Loading Error</h2>
+                <p class="text-gray-600 dark:text-gray-400 mb-6">
+                    We're having trouble loading the page content. Please try refreshing the page.
+                </p>
+                <button onclick="window.location.reload()"
+                    class="bg-accent hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                    Refresh Page
+                </button>
+            </div>
+        `;
+        document.body.appendChild(errorDiv);
+    }
 }
 
 // Populate content immediately when this script loads (after content.js)
@@ -164,29 +275,53 @@ if (document.readyState === 'loading') {
 }
 
 function updateMetaTags(meta) {
-    document.title = meta.title;
+    // Validate meta object
+    if (!validateContent(meta, ['title', 'description', 'author'])) {
+        console.error('Meta tags validation failed, using defaults');
+        return;
+    }
 
-    const metaTags = [
-        { selector: 'meta[name="description"]', attr: 'content', value: meta.description },
-        { selector: 'meta[name="keywords"]', attr: 'content', value: meta.keywords },
-        { selector: 'meta[name="author"]', attr: 'content', value: meta.author },
-        { selector: 'meta[property="og:url"]', attr: 'content', value: meta.url },
-        { selector: 'meta[property="og:title"]', attr: 'content', value: meta.ogTitle },
-        { selector: 'meta[property="og:description"]', attr: 'content', value: meta.ogDescription },
-        { selector: 'meta[property="og:image"]', attr: 'content', value: meta.ogImage },
-        { selector: 'meta[property="og:site_name"]', attr: 'content', value: meta.siteName },
-        { selector: 'meta[property="twitter:url"]', attr: 'content', value: meta.url },
-        { selector: 'meta[property="twitter:title"]', attr: 'content', value: meta.twitterTitle },
-        { selector: 'meta[property="twitter:description"]', attr: 'content', value: meta.twitterDescription },
-        { selector: 'meta[property="twitter:image"]', attr: 'content', value: meta.twitterImage }
-    ];
+    try {
+        // Safely set title (document.title automatically escapes)
+        document.title = meta.title || 'Portfolio';
 
-    metaTags.forEach(tag => {
-        const element = document.querySelector(tag.selector);
-        if (element) {
-            element.setAttribute(tag.attr, tag.value);
-        }
-    });
+        const metaTags = [
+            { selector: 'meta[name="description"]', attr: 'content', value: meta.description },
+            { selector: 'meta[name="keywords"]', attr: 'content', value: meta.keywords },
+            { selector: 'meta[name="author"]', attr: 'content', value: meta.author },
+            { selector: 'meta[property="og:url"]', attr: 'content', value: meta.url },
+            { selector: 'meta[property="og:title"]', attr: 'content', value: meta.ogTitle },
+            { selector: 'meta[property="og:description"]', attr: 'content', value: meta.ogDescription },
+            { selector: 'meta[property="og:image"]', attr: 'content', value: meta.ogImage },
+            { selector: 'meta[property="og:site_name"]', attr: 'content', value: meta.siteName },
+            { selector: 'meta[property="twitter:url"]', attr: 'content', value: meta.url },
+            { selector: 'meta[property="twitter:title"]', attr: 'content', value: meta.twitterTitle },
+            { selector: 'meta[property="twitter:description"]', attr: 'content', value: meta.twitterDescription },
+            { selector: 'meta[property="twitter:image"]', attr: 'content', value: meta.twitterImage }
+        ];
+
+        metaTags.forEach(tag => {
+            try {
+                const element = document.querySelector(tag.selector);
+                if (element && tag.value) {
+                    // Validate URLs for image and url fields
+                    if (tag.selector.includes('image') || tag.selector.includes('url')) {
+                        if (isSafeUrl(tag.value)) {
+                            element.setAttribute(tag.attr, tag.value);
+                        }
+                    } else {
+                        // setAttribute escapes automatically, but we still escape for extra safety
+                        // This protects against potential browser quirks
+                        element.setAttribute(tag.attr, escapeHtml(tag.value));
+                    }
+                }
+            } catch (error) {
+                console.error(`Failed to set meta tag ${tag.selector}:`, error.message);
+            }
+        });
+    } catch (error) {
+        console.error('Error updating meta tags:', error.message);
+    }
 }
 
 function populateNavigation(navigation) {
@@ -196,48 +331,89 @@ function populateNavigation(navigation) {
 }
 
 function populatePersonalInfo(personal) {
-    const nameElement = document.querySelector('[data-content="personal.name"]');
-    if (nameElement) {
-        nameElement.textContent = personal.name;
+    if (!validateContent(personal, ['name'])) {
+        console.error('Personal info validation failed');
+        return;
     }
 
-    const profileImage = document.querySelector('[data-content="personal.profileImage"]');
-    if (profileImage) {
-        profileImage.src = personal.profileImage;
-        profileImage.alt = `${personal.name}'s profile picture`;
+    try {
+        const nameElement = document.querySelector('[data-content="personal.name"]');
+        if (nameElement && personal.name) {
+            // textContent automatically escapes, no need for escapeHtml
+            nameElement.textContent = personal.name;
+        }
+
+        const profileImage = document.querySelector('[data-content="personal.profileImage"]');
+        if (profileImage && personal.profileImage) {
+            // Validate image URL
+            if (isSafeUrl(personal.profileImage)) {
+                profileImage.src = personal.profileImage;
+                profileImage.alt = `${personal.name}'s profile picture`;
+            } else if (personal.fallbackImage && isSafeUrl(personal.fallbackImage)) {
+                profileImage.src = personal.fallbackImage;
+                profileImage.alt = `${personal.name}'s profile picture`;
+            }
+        }
+    } catch (error) {
+        console.error('Error populating personal info:', error.message);
     }
 }
 
 function populateHeroSection(hero) {
-    const greetingElement = document.querySelector('[data-content="hero.greeting"]');
-    if (greetingElement) {
-        greetingElement.textContent = hero.greeting;
+    if (!validateContent(hero, ['greeting', 'tldrTitle', 'tldrContent'])) {
+        console.error('Hero section validation failed');
+        return;
     }
 
-    const tldrTitleElement = document.querySelector('[data-content="hero.tldrTitle"]');
-    if (tldrTitleElement) {
-        tldrTitleElement.textContent = hero.tldrTitle;
-    }
+    try {
+        const greetingElement = document.querySelector('[data-content="hero.greeting"]');
+        if (greetingElement && hero.greeting) {
+            // textContent automatically escapes, no need for escapeHtml
+            greetingElement.textContent = hero.greeting;
+        }
 
-    const tldrContentElement = document.querySelector('[data-content="hero.tldrContent"]');
-    if (tldrContentElement) {
-        tldrContentElement.innerHTML = hero.tldrContent.map(paragraph =>
-            `<p>${paragraph}</p>`
-        ).join('');
+        const tldrTitleElement = document.querySelector('[data-content="hero.tldrTitle"]');
+        if (tldrTitleElement && hero.tldrTitle) {
+            // textContent automatically escapes, no need for escapeHtml
+            tldrTitleElement.textContent = hero.tldrTitle;
+        }
+
+        const tldrContentElement = document.querySelector('[data-content="hero.tldrContent"]');
+        if (tldrContentElement && Array.isArray(hero.tldrContent)) {
+            // Note: tldrContent contains intentional HTML (links, bold), so we keep innerHTML
+            // but validate that the content array exists and has items
+            tldrContentElement.innerHTML = hero.tldrContent.map(paragraph =>
+                `<p>${paragraph}</p>`
+            ).join('');
+        }
+    } catch (error) {
+        console.error('Error populating hero section:', error.message);
     }
 }
 
 function populateAboutSection(about) {
-    const titleElement = document.querySelector('[data-content="about.title"]');
-    if (titleElement) {
-        titleElement.textContent = about.title;
+    if (!validateContent(about, ['title', 'content'])) {
+        console.error('About section validation failed');
+        return;
     }
 
-    const contentElement = document.querySelector('[data-content="about.content"]');
-    if (contentElement) {
-        contentElement.innerHTML = about.content.map(paragraph =>
-            `<p class="text-sm sm:text-base leading-relaxed">${paragraph}</p>`
-        ).join('');
+    try {
+        const titleElement = document.querySelector('[data-content="about.title"]');
+        if (titleElement && about.title) {
+            // textContent automatically escapes, no need for escapeHtml
+            titleElement.textContent = about.title;
+        }
+
+        const contentElement = document.querySelector('[data-content="about.content"]');
+        if (contentElement && Array.isArray(about.content)) {
+            // Note: about.content contains intentional HTML (strong tags), so we keep innerHTML
+            // but validate that the content array exists
+            contentElement.innerHTML = about.content.map(paragraph =>
+                `<p class="text-sm sm:text-base leading-relaxed">${paragraph}</p>`
+            ).join('');
+        }
+    } catch (error) {
+        console.error('Error populating about section:', error.message);
     }
 }
 
@@ -471,8 +647,106 @@ function cleanupEventListeners() {
     eventCleanupFunctions.length = 0;
 }
 
+// Global cleanup function for all resources
+function cleanupAllResources() {
+    // Cleanup event listeners
+    cleanupEventListeners();
+
+    // Cleanup intersection observers
+    activeObservers.forEach(observer => {
+        try {
+            observer.disconnect();
+        } catch (error) {
+            console.error('Error disconnecting observer:', error.message);
+        }
+    });
+    activeObservers.length = 0;
+
+    // Cleanup ripple animations
+    cleanupRippleAnimations();
+
+    // Cleanup Lenis
+    if (lenisInstance && typeof lenisInstance.destroy === 'function') {
+        try {
+            lenisInstance.destroy();
+            lenisInstance = null;
+            console.log('Lenis instance destroyed');
+        } catch (error) {
+            console.error('Error destroying Lenis:', error.message);
+        }
+    }
+}
+
+// Initialize Lenis Smooth Scroll
+function initLenis() {
+    // Check if Lenis is available
+    if (typeof Lenis === 'undefined') {
+        console.warn('Lenis library not loaded, falling back to native smooth scroll');
+        return null;
+    }
+
+    try {
+        // Create Lenis instance with custom options
+        const lenis = new Lenis({
+            duration: 1.2,        // Animation duration (seconds)
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Custom easing (smooth)
+            direction: 'vertical', // Scroll direction
+            gestureDirection: 'vertical', // Touch gesture direction
+            smooth: true,         // Enable smooth scrolling
+            smoothTouch: false,   // Disable smooth scroll on touch devices (better performance)
+            touchMultiplier: 2,   // Touch sensitivity
+            infinite: false,      // Disable infinite scroll
+        });
+
+        // Animation frame loop for Lenis
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        // Handle anchor links with Lenis
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+
+                // Skip empty hashes
+                if (href === '#' || href === '#!') {
+                    e.preventDefault();
+                    return;
+                }
+
+                const targetElement = document.querySelector(href);
+                if (targetElement) {
+                    e.preventDefault();
+
+                    // Get header height for offset
+                    const header = document.querySelector('header');
+                    const headerHeight = header ? header.offsetHeight : 0;
+
+                    // Scroll to element with offset
+                    lenis.scrollTo(targetElement, {
+                        offset: -(headerHeight + 20), // 20px extra padding
+                        duration: 1.2,
+                        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
+                    });
+                }
+            });
+        });
+
+        console.log('Lenis smooth scroll initialized');
+        return lenis;
+    } catch (error) {
+        console.error('Error initializing Lenis:', error.message);
+        return null;
+    }
+}
+
 // Smooth scrolling for navigation links
 document.addEventListener('DOMContentLoaded', function () {
+    // Initialize Lenis smooth scroll
+    lenisInstance = initLenis();
+
     // Initialize theme
     initTheme();
 
@@ -521,12 +795,23 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(() => {
             const targetSection = document.querySelector(window.location.hash);
             if (targetSection) {
-                const headerHeight = document.querySelector('header').offsetHeight;
-                const targetPosition = targetSection.offsetTop - headerHeight - 20;
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
+                const header = document.querySelector('header');
+                const headerHeight = header ? header.offsetHeight : 0;
+
+                // Use Lenis if available, otherwise fallback to native
+                if (lenisInstance) {
+                    lenisInstance.scrollTo(targetSection, {
+                        offset: -(headerHeight + 20),
+                        duration: 1.2,
+                        immediate: false
+                    });
+                } else {
+                    const targetPosition = targetSection.offsetTop - headerHeight - 20;
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
             }
         }, 100); // Small delay to ensure page is fully loaded
     }
@@ -537,14 +822,19 @@ document.addEventListener('DOMContentLoaded', function () {
         rootMargin: '0px 0px -50px 0px'
     };
 
-    const observer = new IntersectionObserver(function (entries) {
+    const sectionObserver = new IntersectionObserver(function (entries) {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.style.opacity = '1';
                 entry.target.style.transform = 'translateY(0)';
+                // Unobserve after animation to free resources
+                sectionObserver.unobserve(entry.target);
             }
         });
     }, observerOptions);
+
+    // Track observer for cleanup
+    activeObservers.push(sectionObserver);
 
     // Observe all sections for fade-in effect
     const sections = document.querySelectorAll('section');
@@ -552,7 +842,7 @@ document.addEventListener('DOMContentLoaded', function () {
         section.style.opacity = '0';
         section.style.transform = 'translateY(20px)';
         section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        observer.observe(section);
+        sectionObserver.observe(section);
     });
 
     // Add hover effects for project cards
@@ -769,7 +1059,14 @@ document.addEventListener('DOMContentLoaded', function () {
     addEventListenerWithCleanup(window, 'resize', resizeHandler);
 
     // Cleanup on page unload
-    window.addEventListener('beforeunload', cleanupEventListeners);
+    window.addEventListener('beforeunload', cleanupAllResources);
+
+    // Also cleanup on visibility change (when tab is closed or hidden)
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+            cleanupAllResources();
+        }
+    });
 });
 
 // Spotify integration using backend API
@@ -1099,13 +1396,18 @@ function setupSideProjectsHeadingAnimation() {
     if (!heading) return;
 
     // Create an Intersection Observer
-    const observer = new IntersectionObserver((entries) => {
+    const headingObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting && !heading.classList.contains('animate-underline')) {
                 // Add the animation class once when it comes into view
                 heading.classList.add('animate-underline');
                 // Disconnect observer since we only want this to happen once
-                observer.disconnect();
+                headingObserver.disconnect();
+                // Remove from active observers list
+                const index = activeObservers.indexOf(headingObserver);
+                if (index > -1) {
+                    activeObservers.splice(index, 1);
+                }
             }
         });
     }, {
@@ -1113,6 +1415,9 @@ function setupSideProjectsHeadingAnimation() {
         rootMargin: '-30% 0px -30% 0px' // Trigger when heading reaches 70% from top (100% - 30% = 70%)
     });
 
+    // Track observer for cleanup
+    activeObservers.push(headingObserver);
+
     // Start observing the heading
-    observer.observe(heading);
+    headingObserver.observe(heading);
 }

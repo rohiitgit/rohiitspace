@@ -342,9 +342,25 @@ a:focus-visible,
     }
 }
 
-/* Smooth scrolling and hash navigation */
-html {
-    scroll-behavior: smooth;
+/* Lenis handles smooth scrolling, so we disable native smooth scroll */
+html.lenis {
+    height: auto;
+}
+
+.lenis.lenis-smooth {
+    scroll-behavior: auto;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+    overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+    pointer-events: none;
 }
 
 /* Offset sections for fixed header - This makes hash navigation work properly */
