@@ -21,7 +21,7 @@ const siteContent = {
         name: "rohit",
         profileImage: "assets/images/pfp.webp",
         fallbackImage: "assets/images/pfp.webp",
-        location: "agra, UP",
+        location: "bangalore",
         currentCompany: {
             name: "openblood",
             url: "https://openblood.app/"
@@ -54,7 +54,7 @@ const siteContent = {
         title: "about me",
         content: [
             "i'm a computer science grad who just likes building stuff that works. Whether it's <strong>full-stack apps</strong>, <strong>computer vision</strong> or <strong>automation</strong>, i'll pick up whatever tool gets the job done.",
-            "right now, I'm in <strong>agra, UP</strong>, hacking on real problems and trying to solve them with code. i like to move fast, take initiative, and believe in just getting things done."
+            "right now, I'm in <strong>bangalore</strong>, hacking on real problems and trying to solve them with code. i like to move fast, take initiative, and believe in just getting things done."
         ]
     },
 
