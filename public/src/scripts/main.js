@@ -56,6 +56,9 @@ function isSafeUrl(url) {
 // Store active ripple timeouts for cleanup
 const activeRippleTimeouts = [];
 
+// Store active typing animation timeouts for cleanup
+const activeTypingTimeouts = [];
+
 // Store active observers for cleanup
 const activeObservers = [];
 
@@ -64,8 +67,17 @@ let lenisInstance = null;
 
 // Ripple animation function
 function createRippleAnimation(x, y, targetTheme, callback) {
+    // Clean up any existing ripple containers first
+    const existingRipples = document.querySelectorAll('.theme-ripple-container');
+    existingRipples.forEach(container => {
+        if (document.body.contains(container)) {
+            document.body.removeChild(container);
+        }
+    });
+
     // Create ripple container
     const rippleContainer = document.createElement('div');
+    rippleContainer.className = 'theme-ripple-container';
     rippleContainer.style.cssText = `
         position: fixed;
         top: 0;
@@ -131,13 +143,19 @@ function cleanupRippleAnimations() {
     activeRippleTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
     activeRippleTimeouts.length = 0;
 
-    // Remove any remaining ripple containers
-    const rippleContainers = document.querySelectorAll('div[style*="z-index: 1000"]');
+    // Remove any remaining ripple containers using class name
+    const rippleContainers = document.querySelectorAll('.theme-ripple-container');
     rippleContainers.forEach(container => {
-        if (container.style.position === 'fixed' && document.body.contains(container)) {
+        if (document.body.contains(container)) {
             document.body.removeChild(container);
         }
     });
+}
+
+// Cleanup function for typing animations
+function cleanupTypingAnimations() {
+    activeTypingTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+    activeTypingTimeouts.length = 0;
 }
 
 // Theme toggle functionality
@@ -157,8 +175,17 @@ function initTheme() {
         html.classList.add('dark');
     }
 
+    // Debounce flag to prevent rapid clicks
+    let isThemeChanging = false;
+
     // Theme toggle event listener with ripple animation
     const themeClickHandler = function () {
+        // Prevent rapid clicks during animation only
+        if (isThemeChanging) {
+            console.log('Theme change already in progress, ignoring click');
+            return;
+        }
+
         console.log('Theme toggle clicked');
 
         // Get the button position for ripple origin
@@ -170,20 +197,30 @@ function initTheme() {
         const isDarkMode = html.classList.contains('dark');
         const targetTheme = isDarkMode ? 'light' : 'dark';
 
-        // Create ripple animation
-        createRippleAnimation(centerX, centerY, targetTheme, function () {
-            // Toggle theme after ripple animation starts
-            html.classList.toggle('dark');
+        // Toggle theme IMMEDIATELY (don't wait for callback)
+        html.classList.toggle('dark');
 
-            // Save theme preference
-            if (html.classList.contains('dark')) {
-                localStorage.setItem('theme', 'dark');
-                console.log('Switched to dark theme');
-            } else {
-                localStorage.setItem('theme', 'light');
-                console.log('Switched to light theme');
-            }
+        // Save theme preference
+        if (html.classList.contains('dark')) {
+            localStorage.setItem('theme', 'dark');
+            console.log('Switched to dark theme');
+        } else {
+            localStorage.setItem('theme', 'light');
+            console.log('Switched to light theme');
+        }
+
+        // Set debounce flag AFTER theme change
+        isThemeChanging = true;
+
+        // Create ripple animation (visual only, theme already changed)
+        createRippleAnimation(centerX, centerY, targetTheme, function () {
+            // Theme already toggled above, this is just for the animation
         });
+
+        // Reset debounce flag after short delay (just enough to prevent double-clicks)
+        setTimeout(() => {
+            isThemeChanging = false;
+        }, 300); // Short delay to prevent accidental double-clicks
     };
 
     addEventListenerWithCleanup(themeToggle, 'click', themeClickHandler);
@@ -442,14 +479,14 @@ function populateExperienceSection(experience) {
                 <div class="timeline-dot-animated" data-item="${index}"></div>
                 <div class="space-y-2">
                     <div>
-                        <h3 class="font-bold sm:font-semibold text-sm sm:text-base">${job.title}</h3>
+                        <h3 class="font-bold sm:font-semibold text-sm sm:text-base">${escapeHtml(job.title)}</h3>
                         <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
-                            <a href="${job.companyUrl}" class="hover:text-accent transition-colors">${job.company}</a> • ${job.duration}
+                            <a href="${isSafeUrl(job.companyUrl) ? job.companyUrl : '#'}" class="hover:text-accent transition-colors">${escapeHtml(job.company)}</a> • ${escapeHtml(job.duration)}
                         </p>
                     </div>
                     <div>
                         <p class="text-gray-600 dark:text-gray-300 text-xs sm:text-sm leading-relaxed">
-                            ${job.description}
+                            ${escapeHtml(job.description)}
                         </p>
                     </div>
                 </div>
@@ -470,20 +507,20 @@ function populateProjectsSection(projects) {
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 ${projects.items.map(project => `
                     <div class="project-card h-full flex flex-col border border-gray-200 dark:border-gray-800 rounded-xl p-6 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm transition-all duration-300">
-                        <h3 class="font-bold sm:font-semibold mb-3 text-lg">${project.title}</h3>
+                        <h3 class="font-bold sm:font-semibold mb-3 text-lg">${escapeHtml(project.title)}</h3>
                         <p class="text-gray-600 dark:text-gray-300 text-sm mb-6 flex-grow leading-relaxed">
-                            ${project.description}
+                            ${escapeHtml(project.description)}
                         </p>
                         <div class="flex flex-wrap gap-2 mb-6">
                             ${project.technologies.map(tech => `
-                                <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">${tech}</span>
+                                <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">${escapeHtml(tech)}</span>
                             `).join('')}
                         </div>
                         <div class="flex gap-6 mt-auto">
-                            ${project.links.live ? `
+                            ${project.links.live && isSafeUrl(project.links.live) ? `
                                 <a href="${project.links.live}" class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">live →</a>
                             ` : ''}
-                            ${project.links.github ? `
+                            ${project.links.github && isSafeUrl(project.links.github) ? `
                                 <a href="${project.links.github}" class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">github →</a>
                             ` : ''}
                         </div>
@@ -509,20 +546,20 @@ function populateSideProjectsSection(sideProjects) {
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div class="flex-1">
                                 <div class="flex items-baseline gap-2 mb-2">
-                                    <h4 class="font-bold text-base text-gray-900 dark:text-gray-100">${project.title}</h4>
+                                    <h4 class="font-bold text-base text-gray-900 dark:text-gray-100">${escapeHtml(project.title)}</h4>
                                     <div class="flex gap-2">
-                                        ${project.links.live ? `
+                                        ${project.links.live && isSafeUrl(project.links.live) ? `
                                             <a href="${project.links.live}" class="text-accent hover:text-indigo-700 text-xs font-medium transition-colors">live →</a>
                                         ` : ''}
-                                        ${project.links.github ? `
+                                        ${project.links.github && isSafeUrl(project.links.github) ? `
                                             <a href="${project.links.github}" class="text-accent hover:text-indigo-700 text-xs font-medium transition-colors">github →</a>
                                         ` : ''}
                                     </div>
                                 </div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-2">${project.description}</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-2">${escapeHtml(project.description)}</p>
                                 <div class="flex flex-wrap gap-2">
                                     ${project.technologies.map(tech => `
-                                        <span class="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs">${tech}</span>
+                                        <span class="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs">${escapeHtml(tech)}</span>
                                     `).join('')}
                                 </div>
                             </div>
@@ -554,22 +591,26 @@ function populateAchievementsSection(achievements) {
                 ? achievements.achievements.map(achievement => {
                     // Validate image URL if present
                     const hasValidImage = achievement.image && isSafeUrl(achievement.image);
+                    const safeUrl = (achievement.url && isSafeUrl(achievement.url)) ? achievement.url : '#';
+                    const safeTitle = escapeHtml(achievement.title || 'Achievement');
+                    const safeDescription = escapeHtml(achievement.description || '');
+                    const safeImageAlt = escapeHtml(achievement.imageAlt || achievement.title || 'Achievement image');
 
                     return `
                         <div class="border-l-2 border-accent pl-3 md:pl-4">
                             <h4 class="font-semibold text-xs sm:text-sm">
-                                <a href="${achievement.url || '#'}" class="hover:text-accent transition-colors">${achievement.title || 'Achievement'}</a>
+                                <a href="${safeUrl}" class="hover:text-accent transition-colors">${safeTitle}</a>
                             </h4>
                             <p class="text-gray-600 dark:text-gray-300 text-xs mt-1 leading-relaxed">
-                                ${achievement.description || ''}
+                                ${safeDescription}
                             </p>
                             ${hasValidImage ? `
                                 <div class="mt-3">
                                     <img src="${achievement.image}"
-                                         alt="${achievement.imageAlt || achievement.title || 'Achievement image'}"
+                                         alt="${safeImageAlt}"
                                          class="w-full max-w-sm rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-300"
                                          loading="lazy"
-                                         onerror="console.error('Failed to load image for ${achievement.title}:', this.src); this.parentElement.innerHTML='<p class=\\'text-sm text-gray-500 dark:text-gray-400 italic\\'>Image unavailable (LinkedIn hotlink protection)</p>';">
+                                         onerror="this.parentElement.innerHTML='<p class=\\'text-sm text-gray-500 dark:text-gray-400 italic\\'>Image unavailable (LinkedIn hotlink protection)</p>';">
                                 </div>
                             ` : ''}
                         </div>
@@ -578,19 +619,25 @@ function populateAchievementsSection(achievements) {
                 : '<p class="text-gray-600 dark:text-gray-400 text-sm">No achievements to display.</p>';
 
             const certificationsHtml = Array.isArray(achievements.certifications) && achievements.certifications.length > 0
-                ? achievements.certifications.map(cert => `
+                ? achievements.certifications.map(cert => {
+                    const safeUrl = (cert.url && isSafeUrl(cert.url)) ? cert.url : '#';
+                    const safeTitle = escapeHtml(cert.title || 'Certification');
+                    const safeOrg = escapeHtml(cert.organization || '');
+                    const safeDate = escapeHtml(cert.date || '');
+
+                    return `
                     <div class="border-l-2 border-accent pl-3 md:pl-4">
                         <div class="flex justify-between items-start gap-2">
                             <div class="flex-1">
                                 <h4 class="font-semibold text-xs sm:text-sm">
-                                    <a href="${cert.url || '#'}" class="hover:text-accent transition-colors">${cert.title || 'Certification'}</a>
+                                    <a href="${safeUrl}" class="hover:text-accent transition-colors">${safeTitle}</a>
                                 </h4>
-                                <p class="text-gray-600 dark:text-gray-400 text-xs">${cert.organization || ''}</p>
+                                <p class="text-gray-600 dark:text-gray-400 text-xs">${safeOrg}</p>
                             </div>
-                            <span class="text-gray-400 text-xs shrink-0">${cert.date || ''}</span>
+                            <span class="text-gray-400 text-xs shrink-0">${safeDate}</span>
                         </div>
                     </div>
-                `).join('')
+                `}).join('')
                 : '<p class="text-gray-600 dark:text-gray-400 text-sm">No certifications to display.</p>';
 
             achievementsContainer.innerHTML = `
@@ -620,9 +667,9 @@ function populateFooter(footer) {
     const footerElement = document.querySelector('[data-content="footer"]');
     if (footerElement) {
         footerElement.innerHTML = `
-            <p class="text-gray-600 dark:text-gray-400 text-sm">${footer.built}</p>
-            <p>${footer.inspired}</p>
-            <p class="text-gray-400 text-xs mt-2">${footer.copyright}</p>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">${escapeHtml(footer.built)}</p>
+            <p>${escapeHtml(footer.inspired)}</p>
+            <p class="text-gray-400 text-xs mt-2">${escapeHtml(footer.copyright)}</p>
         `;
     }
 }
@@ -700,6 +747,9 @@ function cleanupAllResources() {
 
     // Cleanup ripple animations
     cleanupRippleAnimations();
+
+    // Cleanup typing animations
+    cleanupTypingAnimations();
 
     // Cleanup Lenis
     if (lenisInstance && typeof lenisInstance.destroy === 'function') {
@@ -907,12 +957,14 @@ document.addEventListener('DOMContentLoaded', function () {
             if (i < originalText.length) {
                 heroTitle.textContent += originalText.charAt(i);
                 i++;
-                setTimeout(typeWriter, 50);
+                const timeoutId = setTimeout(typeWriter, 50);
+                activeTypingTimeouts.push(timeoutId);
             }
         }
 
         // Start typing animation after a brief delay
-        setTimeout(typeWriter, 500);
+        const initialTimeoutId = setTimeout(typeWriter, 500);
+        activeTypingTimeouts.push(initialTimeoutId);
     }
 
     // Mobile menu toggle functionality
@@ -1159,81 +1211,6 @@ function handleSpotifyAuth() {
     window.location.href = authUrl;
 }
 
-function exchangeCodeForToken(code) {
-    showSpotifyLoading();
-
-    // Note: In production, this should be done on your backend for security
-    // This is a simplified example for demonstration
-    fetch('https://accounts.spotify.com/api/token', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-            grant_type: 'authorization_code',
-            code: code,
-            redirect_uri: SPOTIFY_CONFIG.REDIRECT_URI,
-            client_id: SPOTIFY_CONFIG.CLIENT_ID,
-            // Note: client_secret should be handled on backend
-        })
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.access_token) {
-                // Store token and expiry
-                localStorage.setItem('spotify_access_token', data.access_token);
-                localStorage.setItem('spotify_token_expiry', Date.now() + (data.expires_in * 1000));
-
-                if (data.refresh_token) {
-                    localStorage.setItem('spotify_refresh_token', data.refresh_token);
-                }
-
-                loadRecentTracks();
-            } else {
-                showSpotifyError();
-            }
-        })
-        .catch(error => {
-            console.error('Token exchange failed:', error);
-            showSpotifyError();
-        });
-}
-
-function loadRecentTracks() {
-    const accessToken = localStorage.getItem('spotify_access_token');
-    if (!accessToken) {
-        showSpotifyConnect();
-        return;
-    }
-
-    showSpotifyLoading();
-
-    fetch(`${SPOTIFY_CONFIG.API_BASE}/me/player/recently-played?limit=5`, {
-        headers: {
-            'Authorization': `Bearer ${accessToken}`
-        }
-    })
-        .then(response => {
-            if (response.status === 401) {
-                // Token expired, clear storage and show connect
-                localStorage.removeItem('spotify_access_token');
-                localStorage.removeItem('spotify_token_expiry');
-                showSpotifyConnect();
-                return null;
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data && data.items) {
-                displayRecentTracks(data.items);
-            }
-        })
-        .catch(error => {
-            console.error('Failed to load recent tracks:', error);
-            showSpotifyError();
-        });
-}
-
 function displayRecentTracks(tracks) {
     // Store tracks globally for resize handling
     if (typeof window !== 'undefined') {
@@ -1275,14 +1252,14 @@ function createTrackListItem(track) {
     listItem.className = 'flex items-center space-x-3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200 dark:border-gray-800 rounded-lg p-3 hover:shadow-lg dark:hover:shadow-white/10 transition-all duration-300';
 
     const imageUrl = track.album.images[0]?.url || '';
-    const trackName = track.name;
-    const artistName = track.artists.map(artist => artist.name).join(', ');
-    const albumName = track.album.name;
-    const spotifyUrl = track.external_urls.spotify;
+    const trackName = escapeHtml(track.name);
+    const artistName = escapeHtml(track.artists.map(artist => artist.name).join(', '));
+    const albumName = escapeHtml(track.album.name);
+    const spotifyUrl = isSafeUrl(track.external_urls.spotify) ? track.external_urls.spotify : '#';
 
     listItem.innerHTML = `
         <div class="w-12 h-12 bg-gray-200 dark:bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
-            ${imageUrl ? `<img src="${imageUrl}" alt="${albumName}" class="w-full h-full object-cover">` :
+            ${imageUrl && isSafeUrl(imageUrl) ? `<img src="${imageUrl}" alt="${albumName}" class="w-full h-full object-cover">` :
             `<div class="w-full h-full flex items-center justify-center">
                 <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
@@ -1309,14 +1286,14 @@ function createTrackCard(track) {
     card.className = 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200 dark:border-gray-800 rounded-xl p-4 hover:shadow-lg dark:hover:shadow-white/10 transition-all duration-300 hover:-translate-y-1';
 
     const imageUrl = track.album.images[0]?.url || '';
-    const trackName = track.name;
-    const artistName = track.artists.map(artist => artist.name).join(', ');
-    const albumName = track.album.name;
-    const spotifyUrl = track.external_urls.spotify;
+    const trackName = escapeHtml(track.name);
+    const artistName = escapeHtml(track.artists.map(artist => artist.name).join(', '));
+    const albumName = escapeHtml(track.album.name);
+    const spotifyUrl = isSafeUrl(track.external_urls.spotify) ? track.external_urls.spotify : '#';
 
     card.innerHTML = `
         <div class="aspect-square bg-gray-200 dark:bg-gray-800 rounded-lg mb-3 overflow-hidden">
-            ${imageUrl ? `<img src="${imageUrl}" alt="${albumName}" class="w-full h-full object-cover">` :
+            ${imageUrl && isSafeUrl(imageUrl) ? `<img src="${imageUrl}" alt="${albumName}" class="w-full h-full object-cover">` :
             `<div class="w-full h-full flex items-center justify-center">
                 <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
