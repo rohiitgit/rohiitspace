@@ -435,19 +435,26 @@ function populateBlogPost(blog) {
         const ogUrl = document.getElementById('blog-og-url');
         const ogTitle = document.getElementById('blog-og-title');
         const ogDescription = document.getElementById('blog-og-description');
+        const ogImage = document.getElementById('blog-og-image');
+
+        // Create dynamic OG image URL
+        const ogImageUrl = `${window.location.origin}/api/og?title=${encodeURIComponent(blog.title)}&description=${encodeURIComponent(blog.excerpt)}&type=blog&tags=${encodeURIComponent(blog.tags.join(','))}`;
 
         if (ogUrl) ogUrl.content = currentUrl;
         if (ogTitle) ogTitle.content = blog.title;
         if (ogDescription) ogDescription.content = blog.excerpt;
+        if (ogImage) ogImage.content = ogImageUrl;
 
         // Update Twitter meta
         const twitterUrl = document.getElementById('blog-twitter-url');
         const twitterTitle = document.getElementById('blog-twitter-title');
         const twitterDescription = document.getElementById('blog-twitter-description');
+        const twitterImage = document.getElementById('blog-twitter-image');
 
         if (twitterUrl) twitterUrl.content = currentUrl;
         if (twitterTitle) twitterTitle.content = blog.title;
         if (twitterDescription) twitterDescription.content = blog.excerpt;
+        if (twitterImage) twitterImage.content = ogImageUrl;
 
         // Populate blog post content
         const postTitle = document.getElementById('post-title');
