@@ -177,6 +177,128 @@ const blogContent = {
             `
         },
         {
+            id: "system-design-for-noobs-02-connection-pooling",
+            title: "system design for noobs | 02: connection pooling (db's cheat code)",
+            excerpt: "understanding connection pooling - how to stop paying the TCP handshake tax on every database query and unlock massive performance gains.",
+            date: "2025-11-23",
+            readTime: "5 min read",
+            tags: ["system design", "databases", "performance", "learning"],
+            featured: true,
+            content: `
+                <p>in the last blog, we talked about heartbeats and how scaling can turn a harmless idea into a monster.</p>
+
+                <p>today, let's tackle one of the silent killers of performance - database connections.</p>
+
+                <p>if you're building APIs, this one is a must-know.<br>
+                if you're preparing for interviews, this can win you brownie points.<br>
+                and if you're a noob like me, this one will make you feel like a genius.</p>
+
+                <p>let's begin.</p>
+
+                <h2>🤔 the real challenge</h2>
+
+                <p>when we think about scale, we usually panic about storage.</p>
+
+                <p>but in many real systems, storage is not the issue, <strong>computation is</strong>. the CPU strains not because data is heavy but because too many database queries are fired every second.</p>
+
+                <p>and here's the twist most beginners miss:</p>
+
+                <p>HTTP requests usually reuse the same TCP connection using keep-alive.<br>
+                but database requests don't, instead they create a fresh TCP connection almost every time…<br>
+                <strong>unless we do something smart about it.</strong></p>
+
+                <p>that leads us to the real villain 👇</p>
+
+                <h2>⚠️ the hidden cost of every DB call</h2>
+
+                <p>to talk to the database, a TCP connection needs to be established.</p>
+
+                <p>and for that, this whole ritual takes place:</p>
+
+                <ul>
+                    <li>3-way handshake to connect</li>
+                    <li>2-way teardown to disconnect</li>
+                    <li>resulting in 5 trips across the network. every single time.</li>
+                </ul>
+
+                <p>this may not sound scary, but if your system is sending thousands (or millions?) of micro-updates, <br>
+                your database is actually spending more time saying "hello" and "goodbye" than processing real queries.</p>
+
+                <p>this is exactly what happened in microwrite. the updates were tiny, but the TCP overhead was massive.<br>
+                we optimized logic… but the network cost remained.</p>
+
+                <p>so the question is how do we stop paying the entry fee each time?</p>
+
+                <h2>⚙️ solution: connection pooling</h2>
+
+                <p>instead of creating a new DB connection for every request…<br>
+                what if we keep a few connections open all the time?</p>
+
+                <p>that's <strong>connection pooling</strong>.</p>
+
+                <p>here's the idea:</p>
+
+                <pre><code>when API server starts:
+    create a few DB connections (say 3)
+    keep them open and ready
+
+when a req needs DB:
+    pick any free one from the pool
+    mark it 'in use' → run the query
+    once done → release it back to pool
+
+result: no new TCP handshakes needed.</code></pre>
+
+                <p>you reuse the same connection again and again.<br>
+                no time wasted. no CPU wasted. speed unlocked.</p>
+
+                <p>this not only boosts performance but also reduces load on DB servers,<br>
+                because creating TCP connections is computationally heavy on both sides.</p>
+
+                <h2>🧮 how many connections should we keep?</h2>
+
+                <p>let's say we set <strong>min pool size = 3</strong>.<br>
+                what happens if all 3 are busy and a 4th request arrives?</p>
+
+                <p>we have three options:</p>
+
+                <ol>
+                    <li><strong>wait</strong> for a connection to free up</li>
+                    <li><strong>create a new temporary connection</strong> and add it to the pool (must define max limit)</li>
+                    <li>to prevent explosion of connections, we use <strong>idle timeout</strong> (unused ones are auto-closed)</li>
+                </ol>
+
+                <h2>🧠 where does this pool actually run?</h2>
+
+                <p>good question.</p>
+
+                <p>it's not a separate service.<br>
+                it's simply a <strong>library running inside your API server</strong>.</p>
+
+                <p>when the server boots:</p>
+
+                <pre><code>create DB connection objects
+store them in a queue (pool)
+when needed → pull one out
+if none free → wait OR create new (based on config)</code></pre>
+
+                <p>that's it. no rocket science. but massive performance gain.<br>
+                especially when your system fires micro but frequent updates.</p>
+
+                <h2>🧵 wrap-up</h2>
+
+                <p>connection pooling is one of those concepts that sounds boring…<br>
+                but once you feel how much performance it unlocks, it feels like a superpower.</p>
+
+                <p>it's the kind of thing you'll never see but your system will silently thank you for.</p>
+
+                <p>next up, lets keep it a surprise.</p>
+
+                <p>till then, happy building.<br>
+                <strong>– rohit</strong></p>
+            `
+        },
+        {
             id: "blockchain-101",
             title: "blockchain 101",
             excerpt: "demystifying blockchain technology with simple explanations and practical examples. understand what makes blockchain special and why it's revolutionizing digital transactions.",

@@ -3,6 +3,9 @@
 // Store cleanup functions to prevent memory leaks
 const eventCleanupFunctions = [];
 
+// Store Lenis instance for cleanup
+let lenisInstance = null;
+
 // Helper function to add event listener with cleanup tracking
 function addEventListenerWithCleanup(element, event, handler, options = {}) {
     element.addEventListener(event, handler, options);
@@ -15,10 +18,89 @@ function addEventListenerWithCleanup(element, event, handler, options = {}) {
 function cleanupEventListeners() {
     eventCleanupFunctions.forEach(cleanup => cleanup());
     eventCleanupFunctions.length = 0;
+
+    // Cleanup Lenis
+    if (lenisInstance && typeof lenisInstance.destroy === 'function') {
+        try {
+            lenisInstance.destroy();
+            lenisInstance = null;
+        } catch (error) {
+            console.error('Error destroying Lenis:', error.message);
+        }
+    }
+}
+
+// Initialize Lenis Smooth Scroll
+function initLenis() {
+    // Check if Lenis is available
+    if (typeof Lenis === 'undefined') {
+        console.warn('Lenis library not loaded, falling back to native smooth scroll');
+        return null;
+    }
+
+    try {
+        // Create Lenis instance with custom options
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            direction: 'vertical',
+            gestureDirection: 'vertical',
+            smooth: true,
+            smoothTouch: false,
+            touchMultiplier: 2,
+            infinite: false,
+        });
+
+        // Animation frame loop for Lenis
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        // Handle anchor links with Lenis
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            const anchorClickHandler = function (e) {
+                const href = this.getAttribute('href');
+
+                // Skip empty hashes
+                if (href === '#' || href === '#!') {
+                    e.preventDefault();
+                    return;
+                }
+
+                const targetElement = document.querySelector(href);
+                if (targetElement) {
+                    e.preventDefault();
+
+                    // Get header height for offset
+                    const header = document.querySelector('header');
+                    const headerHeight = header ? header.offsetHeight : 0;
+
+                    // Scroll to element with offset
+                    lenis.scrollTo(targetElement, {
+                        offset: -(headerHeight + 20),
+                        duration: 1.2,
+                        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
+                    });
+                }
+            };
+            addEventListenerWithCleanup(anchor, 'click', anchorClickHandler);
+        });
+
+        console.log('Lenis smooth scroll initialized');
+        return lenis;
+    } catch (error) {
+        console.error('Error initializing Lenis:', error.message);
+        return null;
+    }
 }
 
 // Initialize the blog functionality when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Lenis smooth scroll
+    lenisInstance = initLenis();
+
     // Initialize theme and mobile menu (same as main site)
     initTheme();
     initMobileMenu();
@@ -232,12 +314,13 @@ function initBlogListingPage() {
         featuredSection.style.display = 'none';
     }
 
-    // Populate all blogs
+    // Populate all blogs (sorted by date, most recent first)
     const allBlogsContainer = document.getElementById('all-blogs-container');
     if (allBlogsContainer) {
+        const sortedBlogs = [...content.blogs].sort((a, b) => new Date(b.date) - new Date(a.date));
         allBlogsContainer.innerHTML = `
             <div class="grid grid-cols-1 gap-6">
-                ${content.blogs.map(blog => createBlogCard(blog, false)).join('')}
+                ${sortedBlogs.map(blog => createBlogCard(blog, false)).join('')}
             </div>
         `;
     }
@@ -603,11 +686,11 @@ function initTagFiltering() {
 
     if (!tagFiltersContainer || !allBlogsContainer) return;
 
-    // Get all unique tags
-    const allTags = [...new Set(content.blogs.flatMap(blog => blog.tags))].sort();
+    // Define specific tags to show
+    const displayTags = ['blockchain', 'system design'];
 
-    // Create filter buttons for each tag
-    allTags.forEach(tag => {
+    // Create filter buttons for specific tags only
+    displayTags.forEach(tag => {
         const button = document.createElement('button');
         button.className = 'tag-filter';
         button.setAttribute('data-tag', tag);
@@ -697,6 +780,9 @@ function filterBlogsByTag(tag) {
     } else {
         filteredBlogs = content.blogs.filter(blog => blog.tags.includes(tag));
     }
+
+    // Sort by date, most recent first
+    filteredBlogs = filteredBlogs.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     // Update container with filtered blogs
     allBlogsContainer.innerHTML = `
