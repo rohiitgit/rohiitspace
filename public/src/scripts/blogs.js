@@ -26,6 +26,247 @@ const blogContent = {
     // Individual Blog Posts
     blogs: [
         {
+            id: "guessing-is-fine-in-dating-not-in-billing",
+            title: "guessing is fine in dating, not in billing.",
+            excerpt: "this blog explores the importance of strong identifiers in payment systems, drawing parallels between personal relationships and automated invoicing to highlight the risks of assumptions in critical processes. ",
+            date: "2026-01-29",
+            readTime: "6 min read",
+            tags: ["system design", "debugging"],
+            featured: true,
+            content: `
+                <h2>💔 a silly story to start with</h2>
+
+                <p>i was once dating two girls at the same time.</p>
+
+                <p>bad idea, i know.</p>
+
+                <p>worse part?</p>
+
+                <p>they had the same name.<br>
+                both loved cats.<br>
+                both sent "good morning" texts.<br>
+                both had a cat as their profile picture.</p>
+
+                <p>one day, a message pops up:</p>
+
+                <blockquote>
+                <p><strong>"it's over. i found out about the other girl.<br>
+                come see me and take all your gifts back."</strong></p>
+                </blockquote>
+
+
+                <p>panic.</p>
+
+                <p>i open whatsapp, trying to figure out which one sent it.</p>
+
+                <p>same name.<br>
+                same cat pfp.</p>
+
+                <p>for a solid minute, i genuinely didn't know who i was apologizing to.</p>
+
+                <p>that's when it hit me.</p>
+
+                <p><strong>this is exactly what my system was doing.</strong></p>
+
+                <p>this blog is about how i almost made that mistake again.</p>
+
+                <p>not with people.<br>
+                but with invoices.<br>
+                and money.</p>
+
+
+                <p>it was a moment where i had to stop vibecoding and ask:</p>
+
+                <p><strong>"am i being clever… or am i being correct?"</strong></p>
+
+                <h2>🧠 the application: fynl-it</h2>
+
+                <p>i built fynl-it, an automated unpaid invoice reminder tool for freelancers in india.</p>
+
+                <p>very simple idea:</p>
+
+                <ul>
+                    <li>upload an invoice</li>
+                    <li>generate a payment link</li>
+                    <li>send reminders automatically</li>
+                    <li>client pays</li>
+                    <li>system shuts up</li>
+                </ul>
+
+                <p>fynl-it exists to avoid awkward conversations.</p>
+
+                <p>ironically, it almost created one.</p>
+
+                <h2>🤔 the rule i forgot to respect</h2>
+
+                <p>when you're automating payments, there's one non-negotiable rule:</p>
+
+                <blockquote>
+                <p><strong>every payment must belong to exactly one invoice.</strong></p>
+                </blockquote>
+
+                <p>not zero.<br>
+                not "this seems right".</p>
+
+                <p><strong>exactly one.</strong></p>
+
+                <p>anything else is guesswork.</p>
+
+                <p>and guesswork is fine in dating.<br>
+                not in billing.</p>
+
+                <h2>⚠️ where things got uncomfortable</h2>
+
+                <p>while testing edge cases, i noticed something that felt… off.</p>
+
+                <p>when a payment came in, the system tried really hard to find some invoice to attach it to.</p>
+
+                <p>if it couldn't find the obvious match, it tried:</p>
+
+                <ul>
+                    <li>same amount</li>
+                    <li>same client email</li>
+                </ul>
+
+                <p>basically:</p>
+
+                <p><strong>"these two look similar enough, must be the one."</strong></p>
+
+                <p>this is the engineering equivalent of:</p>
+
+                <p>"same name, same dp, probably my girlfriend." 😬</p>
+
+                <h2>🚨 why similarity is not identity</h2>
+
+                <p>imagine this:</p>
+
+                <ul>
+                    <li>same client</li>
+                    <li>two invoices</li>
+                    <li>same amount</li>
+                    <li>both unpaid</li>
+                </ul>
+
+                <p>client pays one of them.</p>
+
+                <p>the system sees:</p>
+
+                <p>amount matches ✅<br>
+                email matches ✅</p>
+
+                <p>and confidently updates…</p>
+
+                <p><strong>whichever invoice it sees first.</strong></p>
+
+                <p>no error.<br>
+                no alert.</p>
+
+                <p>just quiet confidence.</p>
+
+                <p><strong>this is the worst kind of wrong.</strong></p>
+
+                <h2>🔄 the mindset shift</h2>
+
+                <p>the question wasn't:</p>
+
+                <p>"how do i make sure every payment updates something?"</p>
+
+                <p>it was:</p>
+
+                <p><strong>"when should the system refuse to act?"</strong></p>
+
+                <p>that changed everything.</p>
+
+                <p>if the system cannot prove which invoice a payment belongs to,<br>
+                then the correct action is to <strong>do nothing</strong>.</p>
+
+                <p>not guess.<br>
+                not fallback.</p>
+
+                <p><strong>stop.</strong></p>
+
+                <h2>🛠️ the decision i took</h2>
+
+                <p>instead of adding smarter logic, i removed logic.</p>
+
+                <ul>
+                    <li>fewer matching paths</li>
+                    <li>fewer assumptions</li>
+                    <li>fewer "just in case" rules</li>
+                </ul>
+
+                <p>now, fynl-it only acts when there is a <strong>clear, unambiguous identity</strong>.</p>
+
+                <p>otherwise:</p>
+
+                <ul>
+                    <li>it logs the payment</li>
+                    <li>flags it</li>
+                    <li>waits for a human</li>
+                </ul>
+
+                <p>boring?</p>
+
+                <p>yes.</p>
+
+                <p>safe?</p>
+
+                <p><strong>also yes.</strong></p>
+
+                <h2>🤷 but doesn't this hurt automation?</h2>
+
+                <p>slightly.</p>
+
+                <p>some payments won't auto-resolve.</p>
+
+                <p>but that cost is tiny compared to:</p>
+
+                <ul>
+                    <li>marking the wrong invoice paid</li>
+                    <li>cancelling the wrong reminders</li>
+                    <li>annoying a client who already paid</li>
+                    <li>losing trust</li>
+                </ul>
+
+                <p>fynl-it is about reducing awkwardness.<br>
+                not creating new kinds of it.</p>
+
+                <h2>🧱 the bigger lesson</h2>
+
+                <p>here's what this taught me:</p>
+
+                <ul>
+                    <li><strong>similarity is not identity</strong></li>
+                    <li><strong>fallbacks are opinions, not facts</strong></li>
+                    <li><strong>automation without certainty is liability</strong></li>
+                    <li><strong>strong identifiers beat clever guesses</strong></li>
+                </ul>
+
+                <p>or in simpler terms:</p>
+
+                <p><strong>if you can't tell who sent the message,<br>
+                don't reply.</strong></p>
+
+                <h2>🧵 wrap-up</h2>
+
+                <p>this wasn't really about razorpay.<br>
+                or invoices.<br>
+                or webhooks.</p>
+
+                <p>it was about knowing when a system should say:</p>
+
+                <p><strong>"i'm not sure — so i won't act."</strong></p>
+
+                <p>good engineering isn't about being smart.<br>
+                it's about being disciplined.</p>
+
+                <p>until next time,<br>
+                happy building.</p>
+
+                <p><strong>– rohit</strong></p>
+            `
+        },
+        {
             id: "system-design-for-noobs-01-heartbeats",
             title: "system design for noobs | 01: heartbeats, status and scaling",
             excerpt: "an honest exploration of system design fundamentals, starting with user online/offline status tracking and scaling considerations for beginners.",
