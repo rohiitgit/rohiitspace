@@ -10,7 +10,7 @@ rohiitspace/
 │   ├── index.html          # Main HTML file
 │   └── assets/             # Static assets
 │       └── images/         # Images (profile pictures, backgrounds)
-├── src/                    # Source code
+├── public/src/             # Frontend source files
 │   ├── styles/             # CSS files
 │   │   ├── main.css        # Custom styles
 │   │   └── tailwind.css    # TailwindCSS compiled output
@@ -49,7 +49,7 @@ rohiitspace/
 ### `/public/`
 Contains the main HTML file and static assets that are served directly.
 
-### `/src/`
+### `/public/src/`
 Source code organized by type:
 - **`/styles/`**: All CSS files (custom styles and TailwindCSS output)
 - **`/scripts/`**: JavaScript files including main logic and content data
@@ -80,7 +80,7 @@ Project documentation and setup instructions.
 
 ## 📝 Content Management
 
-Website content is managed through `/src/scripts/content.js`. This file contains:
+Website content is managed through `/public/src/scripts/content.js`. This file contains:
 - Personal information
 - Project details
 - Work experience
@@ -96,7 +96,7 @@ The project uses a combination of:
 - **TailwindCSS**: Utility-first framework for rapid styling
 - **Custom CSS**: Custom animations, theme effects, and unique designs
 
-Custom styles are located in `/src/styles/main.css`.
+Custom styles are located in `/public/src/styles/main.css`.
 
 ## 📱 Responsive Design
 

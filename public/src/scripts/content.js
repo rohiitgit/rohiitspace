@@ -2,7 +2,7 @@
 const siteContent = {
     // Meta Information
     meta: {
-        title: "rohiitspace",
+        title: "Rohit | Software Engineer in Bangalore | rohiitspace",
         description: "Rohit's portfolio - Computer science grad building fullstack apps, computer vision solutions, and automation tools. SIH 2024 finalist.",
         keywords: "rohit, portfolio, developer, computer science, fullstack, computer vision, python, javascript, react",
         author: "Rohit",
@@ -175,6 +175,7 @@ const siteContent = {
 
     // Social Links
     social: {
+        email: "rohitcodes03@gmail.com",
         twitter: "https://x.com/rohiitspace",
         linkedin: "https://linkedin.com/in/rohiitcodes",
         github: "https://github.com/rohiitgit",

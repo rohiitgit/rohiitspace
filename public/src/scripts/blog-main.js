@@ -6,6 +6,22 @@ const eventCleanupFunctions = [];
 // Store Lenis instance for cleanup
 let lenisInstance = null;
 
+function getBlogPath(slug) {
+    return `/blog/${encodeURIComponent(slug)}/`;
+}
+
+function getBlogSlugFromLocation() {
+    const normalizedPath = window.location.pathname.replace(/\/+$/, '');
+    const pathParts = normalizedPath.split('/').filter(Boolean);
+
+    if (pathParts.length >= 2 && pathParts[0] === 'blog') {
+        return decodeURIComponent(pathParts[1]);
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('slug');
+}
+
 // Helper function to add event listener with cleanup tracking
 function addEventListenerWithCleanup(element, event, handler, options = {}) {
     element.addEventListener(event, handler, options);
@@ -109,8 +125,9 @@ document.addEventListener('DOMContentLoaded', function() {
     populateCommonContent();
 
     // Initialize page-specific functionality
-    const isListingPage = window.location.pathname.includes('blogs.html');
-    const isIndividualBlogPage = window.location.pathname.includes('blog.html');
+    const pathname = window.location.pathname.replace(/\/+$/, '');
+    const isListingPage = pathname.endsWith('/blogs.html');
+    const isIndividualBlogPage = pathname.includes('/blog/') || pathname.endsWith('/blog.html');
 
     if (isListingPage) {
         initBlogListingPage();
@@ -297,7 +314,8 @@ function highlightActiveNavigation() {
     navLinks.forEach(link => {
         const linkHref = link.getAttribute('href');
         if ((currentPage === 'blogs.html' && linkHref === 'blogs.html') ||
-            (currentPage === 'blog.html' && linkHref === 'blogs.html')) {
+            (currentPage === 'blog.html' && linkHref === 'blogs.html') ||
+            (window.location.pathname.includes('/blog/') && linkHref === 'blogs.html')) {
             link.classList.add('text-accent');
         }
     });
@@ -413,7 +431,7 @@ function createBlogCard(blog) {
     return `
         <div class="blog-card h-full flex flex-col border border-gray-200 dark:border-gray-800 rounded-xl p-6 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm transition-all duration-300">
             <h3 class="font-semibold mb-3 text-lg">
-                <a href="blog.html?slug=${blog.id}" class="hover:text-accent transition-colors">
+                <a href="${getBlogPath(blog.id)}" class="hover:text-accent transition-colors">
                     ${blog.title}
                 </a>
             </h3>
@@ -431,7 +449,7 @@ function createBlogCard(blog) {
                 `).join('')}
             </div>
             <div class="flex gap-6 mt-auto">
-                <a href="blog.html?slug=${blog.id}" class="text-accent hover:text-amber-900 font-medium text-sm transition-colors">read →</a>
+                <a href="${getBlogPath(blog.id)}" class="text-accent hover:text-amber-900 font-medium text-sm transition-colors">read →</a>
             </div>
         </div>
     `;
@@ -445,8 +463,7 @@ function initIndividualBlogPage() {
         return;
     }
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const slug = urlParams.get('slug');
+    const slug = getBlogSlugFromLocation();
 
     if (!slug) {
         console.error('No slug found in URL');
@@ -481,7 +498,7 @@ function populateBlogPost(blog) {
         if (blogKeywords) blogKeywords.content = blog.tags.join(', ');
 
         // Update canonical URL
-        const currentUrl = `${window.location.origin}${window.location.pathname}?slug=${blog.id}`;
+        const currentUrl = `${window.location.origin}${getBlogPath(blog.id)}`;
         const canonicalLink = document.getElementById('blog-canonical');
         if (canonicalLink) canonicalLink.href = currentUrl;
 
@@ -491,8 +508,7 @@ function populateBlogPost(blog) {
         const ogDescription = document.getElementById('blog-og-description');
         const ogImage = document.getElementById('blog-og-image');
 
-        // Create dynamic OG image URL
-        const ogImageUrl = `${window.location.origin}/api/og?title=${encodeURIComponent(blog.title)}&description=${encodeURIComponent(blog.excerpt)}&type=blog&tags=${encodeURIComponent(blog.tags.join(','))}`;
+        const ogImageUrl = `${window.location.origin}/assets/images/preview.png`;
 
         if (ogUrl) ogUrl.content = currentUrl;
         if (ogTitle) ogTitle.content = blog.title;
@@ -584,7 +600,7 @@ function setupPostNavigation(currentBlog) {
 
     if (prevPost) {
         prevContainer.innerHTML = `
-            <a href="blog.html?slug=${prevPost.id}" class="block p-6 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg hover:border-accent transition-all duration-300 h-full">
+            <a href="${getBlogPath(prevPost.id)}" class="block p-6 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg hover:border-accent transition-all duration-300 h-full">
                 <div class="text-sm font-medium text-accent mb-3 flex items-center gap-2">
                     <div class="w-6 h-6 bg-accent/10 rounded-full flex items-center justify-center">
                         <svg class="w-3 h-3 text-accent" fill="currentColor" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
@@ -599,7 +615,7 @@ function setupPostNavigation(currentBlog) {
 
     if (nextPost) {
         nextContainer.innerHTML = `
-            <a href="blog.html?slug=${nextPost.id}" class="block p-6 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg hover:border-accent transition-all duration-300 h-full">
+            <a href="${getBlogPath(nextPost.id)}" class="block p-6 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg hover:border-accent transition-all duration-300 h-full">
                 <div class="text-sm font-medium text-accent mb-3 flex items-center justify-end gap-2">
                     Next Post
                     <div class="w-6 h-6 bg-accent/10 rounded-full flex items-center justify-center">
@@ -828,7 +844,7 @@ function initTagFiltering() {
     // Check for initial tag filter from URL
     const urlParams = new URLSearchParams(window.location.search);
     const initialTag = urlParams.get('tag');
-    if (initialTag && allTags.includes(initialTag)) {
+    if (initialTag && (initialTag === 'all' || displayTags.includes(initialTag))) {
         // Update active state
         tagFiltersContainer.querySelectorAll('.tag-filter').forEach(btn => {
             btn.classList.remove('active');
@@ -875,8 +891,7 @@ function filterBlogsByTag(tag) {
 function initRelatedPosts() {
     if (!window.blogContent) return;
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const slug = urlParams.get('slug');
+    const slug = getBlogSlugFromLocation();
 
     if (!slug) return;
 
@@ -918,7 +933,7 @@ function createRelatedPostCard(blog) {
     return `
         <div class="blog-card border border-gray-200 dark:border-gray-800 rounded-xl p-6 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm transition-all duration-300">
             <h4 class="font-semibold mb-3 text-lg leading-tight">
-                <a href="blog.html?slug=${blog.id}" class="hover:text-accent transition-colors">
+                <a href="${getBlogPath(blog.id)}" class="hover:text-accent transition-colors">
                     ${blog.title}
                 </a>
             </h4>
@@ -936,7 +951,7 @@ function createRelatedPostCard(blog) {
                 `).join('')}
                 ${blog.tags.length > 3 ? '<span class="text-xs text-gray-500">+' + (blog.tags.length - 3) + ' more</span>' : ''}
             </div>
-            <a href="blog.html?slug=${blog.id}" class="text-accent hover:text-amber-900 font-medium text-sm transition-colors">
+            <a href="${getBlogPath(blog.id)}" class="text-accent hover:text-amber-900 font-medium text-sm transition-colors">
                 read article →
             </a>
         </div>

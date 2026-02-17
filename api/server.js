@@ -1,6 +1,7 @@
 const axios = require('axios');
 const fs = require('fs').promises;
 const path = require('path');
+const crypto = require('crypto');
 
 // Path to store tokens in a temporary file
 const TOKENS_FILE = path.join('/tmp', 'spotify-tokens.json');
@@ -76,6 +77,68 @@ function getCorsHeaders(origin) {
     };
 }
 
+function normalizePathname(pathname) {
+    if (!pathname || pathname === '/') return '/';
+    return pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+}
+
+function getBaseUrl(req) {
+    const proto = req.headers['x-forwarded-proto'] || 'https';
+    const host = req.headers.host;
+    return `${proto}://${host}`;
+}
+
+function getStateSecret() {
+    return process.env.SPOTIFY_STATE_SECRET || process.env.SPOTIFY_CLIENT_SECRET || '';
+}
+
+function base64UrlEncode(value) {
+    return Buffer.from(value, 'utf8').toString('base64url');
+}
+
+function base64UrlDecode(value) {
+    return Buffer.from(value, 'base64url').toString('utf8');
+}
+
+function createOAuthState() {
+    const payload = JSON.stringify({
+        ts: Date.now(),
+        nonce: crypto.randomBytes(16).toString('hex')
+    });
+    const encodedPayload = base64UrlEncode(payload);
+    const signature = crypto
+        .createHmac('sha256', getStateSecret())
+        .update(encodedPayload)
+        .digest('base64url');
+
+    return `${encodedPayload}.${signature}`;
+}
+
+function isValidOAuthState(state) {
+    if (!state || !state.includes('.')) return false;
+    const [encodedPayload, providedSignature] = state.split('.');
+    if (!encodedPayload || !providedSignature) return false;
+
+    const expectedSignature = crypto
+        .createHmac('sha256', getStateSecret())
+        .update(encodedPayload)
+        .digest('base64url');
+
+    const expectedBuffer = Buffer.from(expectedSignature);
+    const providedBuffer = Buffer.from(providedSignature);
+    if (expectedBuffer.length !== providedBuffer.length) return false;
+    if (!crypto.timingSafeEqual(expectedBuffer, providedBuffer)) return false;
+
+    try {
+        const parsed = JSON.parse(base64UrlDecode(encodedPayload));
+        if (!parsed || typeof parsed.ts !== 'number') return false;
+        // 10 minute expiry window for auth redirects
+        return Date.now() - parsed.ts <= 10 * 60 * 1000;
+    } catch {
+        return false;
+    }
+}
+
 // Main handler function
 module.exports = async (req, res) => {
     // Load tokens on each request (for serverless)
@@ -96,24 +159,24 @@ module.exports = async (req, res) => {
 
     const { url } = req;
     const urlObj = new URL(url, `https://${req.headers.host}`);
-    const pathname = urlObj.pathname;
+    const pathname = normalizePathname(urlObj.pathname);
     const searchParams = urlObj.searchParams;
 
     try {
         // Route handling
-        if (pathname.includes('/auth/spotify')) {
+        if (pathname === '/auth/spotify') {
             return await handleSpotifyAuth(req, res);
         }
 
-        if (pathname.includes('/api/recent-tracks')) {
+        if (pathname === '/api/recent-tracks') {
             return await handleRecentTracks(req, res);
         }
 
-        if (pathname.includes('/api/auth/status')) {
+        if (pathname === '/api/auth/status') {
             return await handleAuthStatus(req, res);
         }
 
-        if (pathname.includes('/health')) {
+        if (pathname === '/health') {
             return await handleHealth(req, res);
         }
 
@@ -133,13 +196,16 @@ module.exports = async (req, res) => {
 // Handler functions
 async function handleSpotifyAuth(req, res) {
     const scopes = 'user-read-recently-played';
-    const redirectUri = `https://${req.headers.host}/api/server?callback=true`;
+    const baseUrl = getBaseUrl(req);
+    const redirectUri = `${baseUrl}/api/server?callback=true`;
+    const state = createOAuthState();
 
     const authUrl = `${SPOTIFY_AUTH_URL}?` +
         `client_id=${process.env.SPOTIFY_CLIENT_ID}&` +
         `response_type=code&` +
         `redirect_uri=${encodeURIComponent(redirectUri)}&` +
         `scope=${encodeURIComponent(scopes)}&` +
+        `state=${encodeURIComponent(state)}&` +
         `show_dialog=false`;
 
     res.redirect(authUrl);
@@ -148,17 +214,23 @@ async function handleSpotifyAuth(req, res) {
 async function handleCallback(req, res, searchParams) {
     const code = searchParams.get('code');
     const error = searchParams.get('error');
+    const state = searchParams.get('state');
+    const baseUrl = getBaseUrl(req);
 
     if (error) {
-        return res.redirect(`https://${req.headers.host}?error=${error}`);
+        return res.redirect(`${baseUrl}?error=${error}`);
     }
 
     if (!code) {
-        return res.redirect(`https://${req.headers.host}?error=no_code`);
+        return res.redirect(`${baseUrl}?error=no_code`);
+    }
+
+    if (!isValidOAuthState(state)) {
+        return res.redirect(`${baseUrl}?error=invalid_state`);
     }
 
     try {
-        const redirectUri = `https://${req.headers.host}/api/server?callback=true`;
+        const redirectUri = `${baseUrl}/api/server?callback=true`;
 
         // Exchange code for access token
         const tokenResponse = await axios.post(SPOTIFY_TOKEN_URL,
@@ -178,7 +250,7 @@ async function handleCallback(req, res, searchParams) {
         const tokenData = tokenResponse.data;
 
         if (tokenData.error) {
-            return res.redirect(`https://${req.headers.host}?error=${tokenData.error}`);
+            return res.redirect(`${baseUrl}?error=${tokenData.error}`);
         }
 
         // Store tokens
@@ -191,11 +263,11 @@ async function handleCallback(req, res, searchParams) {
         // Save tokens to file for persistence
         await saveTokens();
 
-        res.redirect(`https://${req.headers.host}?success=true`);
+        res.redirect(`${baseUrl}?success=true`);
 
     } catch (error) {
         console.error('Error exchanging code for token:', error);
-        res.redirect(`https://${req.headers.host}?error=token_exchange_failed`);
+        res.redirect(`${baseUrl}?error=token_exchange_failed`);
     }
 }
 
@@ -292,15 +364,7 @@ async function handleRecentTracks(req, res) {
 async function handleAuthStatus(req, res) {
     res.json({
         authenticated: !!spotifyTokens.access_token,
-        tokenExpiry: spotifyTokens.expires_at,
-        hasRefreshToken: !!spotifyTokens.refresh_token,
-        envRefreshToken: !!process.env.SPOTIFY_REFRESH_TOKEN,
-        debug: {
-            loadedFromEnv: !!process.env.SPOTIFY_REFRESH_TOKEN,
-            tokenInMemory: !!spotifyTokens.refresh_token,
-            hasClientId: !!process.env.SPOTIFY_CLIENT_ID,
-            hasClientSecret: !!process.env.SPOTIFY_CLIENT_SECRET
-        }
+        tokenExpiry: spotifyTokens.expires_at
     });
 }
 
@@ -311,4 +375,3 @@ async function handleHealth(req, res) {
         tokenExpiry: spotifyTokens.expires_at ? new Date(spotifyTokens.expires_at).toISOString() : null
     });
 }
-
