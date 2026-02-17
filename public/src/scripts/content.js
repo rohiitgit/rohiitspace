@@ -44,7 +44,7 @@ const siteContent = {
         tldrContent: [
             "i'm obsessed with ideas (even if half of them don't show up).",
             "interned at a startup as a '<strong>python intern</strong>' where they threw <strong>C++</strong> at me day 1. i didn't know it. <strong>still cooked</strong>.",
-            "currently building at <a href=\"https://openblood.app/\" class=\"text-accent hover:text-indigo-700 transition-colors font-semibold\">@openblood.</a>",
+            "currently building at <a href=\"https://openblood.app/\" class=\"text-accent hover:text-amber-900 transition-colors font-semibold\">@openblood.</a>",
             "i adapt fast. tools change, but shipping matters more."
         ]
     },

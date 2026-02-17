@@ -4,8 +4,11 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-accent: #6366f1;
+  --color-accent: #c2703a;
+  --color-accent-secondary: #a0522d;
+  --color-accent-warm: #d4943c;
   --font-mono: ui-monospace, SFMono-Regular, monospace;
+  --font-display: 'Instrument Serif', Georgia, serif;
 }
 
 /* Ripple animation for theme toggle */

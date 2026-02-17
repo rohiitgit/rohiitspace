@@ -5,97 +5,68 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Development Commands
 
 ### Local Development
-- `npm run start` or `npm run dev` - Start development server on port 3000
-- `npm run build` - Build CSS using TailwindCSS CLI
-- `npm run build:css` - Build CSS without minification
+- `npm run start` or `npm run dev` - Start static HTTP server on port 3000 (serves from root, entry at `/public`)
+- `npm run build` - Build TailwindCSS with minification (production)
+- `npm run build:css` - Build TailwindCSS without minification
 - `npm run build:css:watch` - Watch mode for CSS builds
-- `npm run vercel-dev` - Start Vercel development server
+- `npm run vercel-dev` - Start Vercel development server (needed for API routes)
 
 ### Deployment
-- Project deploys automatically on Vercel
+- Deploys automatically on Vercel
 - Build command: `npm run build`
-- Output directory: `.` (root directory)
+- Output directory: `public` (set in vercel.json)
 
 ## Architecture Overview
 
-### Content Separation System
-The project uses a sophisticated content-data separation architecture:
+### Content-Data Separation
+All website content is centralized in data files, with HTML templates using `data-content` attributes for dynamic population:
 
-- **Content Data**: All website content is centralized in `/public/src/scripts/content.js` as a structured JavaScript object (`siteContent`)
-- **Layout Templates**: HTML uses `data-content` attributes for dynamic population
-- **Dynamic Population**: `/public/src/scripts/main.js` contains content population functions that map data to DOM elements
-- **FOUC Prevention**: CSS opacity transitions prevent flash of unstyled content during population
+- **Portfolio content**: `/public/src/scripts/content.js` — `siteContent` object with all portfolio sections
+- **Blog content**: `/public/src/scripts/blogs.js` — `blogContent` object with blog posts (content is inline HTML in template literals)
+- **Population logic**: `/public/src/scripts/main.js` — maps `siteContent` to DOM via `populateContent()`
+- **Blog logic**: `/public/src/scripts/blog-main.js` — handles both listing page (`blogs.html`) and individual post page (`blog.html?slug=<id>`)
+- **FOUC prevention**: CSS opacity transitions hide content until population completes (elements get `populated` class)
 
-Key functions in main.js:
-- `populateContent()` - Main orchestrator for all content population
-- Individual populate functions for each section (hero, about, experience, etc.)
-- Content population happens on DOMContentLoaded or immediately if DOM is ready
+### Pages
+- `public/index.html` — Portfolio/homepage
+- `public/blogs.html` — Blog listing page (tag filtering via URL params)
+- `public/blog.html` — Individual blog post (loaded via `?slug=<blog-id>` query param)
 
-### Styling Architecture
-- **TailwindCSS**: Primary utility framework with custom configuration
-- **Custom CSS**: `/public/src/styles/main.css` for specialized effects:
-  - Notebook-style grid background with radial gradient dots
-  - Timeline animations with progress bars and animated dots
-  - FOUC prevention styles
-  - Glow effects for interactive elements
-  - Responsive margin boundaries (notebook lines)
+### TailwindCSS v4 Setup
+- **Input**: `/styles.css` (root) — imports tailwindcss, defines custom variant for dark mode, theme colors (`--color-accent: #6366f1`)
+- **Output**: `/public/src/styles/tailwind.css` (generated, do not edit directly)
+- **Custom CSS**: `/public/src/styles/main.css` — notebook-style grid background, timeline animations, FOUC prevention, glow effects
+- Uses `@custom-variant dark (&:where(.dark, .dark *))` for class-based dark mode
 
-### File Structure
-```
-/public/           # Served files (entry point)
-├── index.html     # Main template with data-content attributes
-├── src/           # Source code inside public for server compatibility
-│   ├── scripts/
-│   │   ├── main.js     # Application logic & content population
-│   │   └── content.js  # Centralized content data
-│   └── styles/
-│       └── main.css    # Custom styles & animations
-└── assets/        # Static assets (images, etc.)
+### API Layer
+- `/api/server.js` — Vercel serverless function handling Spotify OAuth and `/api/recent-tracks`
+- `/public/src/config/config.js` — API URL config with auto-detection (localhost vs production)
+- Vercel rewrites route `/api/*`, `/auth/*`, and `/health` to the serverless function
 
-/api/              # Serverless backend
-└── server.js      # Spotify OAuth & API integration
-
-/vercel.json       # Deployment configuration
-```
-
-### Spotify Integration
-- Backend API in `/api/server.js` handles OAuth flow and token management
-- Supports both environment variables and file-based token storage
-- Frontend loads recently played tracks via `/api/recent-tracks`
-- Responsive display: mobile list view, desktop grid view
-- Automatic retry logic and authentication state management
+### Key Libraries
+- **Lenis** — Smooth scroll library, initialized in both `main.js` and `blog-main.js`
+- **Vercel Analytics** — `@vercel/analytics` for page tracking
 
 ## Key Technical Patterns
 
 ### Content Updates
-To update website content, edit the `siteContent` object in `/public/src/scripts/content.js`. The system automatically populates all sections from this central data source.
+Edit the `siteContent` object in `/public/src/scripts/content.js` for portfolio content. Edit `blogContent.blogs` array in `/public/src/scripts/blogs.js` to add/modify blog posts. Each blog has an `id` (used as URL slug), inline HTML `content`, and metadata (date, tags, readTime).
 
 ### Theme System
-- Dark/light mode toggle with ripple animation effect
-- System preference detection with localStorage persistence
-- Theme classes applied to `<html>` element
+- Dark/light toggle with ripple animation effect (full-screen circular expand)
+- System preference detection with `localStorage` persistence
+- Dark mode class applied to `<html>` element
+- Blog pages duplicate theme/menu init logic in `blog-main.js` (not shared from `main.js`)
+
+### Blog System
+- Blog posts are stored as objects in `blogs.js` with inline HTML content
+- Listing page supports tag filtering with URL param persistence (`?tag=<tagname>`)
+- Individual post page features: reading progress bar, share buttons, prev/next navigation, related posts (by shared tags), copy-code buttons on `<pre><code>` blocks
 
 ### Timeline Animations
-Experience section uses intersection observer with custom timeline animations:
-- Progress lines that fill based on scroll position
-- Animated dots that appear and move along timeline
-- Configurable midpoint intersection (35% from viewport top)
+Experience section uses intersection observer with configurable midpoint (35% from viewport top) for progress lines and animated dots.
 
-### Responsive Design Considerations
+### Responsive Design
 - Mobile-first TailwindCSS approach
 - Notebook-style boundaries hidden below 1200px width
-- Spotify section adapts layout: mobile list vs desktop grid
-- Grid system uses CSS Grid with responsive columns
-
-## Important Notes
-
-### Server Configuration
-- HTTP server must serve from `/public` directory
-- All file paths in HTML reference `/src/` inside public folder
-- Vercel configuration handles API routing and caching headers
-
-### Performance Optimizations
-- Content opacity transitions prevent FOUC
-- Hardware-accelerated CSS transitions
-- Lazy loading for images
-- Efficient intersection observers for animations
+- Spotify section: mobile list view, desktop grid view
