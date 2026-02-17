@@ -306,7 +306,7 @@ function showContentLoadError() {
                     We're having trouble loading the page content. Please try refreshing the page.
                 </p>
                 <button onclick="window.location.reload()"
-                    class="bg-accent hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                    class="bg-accent hover:bg-amber-900 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
                     Refresh Page
                 </button>
             </div>
@@ -486,7 +486,7 @@ function populateExperienceSection(experience) {
                     </div>
                     <div>
                         <p class="text-gray-600 dark:text-gray-300 text-xs sm:text-sm leading-relaxed">
-                            ${escapeHtml(job.description)}
+                            ${job.description}
                         </p>
                     </div>
                 </div>
@@ -518,10 +518,10 @@ function populateProjectsSection(projects) {
                         </div>
                         <div class="flex gap-6 mt-auto">
                             ${project.links.live && isSafeUrl(project.links.live) ? `
-                                <a href="${project.links.live}" class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">live →</a>
+                                <a href="${project.links.live}" class="text-accent hover:text-amber-900 font-medium text-sm transition-colors">live →</a>
                             ` : ''}
                             ${project.links.github && isSafeUrl(project.links.github) ? `
-                                <a href="${project.links.github}" class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">github →</a>
+                                <a href="${project.links.github}" class="text-accent hover:text-amber-900 font-medium text-sm transition-colors">github →</a>
                             ` : ''}
                         </div>
                     </div>
@@ -549,10 +549,10 @@ function populateSideProjectsSection(sideProjects) {
                                     <h4 class="font-bold text-base text-gray-900 dark:text-gray-100">${escapeHtml(project.title)}</h4>
                                     <div class="flex gap-2">
                                         ${project.links.live && isSafeUrl(project.links.live) ? `
-                                            <a href="${project.links.live}" class="text-accent hover:text-indigo-700 text-xs font-medium transition-colors">live →</a>
+                                            <a href="${project.links.live}" class="text-accent hover:text-amber-900 text-xs font-medium transition-colors">live →</a>
                                         ` : ''}
                                         ${project.links.github && isSafeUrl(project.links.github) ? `
-                                            <a href="${project.links.github}" class="text-accent hover:text-indigo-700 text-xs font-medium transition-colors">github →</a>
+                                            <a href="${project.links.github}" class="text-accent hover:text-amber-900 text-xs font-medium transition-colors">github →</a>
                                         ` : ''}
                                     </div>
                                 </div>
@@ -668,7 +668,7 @@ function populateFooter(footer) {
     if (footerElement) {
         footerElement.innerHTML = `
             <p class="text-gray-600 dark:text-gray-400 text-sm">${escapeHtml(footer.built)}</p>
-            <p>${escapeHtml(footer.inspired)}</p>
+            <p>${footer.inspired}</p>
             <p class="text-gray-400 text-xs mt-2">${escapeHtml(footer.copyright)}</p>
         `;
     }
@@ -946,25 +946,24 @@ document.addEventListener('DOMContentLoaded', function () {
         addEventListenerWithCleanup(card, 'mouseleave', mouseLeaveHandler);
     });
 
-    // Add typing animation for hero text (optional)
+    // Word-by-word fade-in animation for hero text
     const heroTitle = document.querySelector('#hero h1');
     if (heroTitle) {
         const originalText = heroTitle.textContent;
+        const words = originalText.split(' ');
         heroTitle.textContent = '';
 
-        let i = 0;
-        function typeWriter() {
-            if (i < originalText.length) {
-                heroTitle.textContent += originalText.charAt(i);
-                i++;
-                const timeoutId = setTimeout(typeWriter, 50);
-                activeTypingTimeouts.push(timeoutId);
-            }
-        }
+        words.forEach((word, index) => {
+            const wordSpan = document.createElement('span');
+            wordSpan.className = 'hero-word';
+            wordSpan.textContent = word;
+            wordSpan.style.animationDelay = `${index * 0.1 + 0.3}s`;
+            heroTitle.appendChild(wordSpan);
 
-        // Start typing animation after a brief delay
-        const initialTimeoutId = setTimeout(typeWriter, 500);
-        activeTypingTimeouts.push(initialTimeoutId);
+            if (index < words.length - 1) {
+                heroTitle.appendChild(document.createTextNode(' '));
+            }
+        });
     }
 
     // Mobile menu toggle functionality
@@ -1083,8 +1082,10 @@ document.addEventListener('DOMContentLoaded', function () {
         addEventListenerWithCleanup(window, 'scroll', requestTimelineTick, { passive: true });
         addEventListenerWithCleanup(window, 'resize', requestTimelineTick, { passive: true });
 
-        // Initial call
-        updateTimelineAnimation();
+        // Delay initial call to ensure content population and layout have settled
+        requestAnimationFrame(() => {
+            requestAnimationFrame(updateTimelineAnimation);
+        });
     }
 
     initTimelineAnimation();

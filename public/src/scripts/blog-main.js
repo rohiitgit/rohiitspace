@@ -123,6 +123,9 @@ document.addEventListener('DOMContentLoaded', function() {
         initCopyCodeButtons();
     }
 
+    // Add entrance animations (matching portfolio fade-in behavior)
+    initEntranceAnimations(isListingPage, isIndividualBlogPage);
+
     // Add navigation highlighting for blogs
     highlightActiveNavigation();
 
@@ -141,21 +144,31 @@ function initTheme() {
         html.classList.add('dark');
     }
 
+    let isThemeChanging = false;
+
     const themeClickHandler = function() {
+        if (isThemeChanging) return;
+
         const rect = themeToggle.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
         const isDarkMode = html.classList.contains('dark');
         const targetTheme = isDarkMode ? 'light' : 'dark';
 
-        createRippleAnimation(centerX, centerY, targetTheme, function() {
-            html.classList.toggle('dark');
-            if (html.classList.contains('dark')) {
-                localStorage.setItem('theme', 'dark');
-            } else {
-                localStorage.setItem('theme', 'light');
-            }
-        });
+        // Toggle theme IMMEDIATELY (matches main.js behavior)
+        html.classList.toggle('dark');
+        if (html.classList.contains('dark')) {
+            localStorage.setItem('theme', 'dark');
+        } else {
+            localStorage.setItem('theme', 'light');
+        }
+
+        isThemeChanging = true;
+
+        // Ripple is visual only — theme already changed
+        createRippleAnimation(centerX, centerY, targetTheme, function() {});
+
+        setTimeout(() => { isThemeChanging = false; }, 300);
     };
 
     addEventListenerWithCleanup(themeToggle, 'click', themeClickHandler);
@@ -290,6 +303,72 @@ function highlightActiveNavigation() {
     });
 }
 
+// Entrance animations — matches portfolio's staggered fade-in behavior
+function initEntranceAnimations(isListing, isPost) {
+    if (isListing) {
+        // Fade-in the blog listing title and tag filters
+        const heading = document.querySelector('#all-blogs h2');
+        const tagContainer = document.getElementById('tag-filter-container');
+        const blogsContainer = document.getElementById('all-blogs-container');
+
+        const staggerTargets = [heading, tagContainer, blogsContainer].filter(Boolean);
+        staggerTargets.forEach((el, i) => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            el.style.transitionDelay = `${i * 0.12}s`;
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    }
+
+    if (isPost) {
+        // Staggered fade-in for blog post header elements
+        const title = document.getElementById('post-title');
+        const meta = title?.nextElementSibling; // date/readtime row
+        const tags = document.getElementById('post-tags');
+        const divider = tags?.nextElementSibling; // the decorative divider
+        const content = document.getElementById('post-content');
+
+        const staggerTargets = [title, meta, tags, divider, content].filter(Boolean);
+        staggerTargets.forEach((el, i) => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(16px)';
+            el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            el.style.transitionDelay = `${i * 0.1}s`;
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                });
+            });
+        });
+
+        // Fade-in for sections below the fold using IntersectionObserver
+        const belowFoldSections = document.querySelectorAll('#share-section, #related-posts, #post-navigation');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+        belowFoldSections.forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+            section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(section);
+        });
+    }
+}
+
 // Initialize blog listing page
 function initBlogListingPage() {
     if (!window.blogContent) return;
@@ -320,7 +399,7 @@ function initBlogListingPage() {
         const sortedBlogs = [...content.blogs].sort((a, b) => new Date(b.date) - new Date(a.date));
         allBlogsContainer.innerHTML = `
             <div class="grid grid-cols-1 gap-6">
-                ${sortedBlogs.map(blog => createBlogCard(blog, false)).join('')}
+                ${sortedBlogs.map(blog => createBlogCard(blog)).join('')}
             </div>
         `;
     }
@@ -329,62 +408,33 @@ function initBlogListingPage() {
 }
 
 // Create blog card HTML
-function createBlogCard(blog, isFeatured = false) {
-    if (isFeatured) {
-        // Featured cards - clean design without background
-        return `
-            <div class="h-full flex flex-col border border-gray-200 dark:border-gray-700 rounded-xl p-6 hover:border-accent/50 transition-all duration-300">
-                <h3 class="font-semibold mb-3 text-lg">
-                    <a href="blog.html?slug=${blog.id}" class="hover:text-accent transition-colors">
-                        ${blog.title}
-                    </a>
-                </h3>
-                <p class="text-gray-600 dark:text-gray-300 text-sm mb-6 flex-grow leading-relaxed">
-                    ${blog.excerpt}
-                </p>
-                <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-4">
-                    <time>${formatDate(blog.date)}</time>
-                    <span>•</span>
-                    <span>${blog.readTime}</span>
-                </div>
-                <div class="flex flex-wrap gap-2 mb-6">
-                    ${blog.tags.map((tech, index) => `
-                        <button class="tag-link px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium hover:bg-accent/10 hover:text-accent transition-colors ${index === 0 ? 'bg-accent/10 text-accent' : ''}" data-tag="${tech}">${tech}</button>
-                    `).join('')}
-                </div>
-                <div class="flex gap-6 mt-auto">
-                    <a href="blog.html?slug=${blog.id}" class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">read →</a>
-                </div>
+function createBlogCard(blog) {
+    // Blog cards match project-card aesthetic: frosted glass + glow hover
+    return `
+        <div class="blog-card h-full flex flex-col border border-gray-200 dark:border-gray-800 rounded-xl p-6 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm transition-all duration-300">
+            <h3 class="font-semibold mb-3 text-lg">
+                <a href="blog.html?slug=${blog.id}" class="hover:text-accent transition-colors">
+                    ${blog.title}
+                </a>
+            </h3>
+            <p class="text-gray-600 dark:text-gray-300 text-sm mb-6 flex-grow leading-relaxed">
+                ${blog.excerpt}
+            </p>
+            <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-4">
+                <time>${formatDate(blog.date)}</time>
+                <span>•</span>
+                <span>${blog.readTime}</span>
             </div>
-        `;
-    } else {
-        // All posts cards - minimal design without background
-        return `
-            <div class="h-full flex flex-col border border-gray-200 dark:border-gray-700 rounded-xl p-6 hover:border-accent/50 transition-all duration-300">
-                <h3 class="font-semibold mb-3 text-lg">
-                    <a href="blog.html?slug=${blog.id}" class="hover:text-accent transition-colors">
-                        ${blog.title}
-                    </a>
-                </h3>
-                <p class="text-gray-600 dark:text-gray-300 text-sm mb-6 flex-grow leading-relaxed">
-                    ${blog.excerpt}
-                </p>
-                <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-4">
-                    <time>${formatDate(blog.date)}</time>
-                    <span>•</span>
-                    <span>${blog.readTime}</span>
-                </div>
-                <div class="flex flex-wrap gap-2 mb-6">
-                    ${blog.tags.map((tech, index) => `
-                        <button class="tag-link px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium hover:bg-accent/10 hover:text-accent transition-colors ${index === 0 ? 'bg-accent/10 text-accent' : ''}" data-tag="${tech}">${tech}</button>
-                    `).join('')}
-                </div>
-                <div class="flex gap-6 mt-auto">
-                    <a href="blog.html?slug=${blog.id}" class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">read →</a>
-                </div>
+            <div class="flex flex-wrap gap-2 mb-6">
+                ${blog.tags.map((tech, index) => `
+                    <button class="tag-link px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium hover:bg-accent/10 hover:text-accent transition-colors ${index === 0 ? 'bg-accent/10 text-accent' : ''}" data-tag="${tech}">${tech}</button>
+                `).join('')}
             </div>
-        `;
-    }
+            <div class="flex gap-6 mt-auto">
+                <a href="blog.html?slug=${blog.id}" class="text-accent hover:text-amber-900 font-medium text-sm transition-colors">read →</a>
+            </div>
+        </div>
+    `;
 }
 
 // Initialize individual blog page
@@ -430,8 +480,12 @@ function populateBlogPost(blog) {
         if (blogDescription) blogDescription.content = blog.excerpt;
         if (blogKeywords) blogKeywords.content = blog.tags.join(', ');
 
-        // Update Open Graph meta
+        // Update canonical URL
         const currentUrl = `${window.location.origin}${window.location.pathname}?slug=${blog.id}`;
+        const canonicalLink = document.getElementById('blog-canonical');
+        if (canonicalLink) canonicalLink.href = currentUrl;
+
+        // Update Open Graph meta
         const ogUrl = document.getElementById('blog-og-url');
         const ogTitle = document.getElementById('blog-og-title');
         const ogDescription = document.getElementById('blog-og-description');
@@ -495,6 +549,21 @@ function populateBlogPost(blog) {
             postContent.innerHTML = blog.content;
             console.log('Set content, length:', blog.content.length);
         }
+
+        // Inject BlogPosting structured data
+        const jsonLd = document.createElement('script');
+        jsonLd.type = 'application/ld+json';
+        jsonLd.textContent = JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            "headline": blog.title,
+            "datePublished": blog.date,
+            "author": { "@type": "Person", "name": "Rohit", "url": "https://www.rohiit.space" },
+            "description": blog.excerpt,
+            "url": currentUrl,
+            "keywords": blog.tags.join(', ')
+        });
+        document.head.appendChild(jsonLd);
 
     } catch (error) {
         console.error('Error populating blog post:', error);
@@ -795,7 +864,7 @@ function filterBlogsByTag(tag) {
     allBlogsContainer.innerHTML = `
         <div class="grid grid-cols-1 gap-6">
             ${filteredBlogs.length > 0
-                ? filteredBlogs.map(blog => createBlogCard(blog, false)).join('')
+                ? filteredBlogs.map(blog => createBlogCard(blog)).join('')
                 : '<div class="col-span-1 text-center py-12"><p class="text-gray-500 dark:text-gray-400">No posts found with this tag.</p></div>'
             }
         </div>
@@ -847,7 +916,7 @@ function initRelatedPosts() {
 // Create related post card HTML
 function createRelatedPostCard(blog) {
     return `
-        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6 hover:border-accent/50 hover:shadow-lg transition-all duration-300">
+        <div class="blog-card border border-gray-200 dark:border-gray-800 rounded-xl p-6 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm transition-all duration-300">
             <h4 class="font-semibold mb-3 text-lg leading-tight">
                 <a href="blog.html?slug=${blog.id}" class="hover:text-accent transition-colors">
                     ${blog.title}
@@ -867,7 +936,7 @@ function createRelatedPostCard(blog) {
                 `).join('')}
                 ${blog.tags.length > 3 ? '<span class="text-xs text-gray-500">+' + (blog.tags.length - 3) + ' more</span>' : ''}
             </div>
-            <a href="blog.html?slug=${blog.id}" class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">
+            <a href="blog.html?slug=${blog.id}" class="text-accent hover:text-amber-900 font-medium text-sm transition-colors">
                 read article →
             </a>
         </div>

@@ -28,6 +28,35 @@
     <meta property="twitter:description" content="Computer science grad building fullstack apps, computer vision solutions, and automation tools. SIH 2024 finalist working at OpenBlood.">
     <meta property="twitter:image" content="https://www.rohiit.space/assets/images/preview.png">
 
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.rohiit.space/">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Rohit",
+        "url": "https://www.rohiit.space",
+        "jobTitle": "Software Developer",
+        "worksFor": {
+            "@type": "Organization",
+            "name": "OpenBlood",
+            "url": "https://openblood.app/"
+        },
+        "sameAs": [
+            "https://github.com/rohiitgit",
+            "https://linkedin.com/in/rohiitcodes"
+        ],
+        "knowsAbout": ["Full-Stack Development", "Computer Vision", "Python", "JavaScript", "React"]
+    }
+    </script>
+
+    <!-- Google Fonts - Display heading font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+
     <!-- Favicons -->
     <link rel="icon" type="image/webp" href="assets/images/pfp.webp">
     <link rel="apple-touch-icon" href="assets/images/pfp.webp">
@@ -35,7 +64,7 @@
     <link rel="stylesheet" href="src/styles/main.css">
 
     <!-- Lenis Smooth Scroll -->
-    <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.13/dist/lenis.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/lenis@1.3.13/dist/lenis.min.js"></script>
 
     <script src="src/config/config.js"></script>
     <script src="src/scripts/content.js"></script>
@@ -159,30 +188,34 @@
             <!-- Hero Section -->
             <section id="hero" class="col-span-12 pt-8">
                 <div class="grid grid-cols-12 gap-6">
-                    <!-- Profile Image - Mobile: centered, Desktop: 4 columns centered -->
-                    <div class="col-span-12 md:col-start-5 md:col-span-4 text-center mb-6 md:mb-4">
+                    <!-- Profile Image - Top Left, Small -->
+                    <div class="col-span-12 mb-4">
                         <div
-                            class="w-32 h-32 sm:w-36 sm:h-36 md:w-40 md:h-40 mx-auto bg-gray-100 dark:bg-gray-900 rounded-xl border-2 border-accent transition-all duration-300 flex items-center justify-center overflow-hidden hover:shadow-lg">
+                            style="width: 80px; height: 80px;"
+                            class="bg-gray-100 dark:bg-gray-900 rounded-full border-2 border-accent transition-all duration-300 overflow-hidden hover:border-accent-secondary hover:shadow-lg">
                             <img src="assets/images/pfp.webp"
                                 alt="Rohit's profile picture"
                                 class="w-full h-full object-cover"
+                                width="80"
+                                height="80"
                                 loading="lazy"
                                 data-content="personal.profileImage"
-                                onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;w-full h-full flex items-center justify-center text-4xl&quot;>👨‍💻</div>';">
+                                onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;w-full h-full flex items-center justify-center text-2xl&quot;>👨‍💻</div>';">
                         </div>
                     </div>
 
-                    <!-- Hero Text - Mobile: full width with padding, Desktop: 10 columns centered -->
-                    <div class="col-span-12 md:col-start-2 md:col-span-10 text-center px-4 md:px-6">
-                        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 md:mb-6" data-content="hero.greeting">hi, i'm rohit 👋</h1>
+                    <!-- Hero Text - Left Aligned -->
+                    <div class="col-span-12 md:col-span-10">
+                        <div class="hero-name-wrapper mb-12">
+                            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold" data-content="hero.greeting">hi, i'm rohit 👋</h1>
+                        </div>
 
-                        <!-- Section Separator -->
-                        <div class="section-separator"></div>
-
-                        <h2 class="text-lg sm:text-xl md:text-2xl font-semibold mb-6 md:mb-8 text-accent" data-content="hero.tldrTitle">tldr;</h2>
-                        <div
-                            class="text-gray-600 dark:text-gray-300 text-sm sm:text-base md:text-lg leading-relaxed max-w-4xl mx-auto space-y-4 text-left" data-content="hero.tldrContent">
-                            <!-- TLDR content will be populated dynamically -->
+                        <!-- TLDR Card -->
+                        <div class="tldr-card">
+                            <h2 class="text-lg sm:text-xl md:text-2xl font-semibold mb-6 text-accent" data-content="hero.tldrTitle">tldr;</h2>
+                            <div class="text-gray-600 dark:text-gray-300 text-sm sm:text-base md:text-lg leading-relaxed space-y-4"
+                                data-content="hero.tldrContent">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -323,7 +356,7 @@
                     <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6">
                         <p class="text-red-600 dark:text-red-400 text-sm mb-4">failed to load spotify data</p>
                         <button id="retry-spotify"
-                            class="text-accent hover:text-indigo-700 font-medium text-sm transition-colors">
+                            class="text-accent hover:text-amber-900 font-medium text-sm transition-colors">
                             try again →
                         </button>
                     </div>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://www.rohiit.space/</loc>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://www.rohiit.space/blogs.html</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.rohiit.space/blog.html?slug=guessing-is-fine-in-dating-not-in-billing</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.rohiit.space/blog.html?slug=system-design-for-noobs-02-connection-pooling</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.rohiit.space/blog.html?slug=system-design-for-noobs-01-heartbeats</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.rohiit.space/blog.html?slug=blockchain-101</loc>
+    <priority>0.6</priority>
+  </url>
+</urlset>
