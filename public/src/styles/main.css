@@ -529,6 +529,27 @@ html.lenis {
     pointer-events: none;
 }
 
+/* Active nav link — JS adds text-accent class on scroll */
+nav a {
+    position: relative;
+    transition: color 0.2s ease;
+}
+
+nav a.text-accent {
+    font-weight: 600;
+}
+
+nav a.text-accent::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--color-accent);
+    border-radius: 1px;
+}
+
 /* Offset sections for fixed header - This makes hash navigation work properly */
 section[id] {
     scroll-margin-top: 100px;
