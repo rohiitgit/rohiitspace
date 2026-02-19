@@ -1,9 +1,9 @@
 (function () {
     // ─── Config ───────────────────────────────────────────────────────────────
-    const S = 3;             // scale: 3 canvas-px per base-pixel
+    let S = 3;               // scale: canvas-px per base-pixel (2 on mobile, 3 on desktop)
     const CANVAS_H = 200;    // canvas height (px)
     const SPR_W = 32;        // sprite bounding box width (base-px, includes sword)
-    const SCALED_W = SPR_W * S;   // 96
+    let SCALED_W = SPR_W * S; // updated in setup()
 
     // ─── Palette ──────────────────────────────────────────────────────────────
     const C = {
@@ -220,26 +220,30 @@
 
     // ─── Canvas setup ─────────────────────────────────────────────────────────
     function extraLeftPx(arena) {
+        if (window.innerWidth < 640) return 0;  // mobile: no left extension
         const arenaRect = arena.getBoundingClientRect();
-        const emojiEl = document.querySelector('#hero h1 .hero-word:last-child');
-        if (!emojiEl) return 0;
-        const emojiRect = emojiEl.getBoundingClientRect();
-        return Math.max(0, arenaRect.left - emojiRect.left);
+        const lastWord = document.querySelector('#hero h1 .hero-word:last-child');
+        if (!lastWord) return 0;
+        const wordRect = lastWord.getBoundingClientRect();
+        return Math.max(0, arenaRect.left - wordRect.left);
     }
 
     function setup(canvas, arena) {
+        S        = window.innerWidth < 640 ? 2 : 3;
+        SCALED_W = SPR_W * S;
         const arenaW = arena.getBoundingClientRect().width || arena.offsetWidth || 280;
         const extra  = extraLeftPx(arena);
         CANVAS_W  = Math.max(arenaW + extra, SCALED_W + 20);
-        leftBound = 0;  // canvas left edge sits at emoji position
+        leftBound = 0;
         canvas.width          = CANVAS_W;
         canvas.height         = CANVAS_H;
         canvas.style.position = 'absolute';
         canvas.style.right    = '0';
         canvas.style.top      = '0';
+        canvas.style.zIndex   = '5';
         canvas.style.pointerEvents = 'none';
         ctx.imageSmoothingEnabled = false;
-        groundY = 10;  // near the top — aligns character with the hero heading
+        groundY = 10;
         char.x  = Math.min(char.x, CANVAS_W - SCALED_W);
         char.y  = groundY;
     }
@@ -275,9 +279,12 @@
                 const ro = new ResizeObserver(() => {
                     const newArenaW = arena.getBoundingClientRect().width;
                     if (newArenaW > 0) {
-                        const extra   = extraLeftPx(arena);
+                        const newS      = window.innerWidth < 640 ? 2 : 3;
+                        const extra     = extraLeftPx(arena);
                         const newTotalW = newArenaW + extra;
-                        if (Math.abs(newTotalW - CANVAS_W) > 2) {
+                        if (Math.abs(newTotalW - CANVAS_W) > 2 || newS !== S) {
+                            S        = newS;
+                            SCALED_W = SPR_W * S;
                             CANVAS_W = newTotalW;
                             canvas.width = CANVAS_W;
                             char.x = Math.min(char.x, CANVAS_W - SCALED_W);

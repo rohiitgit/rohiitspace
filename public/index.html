@@ -204,24 +204,26 @@
                         </div>
                     </div>
 
-                    <!-- Hero Text - Left Aligned -->
-                    <div class="col-span-12 md:col-span-8">
-                        <div class="hero-name-wrapper mb-12">
+                    <!-- Hero Heading - col-8 alongside arena at all sizes -->
+                    <div class="col-span-8">
+                        <div class="hero-name-wrapper">
                             <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold" data-content="hero.greeting">hi, i'm rohit  </h1>
                         </div>
+                    </div>
 
-                        <!-- TLDR Card -->
+                    <!-- Pixel Character Arena - col-4 alongside heading at all sizes -->
+                    <div class="flex col-span-4 items-start justify-center relative" id="pixel-hero-arena" aria-hidden="true">
+                        <canvas id="pixel-hero-canvas" style="display:block;"></canvas>
+                    </div>
+
+                    <!-- TLDR Card - full width on mobile, 8 cols on desktop -->
+                    <div class="col-span-12 md:col-span-8">
                         <div class="tldr-card">
                             <h2 class="text-lg sm:text-xl md:text-2xl font-semibold mb-6 text-accent" data-content="hero.tldrTitle">tldr;</h2>
                             <div class="text-gray-600 dark:text-gray-300 text-sm sm:text-base md:text-lg leading-relaxed space-y-4"
                                 data-content="hero.tldrContent">
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Pixel Character Arena - Desktop Only -->
-                    <div class="hidden md:flex md:col-span-4 items-start justify-center relative" id="pixel-hero-arena" aria-hidden="true">
-                        <canvas id="pixel-hero-canvas" style="display:block;"></canvas>
                     </div>
                 </div>
             </section>
