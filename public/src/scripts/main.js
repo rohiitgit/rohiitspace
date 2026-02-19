@@ -509,7 +509,7 @@ function populateProjectsSection(projects) {
                     <div class="project-card h-full flex flex-col border border-gray-200 dark:border-gray-800 rounded-xl p-6 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm transition-all duration-300">
                         <h3 class="font-bold sm:font-semibold mb-3 text-lg">${escapeHtml(project.title)}</h3>
                         <p class="text-gray-600 dark:text-gray-300 text-sm mb-6 flex-grow leading-relaxed">
-                            ${escapeHtml(project.description)}
+                            ${project.description}
                         </p>
                         <div class="flex flex-wrap gap-2 mb-6">
                             ${project.technologies.map(tech => `
@@ -556,7 +556,7 @@ function populateSideProjectsSection(sideProjects) {
                                         ` : ''}
                                     </div>
                                 </div>
-                                <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-2">${escapeHtml(project.description)}</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-2">${project.description}</p>
                                 <div class="flex flex-wrap gap-2">
                                     ${project.technologies.map(tech => `
                                         <span class="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs">${escapeHtml(tech)}</span>
@@ -1150,12 +1150,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Cleanup on page unload
     window.addEventListener('beforeunload', cleanupAllResources);
 
-    // Also cleanup on visibility change (when tab is closed or hidden)
-    document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'hidden') {
-            cleanupAllResources();
-        }
-    });
 });
 
 // Spotify integration using backend API

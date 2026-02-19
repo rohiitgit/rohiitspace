@@ -166,11 +166,7 @@ function initTheme() {
 
     let isThemeChanging = false;
 
-    let isThemeChanging = false;
-
     const themeClickHandler = function() {
-        if (isThemeChanging) return;
-
         if (isThemeChanging) return;
 
         const rect = themeToggle.getBoundingClientRect();
@@ -179,20 +175,6 @@ function initTheme() {
         const isDarkMode = html.classList.contains('dark');
         const targetTheme = isDarkMode ? 'light' : 'dark';
 
-        // Toggle theme IMMEDIATELY (matches main.js behavior)
-        html.classList.toggle('dark');
-        if (html.classList.contains('dark')) {
-            localStorage.setItem('theme', 'dark');
-        } else {
-            localStorage.setItem('theme', 'light');
-        }
-
-        isThemeChanging = true;
-
-        // Ripple is visual only — theme already changed
-        createRippleAnimation(centerX, centerY, targetTheme, function() {});
-
-        setTimeout(() => { isThemeChanging = false; }, 300);
         // Toggle theme IMMEDIATELY (matches main.js behavior)
         html.classList.toggle('dark');
         if (html.classList.contains('dark')) {
@@ -505,7 +487,6 @@ function initBlogListingPage() {
         allBlogsContainer.innerHTML = `
             <div class="grid grid-cols-1 gap-6">
                 ${sortedBlogs.map(blog => createBlogCard(blog)).join('')}
-                ${sortedBlogs.map(blog => createBlogCard(blog)).join('')}
             </div>
         `;
     }
@@ -514,33 +495,6 @@ function initBlogListingPage() {
 }
 
 // Create blog card HTML
-function createBlogCard(blog) {
-    // Blog cards match project-card aesthetic: frosted glass + glow hover
-    return `
-        <div class="blog-card h-full flex flex-col border border-gray-200 dark:border-gray-800 rounded-xl p-6 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm transition-all duration-300">
-            <h3 class="font-semibold mb-3 text-lg">
-                <a href="blog.html?slug=${blog.id}" class="hover:text-accent transition-colors">
-                    ${blog.title}
-                </a>
-            </h3>
-            <p class="text-gray-600 dark:text-gray-300 text-sm mb-6 flex-grow leading-relaxed">
-                ${blog.excerpt}
-            </p>
-            <div class="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mb-4">
-                <time>${formatDate(blog.date)}</time>
-                <span>•</span>
-                <span>${blog.readTime}</span>
-            </div>
-            <div class="flex flex-wrap gap-2 mb-6">
-                ${blog.tags.map((tech, index) => `
-                    <button class="tag-link px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium hover:bg-accent/10 hover:text-accent transition-colors ${index === 0 ? 'bg-accent/10 text-accent' : ''}" data-tag="${tech}">${tech}</button>
-                `).join('')}
-            </div>
-            <div class="flex gap-6 mt-auto">
-                <a href="blog.html?slug=${blog.id}" class="text-accent hover:text-amber-900 font-medium text-sm transition-colors">read →</a>
-            </div>
-        </div>
-    `;
 function createBlogCard(blog) {
     // Blog cards match project-card aesthetic: frosted glass + glow hover
     return `
@@ -617,12 +571,6 @@ function populateBlogPost(blog) {
         const canonicalLink = document.getElementById('blog-canonical');
         if (canonicalLink) canonicalLink.href = currentUrl;
 
-        // Update canonical URL
-        const currentUrl = `${window.location.origin}${window.location.pathname}?slug=${blog.id}`;
-        const canonicalLink = document.getElementById('blog-canonical');
-        if (canonicalLink) canonicalLink.href = currentUrl;
-
-        // Update Open Graph meta
         // Update Open Graph meta
         const ogUrl = document.getElementById('blog-og-url');
         const ogTitle = document.getElementById('blog-og-title');
@@ -687,40 +635,40 @@ function populateBlogPost(blog) {
             console.log('Set content, length:', blog.content.length);
         }
 
-        // Inject BlogPosting structured data
-        const jsonLd = document.createElement('script');
-        jsonLd.type = 'application/ld+json';
-        jsonLd.textContent = JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "BlogPosting",
-            "headline": blog.title,
-            "datePublished": blog.date,
-            "author": { "@type": "Person", "name": "Rohit", "url": "https://www.rohiit.space" },
-            "description": blog.excerpt,
-            "url": currentUrl,
-            "keywords": blog.tags.join(', ')
-        });
-        document.head.appendChild(jsonLd);
-
-        // Inject BlogPosting structured data
-        const jsonLd = document.createElement('script');
-        jsonLd.type = 'application/ld+json';
-        jsonLd.textContent = JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "BlogPosting",
-            "headline": blog.title,
-            "datePublished": blog.date,
-            "author": { "@type": "Person", "name": "Rohit", "url": "https://www.rohiit.space" },
-            "description": blog.excerpt,
-            "url": currentUrl,
-            "keywords": blog.tags.join(', ')
-        });
-        document.head.appendChild(jsonLd);
+        updateBlogStructuredData(blog, currentUrl, ogImageUrl);
 
     } catch (error) {
         console.error('Error populating blog post:', error);
         showErrorState();
     }
+}
+
+function updateBlogStructuredData(blog, currentUrl, imageUrl) {
+    const schema = {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": blog.title,
+        "datePublished": blog.date,
+        "author": {
+            "@type": "Person",
+            "name": "Rohit",
+            "url": "https://www.rohiit.space"
+        },
+        "description": blog.excerpt,
+        "url": currentUrl,
+        "image": imageUrl,
+        "keywords": blog.tags.join(', ')
+    };
+
+    let jsonLd = document.getElementById('blog-structured-data');
+    if (!jsonLd) {
+        jsonLd = document.createElement('script');
+        jsonLd.id = 'blog-structured-data';
+        jsonLd.type = 'application/ld+json';
+        document.head.appendChild(jsonLd);
+    }
+
+    jsonLd.textContent = JSON.stringify(schema);
 }
 
 // Setup navigation between posts
@@ -1016,7 +964,6 @@ function filterBlogsByTag(tag) {
     allBlogsContainer.innerHTML = `
         <div class="grid grid-cols-1 gap-6">
             ${filteredBlogs.length > 0
-                ? filteredBlogs.map(blog => createBlogCard(blog)).join('')
                 ? filteredBlogs.map(blog => createBlogCard(blog)).join('')
                 : '<div class="col-span-1 text-center py-12"><p class="text-gray-500 dark:text-gray-400">No posts found with this tag.</p></div>'
             }
