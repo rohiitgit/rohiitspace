@@ -87,25 +87,25 @@
         }
 
         // Clear any hash from URL and reset scroll immediately
-        if (window.location.hash) {
-            history.replaceState(null, null, window.location.pathname);
+        if (globalThis.location.hash) {
+            history.replaceState(null, null, globalThis.location.pathname);
         }
 
         // Multiple approaches to ensure scroll to top
-        window.addEventListener('beforeunload', function() {
-            window.scrollTo(0, 0);
+        globalThis.addEventListener('beforeunload', function() {
+            globalThis.scrollTo(0, 0);
         });
 
-        window.addEventListener('load', function() {
-            window.scrollTo(0, 0);
+        globalThis.addEventListener('load', function() {
+            globalThis.scrollTo(0, 0);
         });
 
         // Immediate scroll reset
-        window.scrollTo(0, 0);
+        globalThis.scrollTo(0, 0);
 
         // Additional safety net
         document.addEventListener('DOMContentLoaded', function() {
-            window.scrollTo(0, 0);
+            globalThis.scrollTo(0, 0);
         });
     </script>
 </head>
@@ -192,15 +192,15 @@
                     <div class="col-span-12 mb-4">
                         <div
                             style="width: 80px; height: 80px;"
-                            class="bg-gray-100 dark:bg-gray-900 rounded-full border-2 border-accent transition-all duration-300 overflow-hidden hover:border-accent-secondary hover:shadow-lg">
+                            class="bg-gray-100 dark:bg-gray-900 rounded-full border-2 border-accent transition-all duration-300 overflow-hidden hover:border-accent-secondary hover:shadow-lg"
+                            id="profile-image-container">
                             <img src="assets/images/pfp.webp"
-                                alt="Rohit's profile picture"
+                                alt="Rohit"
                                 class="w-full h-full object-cover"
                                 width="80"
                                 height="80"
                                 loading="lazy"
-                                data-content="personal.profileImage"
-                                onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=&quot;w-full h-full flex items-center justify-center text-2xl&quot;>👨‍💻</div>';">
+                                data-content="personal.profileImage">
                         </div>
                     </div>
 

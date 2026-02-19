@@ -1,7 +1,7 @@
 const axios = require('axios');
-const fs = require('fs').promises;
-const path = require('path');
-const crypto = require('crypto');
+const fs = require('node:fs').promises;
+const path = require('node:path');
+const crypto = require('node:crypto');
 
 // Path to store tokens in a temporary file
 const TOKENS_FILE = path.join('/tmp', 'spotify-tokens.json');
@@ -19,7 +19,7 @@ async function loadTokens() {
     if (process.env.SPOTIFY_REFRESH_TOKEN) {
         spotifyTokens.refresh_token = process.env.SPOTIFY_REFRESH_TOKEN;
         spotifyTokens.access_token = process.env.SPOTIFY_ACCESS_TOKEN || null;
-        spotifyTokens.expires_at = process.env.SPOTIFY_TOKEN_EXPIRY ? parseInt(process.env.SPOTIFY_TOKEN_EXPIRY) : null;
+        spotifyTokens.expires_at = process.env.SPOTIFY_TOKEN_EXPIRY ? Number.parseInt(process.env.SPOTIFY_TOKEN_EXPIRY) : null;
         console.log('Loaded tokens from environment variables');
         return;
     }
@@ -36,7 +36,7 @@ async function loadTokens() {
         }
     } catch (error) {
         // No tokens available anywhere
-        console.log('No existing tokens found anywhere');
+        console.log('No existing tokens found anywhere:', error.message);
     }
 }
 
@@ -66,7 +66,7 @@ const allowedOrigins = [
 
 function getCorsHeaders(origin) {
     const isAllowedOrigin = allowedOrigins.includes(origin) ||
-                          (origin && origin.includes('vercel.app'));
+                          origin?.includes('vercel.app');
 
     return {
         'Access-Control-Allow-Origin': isAllowedOrigin ? origin : allowedOrigins[0],
@@ -115,7 +115,7 @@ function createOAuthState() {
 }
 
 function isValidOAuthState(state) {
-    if (!state || !state.includes('.')) return false;
+    if (!state?.includes('.')) return false;
     const [encodedPayload, providedSignature] = state.split('.');
     if (!encodedPayload || !providedSignature) return false;
 
@@ -140,7 +140,7 @@ function isValidOAuthState(state) {
 }
 
 // Main handler function
-module.exports = async (req, res) => {
+async function handler(req, res) {
     // Load tokens on each request (for serverless)
     await loadTokens();
 
@@ -191,7 +191,9 @@ module.exports = async (req, res) => {
         console.error('Function error:', error);
         res.status(500).json({ error: 'Internal server error', message: error.message });
     }
-};
+}
+
+module.exports = handler;
 
 // Handler functions
 async function handleSpotifyAuth(req, res) {
@@ -231,6 +233,8 @@ async function handleCallback(req, res, searchParams) {
 
     try {
         const redirectUri = `${baseUrl}/api/server?callback=true`;
+        const clientCredentials = `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`;
+        const basicAuth = Buffer.from(clientCredentials).toString('base64');
 
         // Exchange code for access token
         const tokenResponse = await axios.post(SPOTIFY_TOKEN_URL,
@@ -242,7 +246,7 @@ async function handleCallback(req, res, searchParams) {
             {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'Authorization': `Basic ${Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64')}`
+                    'Authorization': `Basic ${basicAuth}`
                 }
             }
         );
@@ -277,6 +281,9 @@ async function refreshAccessToken() {
     }
 
     try {
+        const clientCredentials = `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`;
+        const basicAuth = Buffer.from(clientCredentials).toString('base64');
+
         const response = await axios.post(SPOTIFY_TOKEN_URL,
             new URLSearchParams({
                 grant_type: 'refresh_token',
@@ -285,7 +292,7 @@ async function refreshAccessToken() {
             {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'Authorization': `Basic ${Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64')}`
+                    'Authorization': `Basic ${basicAuth}`
                 }
             }
         );

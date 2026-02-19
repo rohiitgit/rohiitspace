@@ -6,11 +6,11 @@
 function escapeHtml(unsafe) {
     if (unsafe === null || unsafe === undefined) return '';
     return String(unsafe)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll('\'', '&#039;');
 }
 
 // Validate and sanitize content object
@@ -1199,7 +1199,7 @@ function initSpotify() {
 async function checkAuthAndLoadTracks() {
     try {
         // Always try to load tracks first - the backend will handle auth
-        loadYourRecentTracks();
+        await loadYourRecentTracks();
     } catch (error) {
         console.error('Error checking auth status:', error);
         showSpotifyConnect();
