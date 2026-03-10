@@ -71,7 +71,7 @@ const siteContent = {
                 company: "alvora",
                 companyUrl: "https://www.linkedin.com/company/alvora-group/",
                 duration: "aug 2025 - sep 2025",
-                description: "built a vacation rental monitoring platform scraping <strong>~3,000 listings</strong> across major rental marketplaces. optimized bandwidth from <strong>~4 MB to &lt;30 KB</strong> per property using <strong>API-based data extraction</strong>."
+                description: "built a vacation rental monitoring platform scraping <strong>~3,000 listings</strong> daily, across major rental marketplaces. optimized bandwidth from <strong>~2 MB to &lt;30 KB</strong> per property using <strong>API-based data extraction</strong>."
             },
             {
                 title: "engineer intern",
