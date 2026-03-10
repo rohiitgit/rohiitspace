@@ -96,6 +96,7 @@ h2[data-content] {
     padding: 1px;
     background: linear-gradient(135deg, var(--color-accent), var(--color-accent-secondary, #a0522d));
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     opacity: 0;
@@ -140,16 +141,6 @@ h2[data-content] {
         transform: translateY(0);
     }
 }
-
-/* Blog post title — display font only */
-#post-title {
-    font-family: var(--font-display, 'Instrument Serif', Georgia, serif);
-    letter-spacing: -0.025em;
-}
-
-/* Blog listing title */
-#all-blogs h2 { font-size: 1.5rem; }
-@media (min-width: 640px) { #all-blogs h2 { font-size: 2rem; } }
 
 /* h4+ stays monospace (small UI labels, cert titles) */
 h4, h5, h6 {
@@ -350,9 +341,8 @@ section {
     border-color: rgba(194, 112, 58, 0.4);
 }
 
-/* Card Hover Glow Effect — shared by project cards and blog cards */
-.project-card:hover,
-.blog-card:hover {
+/* Card Hover Glow Effect */
+.project-card:hover {
     box-shadow:
         0 0 20px rgba(194, 112, 58, 0.15),
         0 0 40px rgba(194, 112, 58, 0.1),
@@ -361,8 +351,7 @@ section {
     transform: translateY(-4px);
 }
 
-.dark .project-card:hover,
-.dark .blog-card:hover {
+.dark .project-card:hover {
     box-shadow:
         0 0 20px rgba(194, 112, 58, 0.2),
         0 0 40px rgba(194, 112, 58, 0.15),
@@ -553,4 +542,23 @@ nav a.text-accent::after {
 /* Offset sections for fixed header - This makes hash navigation work properly */
 section[id] {
     scroll-margin-top: 100px;
+}
+
+/* GitHub Contributions Graph */
+.github-graph-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.github-graph-scroll svg {
+    display: block;
+}
+
+.github-cell {
+    cursor: default;
+    transition: opacity 0.15s ease;
+}
+
+.github-cell:hover {
+    opacity: 0.75;
 }

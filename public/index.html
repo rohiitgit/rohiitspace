@@ -139,7 +139,6 @@
                         <a href="#experience" class="font-medium hover:text-accent transition-colors">experience</a>
                         <a href="#projects" class="font-medium hover:text-accent transition-colors">projects</a>
                         <a href="#achievements" class="font-medium hover:text-accent transition-colors">achievements</a>
-                        <a href="blogs.html" class="font-medium hover:text-accent transition-colors">blogs</a>
                     </div>
                 </nav>
 
@@ -173,7 +172,6 @@
                     <a href="#experience" class="py-3 font-medium hover:text-accent transition-colors min-h-[44px] flex items-center justify-center touch-action-manipulation">experience</a>
                     <a href="#projects" class="py-3 font-medium hover:text-accent transition-colors min-h-[44px] flex items-center justify-center touch-action-manipulation">projects</a>
                     <a href="#achievements" class="py-3 font-medium hover:text-accent transition-colors min-h-[44px] flex items-center justify-center touch-action-manipulation">achievements</a>
-                    <a href="blogs.html" class="py-3 font-medium hover:text-accent transition-colors min-h-[44px] flex items-center justify-center touch-action-manipulation">blogs</a>
                 </div>
             </div>
         </div>
@@ -288,6 +286,39 @@
                     <h3 class="side-projects-heading text-base sm:text-lg mb-4 text-gray-600 dark:text-gray-400" data-content="sideProjects.title">i made it cuz im lazy</h3>
                     <div data-content="sideProjects.items">
                         <!-- Side projects will be populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Separator -->
+        <div class="section-separator"></div>
+
+        <!-- GitHub Contributions Section -->
+        <section id="github" class="transition-all duration-300">
+            <div class="grid grid-cols-12 gap-6">
+                <div class="col-span-12">
+                    <h2 class="text-lg sm:text-xl font-semibold mb-6 md:mb-8">github contributions</h2>
+                </div>
+
+                <!-- Graph container -->
+                <div id="github-graph" class="col-span-12 hidden">
+                    <div class="github-graph-scroll">
+                        <!-- SVG heatmap injected here -->
+                    </div>
+                    <p id="github-total" class="text-xs text-gray-500 dark:text-gray-400 mt-3"></p>
+                </div>
+
+                <!-- Loading State -->
+                <div id="github-loading" class="col-span-12 text-center py-8">
+                    <div class="animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full mx-auto mb-4"></div>
+                    <p class="text-gray-600 dark:text-gray-300 text-sm">loading contributions...</p>
+                </div>
+
+                <!-- Error State -->
+                <div id="github-error" class="col-span-12 text-center py-8 hidden">
+                    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6">
+                        <p class="text-red-600 dark:text-red-400 text-sm">failed to load github contributions</p>
                     </div>
                 </div>
             </div>

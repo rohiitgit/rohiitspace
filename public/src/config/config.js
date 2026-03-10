@@ -9,7 +9,8 @@ const API_CONFIG = {
     ENDPOINTS: {
         RECENT_TRACKS: '/api/recent-tracks',
         AUTH_STATUS: '/api/auth/status',
-        SPOTIFY_AUTH: '/auth/spotify'
+        SPOTIFY_AUTH: '/auth/spotify',
+        GITHUB_CONTRIBUTIONS: '/api/github-contributions'
     }
 };
 

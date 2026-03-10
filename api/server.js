@@ -180,6 +180,10 @@ async function handler(req, res) {
             return await handleHealth(req, res);
         }
 
+        if (pathname === '/api/github-contributions') {
+            return await handleGitHubContributions(req, res);
+        }
+
 
         // Handle callback
         if (searchParams.get('callback') === 'true') {
@@ -381,4 +385,49 @@ async function handleHealth(req, res) {
         authenticated: !!spotifyTokens.access_token,
         tokenExpiry: spotifyTokens.expires_at ? new Date(spotifyTokens.expires_at).toISOString() : null
     });
+}
+
+// GitHub contributions cache (1 hour TTL)
+let githubCache = { data: null, expires_at: 0 };
+
+async function handleGitHubContributions(req, res) {
+    const token = process.env.GITHUB_PAT;
+    if (!token) {
+        return res.status(500).json({ error: 'GitHub PAT not configured' });
+    }
+
+    // Serve cached response if still valid
+    if (githubCache.data && Date.now() < githubCache.expires_at) {
+        return res.json(githubCache.data);
+    }
+
+    const query = `{
+      user(login: "rohiitgit") {
+        contributionsCollection {
+          contributionCalendar {
+            totalContributions
+            weeks {
+              contributionDays {
+                contributionCount
+                date
+              }
+            }
+          }
+        }
+      }
+    }`;
+
+    try {
+        const response = await axios.post(
+            'https://api.github.com/graphql',
+            { query },
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        const calendar = response.data.data.user.contributionsCollection.contributionCalendar;
+        githubCache = { data: calendar, expires_at: Date.now() + 60 * 60 * 1000 };
+        res.json(calendar);
+    } catch (error) {
+        console.error('GitHub contributions error:', error.message);
+        res.status(500).json({ error: 'Failed to fetch GitHub contributions' });
+    }
 }

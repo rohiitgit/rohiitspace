@@ -1139,6 +1139,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Spotify Integration
     initSpotify();
 
+    // GitHub Contributions
+    loadGitHubContributions();
+
     // Handle responsive Spotify display on window resize
     const resizeHandler = function () {
         if (window.currentTracks) {
@@ -1395,6 +1398,117 @@ function showSpotifyNoTracks() {
     const errorMessage = errorDiv.querySelector('p');
     if (errorMessage) {
         errorMessage.textContent = 'no recent tracks found - play some music on spotify first!';
+    }
+}
+
+// ===========================
+// GitHub Contributions
+// ===========================
+
+function showGitHubLoading() {
+    document.getElementById('github-loading').classList.remove('hidden');
+    document.getElementById('github-graph').classList.add('hidden');
+    document.getElementById('github-error').classList.add('hidden');
+}
+
+function showGitHubGraph() {
+    document.getElementById('github-loading').classList.add('hidden');
+    document.getElementById('github-graph').classList.remove('hidden');
+    document.getElementById('github-error').classList.add('hidden');
+}
+
+function showGitHubError() {
+    document.getElementById('github-loading').classList.add('hidden');
+    document.getElementById('github-graph').classList.add('hidden');
+    document.getElementById('github-error').classList.remove('hidden');
+}
+
+async function loadGitHubContributions() {
+    showGitHubLoading();
+    try {
+        const response = await fetch(
+            `${window.API_CONFIG.BACKEND_URL}${window.API_CONFIG.ENDPOINTS.GITHUB_CONTRIBUTIONS}`
+        );
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        window.githubCalendar = data;
+        renderGitHubHeatmap(data);
+        showGitHubGraph();
+
+        // Re-render on theme change so empty-cell colors update
+        const observer = new MutationObserver(() => {
+            if (window.githubCalendar) renderGitHubHeatmap(window.githubCalendar);
+        });
+        observer.observe(document.documentElement, { attributeFilter: ['class'] });
+        activeObservers.push(observer);
+    } catch (error) {
+        console.error('GitHub contributions failed:', error);
+        showGitHubError();
+    }
+}
+
+function renderGitHubHeatmap(calendar) {
+    const CELL = 11;
+    const GAP = 3;
+    const STEP = CELL + GAP;
+    const LABEL_HEIGHT = 20;
+    const weeks = calendar.weeks;
+    const cols = weeks.length;
+    const svgW = cols * STEP - GAP;
+    const svgH = LABEL_HEIGHT + 7 * STEP - GAP;
+
+    const isDark = document.documentElement.classList.contains('dark');
+    const emptyColor = isDark ? '#1f2937' : '#f3f4f6';
+    // Accent #c2703a at 4 intensity levels
+    const levels = [emptyColor, 'rgba(194,112,58,0.25)', 'rgba(194,112,58,0.5)', 'rgba(194,112,58,0.75)', 'rgba(194,112,58,1)'];
+
+    function getLevel(count) {
+        if (count === 0) return 0;
+        if (count <= 3) return 1;
+        if (count <= 6) return 2;
+        if (count <= 9) return 3;
+        return 4;
+    }
+
+    // Month labels
+    const monthNames = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+    const monthLabels = [];
+    let lastMonth = -1;
+    weeks.forEach((week, wi) => {
+        const firstDay = week.contributionDays[0];
+        if (firstDay) {
+            const m = new Date(firstDay.date).getMonth();
+            if (m !== lastMonth) {
+                monthLabels.push({ x: wi * STEP, label: monthNames[m] });
+                lastMonth = m;
+            }
+        }
+    });
+
+    // Build SVG
+    let cells = '';
+    weeks.forEach((week, wi) => {
+        week.contributionDays.forEach((day, di) => {
+            const x = wi * STEP;
+            const y = LABEL_HEIGHT + di * STEP;
+            const fill = levels[getLevel(day.contributionCount)];
+            const title = `${day.date}: ${day.contributionCount} contribution${day.contributionCount !== 1 ? 's' : ''}`;
+            cells += `<rect class="github-cell" x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" fill="${fill}"><title>${escapeHtml(title)}</title></rect>`;
+        });
+    });
+
+    let labels = monthLabels.map(({ x, label }) =>
+        `<text x="${x}" y="${LABEL_HEIGHT - 5}" font-size="9" fill="currentColor" opacity="0.5" font-family="ui-monospace,monospace">${label}</text>`
+    ).join('');
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">${labels}${cells}</svg>`;
+
+    const scrollEl = document.querySelector('#github-graph .github-graph-scroll');
+    scrollEl.innerHTML = svg;
+
+    const totalEl = document.getElementById('github-total');
+    if (totalEl) {
+        totalEl.textContent = `${calendar.totalContributions} contributions in the last year`;
     }
 }
 
