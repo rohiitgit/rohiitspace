@@ -23,8 +23,7 @@ const siteContent = {
         fallbackImage: "assets/images/pfp.webp",
         location: "bangalore",
         currentCompany: {
-            name: "openblood",
-            url: "https://openblood.app/"
+
         }
     },
 
@@ -43,7 +42,6 @@ const siteContent = {
         tldrContent: [
             "i'm obsessed with ideas (even if half of them don't show up).",
             "interned at a startup as a '<strong>python intern</strong>' where they threw <strong>C++</strong> at me day 1. i didn't know it. <strong>still cooked</strong>.",
-            "previously interned at <a href=\"https://openblood.app/\" class=\"text-accent hover:text-amber-900 transition-colors font-semibold\">@openblood.</a>",
             "i adapt fast. tools change, but shipping matters more."
         ]
     },
@@ -62,10 +60,24 @@ const siteContent = {
         title: "experience",
         jobs: [
             {
+                title: "technical lead",
+                company: "alvora group",
+                companyUrl: "https://www.linkedin.com/company/alvora-group/",
+                duration: "oct 2025 - present",
+                description: "developing a full-stack <strong>operations platform</strong> with role-based portals using <strong>React</strong>, <strong>Node.js</strong>, <strong>TypeScript</strong>, and <strong>PostgreSQL</strong>.<br> <br>designing and integrating <strong>microservices</strong> for scheduling and data synchronization, enabling automated workflows and inter-service communication across the platform."
+            },
+            {
+                title: "software engineer",
+                company: "alvora group",
+                companyUrl: "https://www.linkedin.com/company/alvora-group/",
+                duration: "aug 2025 - sep 2025",
+                description: "built a vacation rental monitoring platform scraping <strong>~3,000 listings</strong> across major rental marketplaces. optimized bandwidth from <strong>~4 MB to &lt;30 KB</strong> per property using <strong>API-based data extraction</strong>."
+            },
+            {
                 title: "engineer intern",
                 company: "openblood",
                 companyUrl: "https://openblood.app/",
-                duration: "aug 2025 - present",
+                duration: "aug 2025 - dec 2025",
                 description: "building <strong>openblood website</strong> with <strong>GSAP</strong>, <strong>HTML</strong>, <strong>TailwindCSS</strong> with smooth animations, modern UI, clean design system."
             },
             {
