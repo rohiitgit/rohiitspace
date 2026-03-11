@@ -197,6 +197,6 @@ const siteContent = {
 // Export for use in other scripts
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = siteContent;
-} else if (typeof window !== 'undefined') {
-    window.siteContent = siteContent;
+} else if (globalThis.window !== undefined) {
+    globalThis.siteContent = siteContent;
 }
