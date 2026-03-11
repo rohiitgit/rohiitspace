@@ -60,7 +60,7 @@ const siteContent = {
         title: "experience",
         jobs: [
             {
-                title: "technical lead",
+                title: "project lead developer",
                 company: "alvora",
                 companyUrl: "https://www.linkedin.com/company/alvora-group/",
                 duration: "oct 2025 - present",
