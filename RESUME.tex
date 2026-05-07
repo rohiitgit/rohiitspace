@@ -1,5 +1,6 @@
 \documentclass[a4paper,10pt]{article}
-\usepackage[left=0.75in, right=0.75in, top=0.75in, bottom=0.75in]{geometry}
+
+\usepackage[left=0.75in, right=0.75in, top=0.7in, bottom=0.7in]{geometry}
 \usepackage{enumitem}
 \usepackage{xcolor}
 \usepackage{hyperref}
@@ -11,25 +12,28 @@
 \definecolor{secondaryblue}{RGB}{47, 85, 151}
 
 % Links
-\hypersetup{colorlinks=true,urlcolor=secondaryblue}
+\hypersetup{
+    colorlinks=true,
+    urlcolor=secondaryblue
+}
 
-% Section titles
+% Section styling
 \titleformat{\section}
   {\color{primaryblue}\normalfont\Large\bfseries}
   {}{0em}{}
   [{\titlerule[0.8pt]}]
-\titlespacing{\section}{0pt}{7pt}{3pt}
 
-% Bullet indentation & compact spacing
+\titlespacing{\section}{0pt}{5pt}{2pt}
+
+% Compact lists
 \setlist[itemize]{
-  leftmargin=2em,
+  leftmargin=1.8em,
   labelsep=0.4em,
-  itemsep=0.15em,
-  topsep=0.15em
+  itemsep=0.1em,
+  topsep=0.1em
 }
 
-% Slightly tighter line spacing
-\linespread{0.96}
+\linespread{0.94}
 
 \setlength{\parskip}{0pt}
 \pagestyle{empty}
@@ -38,122 +42,143 @@
 
 % ===== Header =====
 \begin{center}
-    {\Huge \bfseries \color{primaryblue}Rohit} \\[0.3em]
+    {\Huge \bfseries \color{primaryblue}Rohit} \\[0.25em]
+
     \small
-    \faEnvelope~\href{mailto:rohitcodes03@gmail.com}{rohitcodes03@gmail.com} ~|~ 
+    \faEnvelope~\href{mailto:rohitcodes03@gmail.com}{rohitcodes03@gmail.com} ~|~
     \faPhone~+91 90277 42255 ~|~
     \faLinkedin~\href{https://www.linkedin.com/in/rohiitcodes/}{rohiitcodes} ~|~
     \faGithub~\href{https://github.com/rohiitgit/}{rohiitgit}
 \end{center}
 
-\vspace{0.4em}
-\noindent \textit{High-agency developer experienced in building \textbf{Webapps}, \textbf{ML pipelines}, and \textbf{AI integrations}. Comfortable contributing across stacks and learning new technologies fast.}
+\vspace{0.25em}
+
+\noindent
+\textit{
+Software Engineer focused on distributed systems, full-stack platforms, ML pipelines, and AI-powered products from zero to production.
+}
 
 % ===== Skills =====
 \section*{Skills}
+
 \begin{itemize}
-  \item \textbf{Languages:} Python, JavaScript, C/C++, Solidity \quad \textbf{Frontend:} React, TailwindCSS, HTML, CSS
-  \item \textbf{Backend:} Flask, Node.js, REST APIs \quad \textbf{ML/AI:} TensorFlow, PyTorch, OpenCV
-  \item \textbf{Databases/CMS:} MongoDB, Supabase, Sanity \quad \textbf{Dev Tools:} Git, Docker, Postman
+  \item \textbf{Languages:} Python, JavaScript, TypeScript, C/C++, Solidity \quad
+  \textbf{Frontend:} React, TailwindCSS, HTML, CSS
+
+  \item \textbf{Backend:} Node.js, Flask, REST APIs, Microservices \quad
+  \textbf{ML/AI:} TensorFlow, PyTorch, OpenCV, SAM~2
+
+  \item \textbf{Databases/CMS:} PostgreSQL, MongoDB, Supabase, Sanity \quad
+  \textbf{Dev Tools:} Git, Docker, Postman
+
   \item \textbf{Expertise:} Machine Learning, Web Development, Automation, Computer Vision
-  \item \textbf{OS:} Arch Linux, Ubuntu, Windows
+\end{itemize}
+
+% ===== Featured Project =====
+\section*{Featured Project}
+
+\noindent
+\textbf{\href{https://www.linkedin.com/posts/rohiitcodes_smart-india-hackathon-was-a-fabulous-experience-activity-7274397856336101376-Rh_Q}{WebGIS Platform for ISRO}}
+\hfill
+\textit{Smart India Hackathon 2024 --- National Finalist}
+
+\begin{itemize}
+  \item Built a WebGIS solution for ISRO using Meta's \textbf{SAM~2} for satellite-image segmentation and downstream geospatial analysis.
+  \item Shipped the full stack under hackathon constraints --- CV backend, APIs, and browser-based GIS frontend.
 \end{itemize}
 
 % ===== Experience =====
 \section*{Professional Experience}
 
-\noindent\textbf{\href{https://www.linkedin.com/company/alvora-group/}{Alvora}}
-\hfill \textit{Technical Lead} — \textit{Oct 2025 – Present}
-\begin{itemize}
-  \item Developing a full-stack \textbf{operations platform} with role-based portals using \textbf{React}, \textbf{Node.js}, \textbf{TypeScript}, and \textbf{PostgreSQL}.
-  \item Designing and integrating \textbf{microservices} for scheduling and data synchronization, enabling automated workflows and inter-service communication across the platform.
-\end{itemize}
-\vspace{0.2em}
-\noindent\textbf{\href{https://www.linkedin.com/company/alvora-group/}{Alvora}}
-\hfill \textit{Software Engineer} — \textit{Aug 2025 – Sep 2025}
-\begin{itemize}
-  \item Built a vacation rental monitoring platform scraping \textbf{\textasciitilde3,000 listings} across major rental marketplaces.
-  \item Optimized bandwidth from \textbf{\textasciitilde2 MB to <30 KB} per property using \textbf{API-based data extraction}.
-\end{itemize}
-\vspace{0.4em}
+\noindent
+\textbf{\href{https://www.linkedin.com/company/alvora-group/}{Alvora}}
+\hfill
+\textit{Software Engineer} --- \textit{Oct 2025 -- Present}
 
-\noindent\textbf{\href{https://www.linkedin.com/company/openblood/posts/?feedView=all}{OpenBlood}}
-\hfill \textit{Engineer Intern} — \textit{Aug 2025 – Present}
 \begin{itemize}
-  \item Building OpenBlood landing page with \textbf{modern design UI } and \textbf{GSAP animations}
-  \item Enhanced the Open Blood app through UX/UI improvements, leading to a smoother and more intuitive user flow.
+  \item Architected and owned a full-stack operations platform using \textbf{React}, \textbf{Node.js}, \textbf{TypeScript}, and \textbf{PostgreSQL}.
+  \item Designed microservices for scheduling and data synchronization workflows.
 \end{itemize}
-\vspace{0.4em}
 
-\noindent\textbf{\href{https://www.boundspec.com/}{Boundspec}} 
-\hfill \textit{Software Developer Engineer} — \textit{Apr 2025 – Sept 2025}
-\begin{itemize}
-  \item Built role-based dashboards for \textbf{doctor-patient booking} app with dynamic UI/UX.
-  \item Integrated \textbf{Sanity CMS} for dynamic content across Prajna and Boundspec websites.
-  \item Contributed full-stack features for production apps, using \textbf{React Native + Supabase} and various other technologies.
-\end{itemize}
-\vspace{0.4em}
+\vspace{0.15em}
 
-\noindent\textbf{\href{https://in.linkedin.com/company/celebrarecompany}{Celebrare}} 
-\hfill \textit{Remote Python Developer Intern} — \textit{Nov 2024 – Apr 2025}
+\noindent
+\textbf{\href{https://www.linkedin.com/company/alvora-group/}{Alvora}}
+\hfill
+\textit{Software Engineer Intern} --- \textit{Aug 2025 -- Sep 2025}
+
 \begin{itemize}
-  \item Rewrote \textbf{face recognition pipeline} from Python to C++ achieving \textbf{5–8x performance gain}.
-  \item Optimized vision models, reducing \textbf{average processing time by 91.11\%}.
-  \item Maintained \textbf{99\% accuracy}, added support for multiple orientations/formats.
+  \item Built data-ingestion systems scraping \textbf{\textasciitilde3,000 listings daily}; reduced per-property bandwidth from \textbf{\textasciitilde2 MB to 30 KB}.
 \end{itemize}
-\vspace{0.4em}
+
+\vspace{0.15em}
+
+\noindent
+\textbf{\href{https://in.linkedin.com/company/celebrarecompany}{Celebrare}}
+\hfill
+\textit{Remote Python Developer Intern} --- \textit{Nov 2024 -- Apr 2025}
+
+\begin{itemize}
+  \item Rewrote the face-recognition pipeline from Python to C++, achieving a \textbf{5--8x speedup}.
+  \item Reduced average processing time by \textbf{91.11\%}.
+\end{itemize}
+
+\vspace{0.15em}
+
+\noindent
+\textbf{\href{https://www.linkedin.com/company/openblood/posts/?feedView=all}{OpenBlood}}
+\hfill
+\textit{Engineer Intern} --- \textit{Aug 2025 -- Dec 2025}
+
+\begin{itemize}
+  \item Shipped the marketing site and UX improvements for a nationwide blood-donation platform.
+\end{itemize}
 
 % ===== Projects =====
 \section*{Projects}
 
-\noindent\textbf{\href{https://www.rohiit.space/}{rohiit.space}} \hfill \textit{HTML, tailwindcss, vanilla js}
+\noindent
+\textbf{\href{https://github.com/rohiitgit/kdoc}{Kdoc}}
+\hfill
+\textit{Go, Redis, SQLite, Docker}
+
 \begin{itemize}
-  \item modern design \textbf{portfolio} and \textbf{blog} site
-  \item \textbf{UI} inspired by \textbf{tailwindcss} landing page
+  \item Built a fault-tolerant distributed PDF-processing pipeline with Redis Streams, concurrent workers, retries, DLQ recovery, and Prometheus observability.
+  \item Load-tested the system up to \textbf{30k documents} and built a \textbf{108-test} race-safe suite covering API, queueing, and persistence layers.
 \end{itemize}
-\vspace{0.4em}
 
-\noindent\textbf{\href{https://fynl-it.vercel.app/}{Fynl-It}} \hfill \textit{Next.js, Supabase, Gemini AI, TailwindCSS}
+\vspace{0.15em}
+
+\noindent
+\textbf{\href{https://fynl-it.vercel.app/}{Fynl-It}}
+\hfill
+\textit{Next.js, Supabase, Gemini AI, TailwindCSS}
+
 \begin{itemize}
-  \item Fullstack tool to \textbf{automate invoice follow-up emails} with progressive AI tone.
-  \item Integrated \textbf{secure payment detection} using Razorpay UPI.
+  \item Built an AI-powered invoice follow-up platform with progressive reminder escalation.
+  \item Integrated Razorpay UPI payment detection for automated reconciliation.
 \end{itemize}
-\vspace{0.4em}
 
-\noindent\textbf{\href{https://landing-theta-red-48.vercel.app/}{Open Blood Landing Page}} \hfill \textit{HTML, CSS, Vanilla JS, GSAP, Lenis}
+\vspace{0.15em}
+
+\noindent
+\textbf{\href{https://github.com/rohiitgit/nodemaid}{NodeMaid}}
+\hfill
+\textit{Node.js, CLI}
+
 \begin{itemize}
-  \item Designed and built landing page for nationwide blood donation network.
-  \item Features modern UI with smooth animations.
+  \item Built a cross-platform CLI utility to recursively detect and remove \texttt{node\_modules} directories, reclaiming gigabytes of disk space safely.
 \end{itemize}
-\vspace{0.4em}
 
-\noindent\textbf{\href{https://web3-referral-landing.vercel.app/}{Web3 Referral Platform Landing Page}} \hfill \textit{Next.js, TailwindCSS}
+\vspace{0.15em}
+
+\noindent
+\textbf{\href{https://www.rohiit.space/}{rohiit.space}}
+\hfill
+\textit{HTML, TailwindCSS, Vanilla JS}
+
 \begin{itemize}
-  \item Created responsive, animated landing page for blockchain referral startup.
-  \item Built reusable and performant UI components.
+  \item Built a hand-rolled personal site with custom components and no framework or CMS.
 \end{itemize}
-\vspace{0.4em}
-
-% ===== Achievements =====
-\section*{Achievements}
-
-\noindent\textbf{\href{https://www.linkedin.com/posts/rohiitcodes_smart-india-hackathon-was-a-fabulous-experience-activity-7274397856336101376-Rh_Q?utm_source=share&utm_medium=member_desktop}{Smart India Hackathon 2024 Finalist}}
-\begin{itemize}
-  \item Finalist in national hackathon; built \textbf{WebGIS solution for ISRO}.
-  \item Used Meta’s \textbf{Segment Anything Model v2} for precise satellite image segmentation.
-\end{itemize}
-\vspace{0.4em}
-
-% % ===== Certifications =====
-% \section*{Certifications}
-% \begin{itemize}
-%   \item \textbf{Intermediate Machine Learning}, \href{https://www.kaggle.com/learn/certification/rohiitcodes/intermediate-machine-learning}{Kaggle} \hfill Sep 2023
-%   \item \textbf{Machine Learning Explainability}, \href{https://www.kaggle.com/learn/certification/rohiitcodes/machine-learning-explainability}{Kaggle} \hfill Sep 2023
-% \end{itemize}
-
-% ===== Education =====
-\section*{Education}
-\noindent\textbf{B.Tech in Computer Science} \hfill \textit{2021–2025 — 6.0 SGPA} \\
-Dr. A.P.J. Abdul Kalam Technical University, Lucknow, UP
 
 \end{document}

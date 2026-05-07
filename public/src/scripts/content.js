@@ -124,6 +124,14 @@ const siteContent = {
                 links: {
                     live: "https://web3-referral-landing.vercel.app/"
                 }
+            },
+            {
+                title: "kdoc",
+                description: "document processing pipeline in <strong>go</strong>. api accepts pdf uploads, stores jobs in <strong>sqlite</strong>, enqueues work to <strong>redis streams</strong>. worker dequeues, extracts text, handles retries and <strong>dlq</strong>. includes reconciler for stuck docs, prometheus metrics, load test tool. 108 tests, zero races, ~750 docs/s throughput.",
+                technologies: ["go", "sqlite", "redis", "docker", "prometheus"],
+                links: {
+                    github: "https://github.com/rohiitgit/kdoc"
+                }
             }
         ]
     },
