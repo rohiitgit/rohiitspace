@@ -1,184 +1,134 @@
-\documentclass[a4paper,10pt]{article}
+\documentclass[9.5pt,a4paper]{article}
 
-\usepackage[left=0.75in, right=0.75in, top=0.7in, bottom=0.7in]{geometry}
+\usepackage[margin=0.5in, top=0.45in, bottom=0.45in]{geometry}
 \usepackage{enumitem}
-\usepackage{xcolor}
-\usepackage{hyperref}
-\usepackage{fontawesome5}
+\usepackage[hidelinks]{hyperref}
 \usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage[T1]{fontenc}
+\usepackage[activate=false]{microtype}
 
-% Colors
-\definecolor{primaryblue}{RGB}{25, 54, 109}
-\definecolor{secondaryblue}{RGB}{47, 85, 151}
+\definecolor{accent}{RGB}{30, 30, 30}
+\definecolor{rule}{RGB}{180, 180, 180}
 
-% Links
-\hypersetup{
-    colorlinks=true,
-    urlcolor=secondaryblue
-}
-
-% Section styling
 \titleformat{\section}
-  {\color{primaryblue}\normalfont\Large\bfseries}
+  {\normalsize\bfseries\color{accent}}
   {}{0em}{}
-  [{\titlerule[0.8pt]}]
+  [\vspace{0.5pt}\textcolor{rule}{\titlerule[0.4pt]}\vspace{1pt}]
 
-\titlespacing{\section}{0pt}{5pt}{2pt}
+\titlespacing*{\section}{0pt}{6pt}{2pt}
 
-% Compact lists
 \setlist[itemize]{
-  leftmargin=1.8em,
-  labelsep=0.4em,
-  itemsep=0.1em,
-  topsep=0.1em
+  leftmargin=1.1em,
+  itemsep=0.8pt,
+  topsep=1.5pt,
+  parsep=0pt,
+  label=\textbullet
 }
 
-\linespread{0.94}
+\newcommand{\entry}[2]{%
+  \noindent\textbf{#1}\hfill{\small\textit{#2}}%
+}
 
-\setlength{\parskip}{0pt}
 \pagestyle{empty}
+\setlength{\parskip}{0pt}
 
 \begin{document}
 
-% ===== Header =====
+% Header
 \begin{center}
-    {\Huge \bfseries \color{primaryblue}Rohit} \\[0.25em]
-
-    \small
-    \faEnvelope~\href{mailto:rohitcodes03@gmail.com}{rohitcodes03@gmail.com} ~|~
-    \faPhone~+91 90277 42255 ~|~
-    \faLinkedin~\href{https://www.linkedin.com/in/rohiitcodes/}{rohiitcodes} ~|~
-    \faGithub~\href{https://github.com/rohiitgit/}{rohiitgit}
+  {\large\textbf{Rohit}}\\[2pt]
+  \small
+  \href{mailto:rohitcodes03@gmail.com}{rohitcodes03@gmail.com}
+  \enspace\textcolor{rule}{|}\enspace
+  +91 90277 42255
+  \enspace\textcolor{rule}{|}\enspace
+  \href{https://rohiit.space}{rohiit.space}
+  \enspace\textcolor{rule}{|}\enspace
+  \href{https://github.com/rohiitgit}{github.com/rohiitgit}
 \end{center}
 
-\vspace{0.25em}
+\vspace{1pt}
+\noindent\small Applied AI Engineer focused on building production AI systems using LLM-assisted workflows, experimentation, automation, and scalable software infrastructure.
+\vspace{2pt}
 
-\noindent
-\textit{
-Software Engineer focused on distributed systems, full-stack platforms, ML pipelines, and AI-powered products from zero to production.
-}
+% Featured
+\section*{Featured AI Project}
 
-% ===== Skills =====
-\section*{Skills}
-
+\entry{WebGIS Platform, ISRO Smart India Hackathon 2024}{National Finalist}
 \begin{itemize}
-  \item \textbf{Languages:} Python, JavaScript, TypeScript, C/C++, Solidity \quad
-  \textbf{Frontend:} React, TailwindCSS, HTML, CSS
-
-  \item \textbf{Backend:} Node.js, Flask, REST APIs, Microservices \quad
-  \textbf{ML/AI:} TensorFlow, PyTorch, OpenCV, SAM~2
-
-  \item \textbf{Databases/CMS:} PostgreSQL, MongoDB, Supabase, Sanity \quad
-  \textbf{Dev Tools:} Git, Docker, Postman
-
-  \item \textbf{Expertise:} Machine Learning, Web Development, Automation, Computer Vision
+  \item Built an AI-assisted geospatial analysis platform using Meta SAM~2 for satellite-image segmentation and downstream decision workflows.
+  \item Designed end-to-end experimentation pipelines across a CV backend, REST APIs, and browser-based GIS visualisation.
+  \item Rapidly iterated under hackathon constraints and translated research ideas into usable product features.
 \end{itemize}
 
-% ===== Featured Project =====
-\section*{Featured Project}
+% Experience
+\section*{Experience}
 
-\noindent
-\textbf{\href{https://www.linkedin.com/posts/rohiitcodes_smart-india-hackathon-was-a-fabulous-experience-activity-7274397856336101376-Rh_Q}{WebGIS Platform for ISRO}}
-\hfill
-\textit{Smart India Hackathon 2024 --- National Finalist}
-
+\entry{Alvora — Software Engineer}{Oct 2025 – Present}
 \begin{itemize}
-  \item Built a WebGIS solution for ISRO using Meta's \textbf{SAM~2} for satellite-image segmentation and downstream geospatial analysis.
-  \item Shipped the full stack under hackathon constraints --- CV backend, APIs, and browser-based GIS frontend.
+  \item Primary author of the backend (Express/TypeScript, PostgreSQL, no ORM): 15 domains covering booking lifecycle, cleaner scheduling, billing, and admin reporting; 41 test suites with enforced CI coverage.
+  \item Migrated the platform off Supabase: replaced Supabase Auth with self-hosted Better Auth (invite-only onboarding, role-based access, Google OAuth) and ported all DB access to a direct \texttt{pg} pool.
+  \item Primary author of the React~19 frontend: dual role-based portals (management/operations), 12 feature modules, i18n, and map-based scheduling views.
+  \item Built the iCal synchronisation bridge integrating a Timefold scheduling solver and a billing microservice.
 \end{itemize}
 
-% ===== Experience =====
-\section*{Professional Experience}
-
-\noindent
-\textbf{\href{https://www.linkedin.com/company/alvora-group/}{Alvora}}
-\hfill
-\textit{Software Engineer} --- \textit{Oct 2025 -- Present}
-
+\vspace{3pt}
+\entry{Alvora — Software Engineer Intern}{Aug 2025 – Sep 2025}
 \begin{itemize}
-  \item Architected and owned a full-stack operations platform using \textbf{React}, \textbf{Node.js}, \textbf{TypeScript}, and \textbf{PostgreSQL}.
-  \item Designed microservices for scheduling and data synchronization workflows.
+  \item Built a tiered scraping pipeline processing \textasciitilde3,000 listings/day: direct JSON API first (\textasciitilde30\,KB), Playwright browser fallback (\textasciitilde2\,MB), reducing per-property bandwidth by 98.5\%.
+  \item Authored 107 of 113 commits across the ingestion service; implemented batch scheduling, IP rotation, health monitoring, and a FastAPI + PostgreSQL storage pipeline.
 \end{itemize}
 
-\vspace{0.15em}
-
-\noindent
-\textbf{\href{https://www.linkedin.com/company/alvora-group/}{Alvora}}
-\hfill
-\textit{Software Engineer Intern} --- \textit{Aug 2025 -- Sep 2025}
-
+\vspace{3pt}
+\entry{Celebrare — Python Developer Intern}{Nov 2024 – Apr 2025}
 \begin{itemize}
-  \item Built data-ingestion systems scraping \textbf{\textasciitilde3,000 listings daily}; reduced per-property bandwidth from \textbf{\textasciitilde2 MB to 30 KB}.
+  \item Benchmarked multiple face-recognition models across image datasets, measuring accuracy, latency, and throughput to identify the best-performing architecture.
+  \item Experimented with clustering algorithms to optimise model outputs and improve recognition quality.
+  \item Rewrote the production pipeline from Python to C++, achieving a 5–8\texttimes\ speedup and reducing average processing latency by 91\%.
 \end{itemize}
 
-\vspace{0.15em}
-
-\noindent
-\textbf{\href{https://in.linkedin.com/company/celebrarecompany}{Celebrare}}
-\hfill
-\textit{Remote Python Developer Intern} --- \textit{Nov 2024 -- Apr 2025}
-
-\begin{itemize}
-  \item Rewrote the face-recognition pipeline from Python to C++, achieving a \textbf{5--8x speedup}.
-  \item Reduced average processing time by \textbf{91.11\%}.
-\end{itemize}
-
-\vspace{0.15em}
-
-\noindent
-\textbf{\href{https://www.linkedin.com/company/openblood/posts/?feedView=all}{OpenBlood}}
-\hfill
-\textit{Engineer Intern} --- \textit{Aug 2025 -- Dec 2025}
-
-\begin{itemize}
-  \item Shipped the marketing site and UX improvements for a nationwide blood-donation platform.
-\end{itemize}
-
-% ===== Projects =====
+% Projects
 \section*{Projects}
 
-\noindent
-\textbf{\href{https://github.com/rohiitgit/kdoc}{Kdoc}}
-\hfill
-\textit{Go, Redis, SQLite, Docker}
-
+\entry{Fynl-It}{Next.js · Supabase · Gemini AI · TailwindCSS}
 \begin{itemize}
-  \item Built a fault-tolerant distributed PDF-processing pipeline with Redis Streams, concurrent workers, retries, DLQ recovery, and Prometheus observability.
-  \item Load-tested the system up to \textbf{30k documents} and built a \textbf{108-test} race-safe suite covering API, queueing, and persistence layers.
+  \item Built an AI-powered workflow system that automated invoice follow-ups using LLM-driven communication and escalation logic.
+  \item Experimented with prompt strategies and automation flows to improve reliability and reduce manual intervention.
+  \item Integrated payment reconciliation and state-driven workflow execution.
 \end{itemize}
 
-\vspace{0.15em}
-
-\noindent
-\textbf{\href{https://fynl-it.vercel.app/}{Fynl-It}}
-\hfill
-\textit{Next.js, Supabase, Gemini AI, TailwindCSS}
-
+\vspace{3pt}
+\entry{Kdoc}{Go · Redis · SQLite · Docker}
 \begin{itemize}
-  \item Built an AI-powered invoice follow-up platform with progressive reminder escalation.
-  \item Integrated Razorpay UPI payment detection for automated reconciliation.
+  \item Built a fault-tolerant document-processing system using Redis Streams, concurrent workers, retries, and observability tooling.
+  \item Load-tested to 30k documents; validated reliability with a 108-test suite.
 \end{itemize}
 
-\vspace{0.15em}
-
-\noindent
-\textbf{\href{https://github.com/rohiitgit/nodemaid}{NodeMaid}}
-\hfill
-\textit{Node.js, CLI}
-
+\vspace{3pt}
+\entry{NodeMaid}{Node.js · npm}
 \begin{itemize}
-  \item Built a cross-platform CLI utility to recursively detect and remove \texttt{node\_modules} directories, reclaiming gigabytes of disk space safely.
+  \item Published a cross-platform CLI utility that recursively removes \texttt{node\_modules} safely and reclaims storage automatically.
 \end{itemize}
 
-\vspace{0.15em}
+\vspace{3pt}
+\entry{rohiit.space}{HTML · TailwindCSS · JavaScript}
+\begin{itemize}
+  \item Hand-rolled portfolio and technical writing platform, no framework, no CMS.
+\end{itemize}
+
+% Skills
+\section*{Skills}
 
 \noindent
-\textbf{\href{https://www.rohiit.space/}{rohiit.space}}
-\hfill
-\textit{HTML, TailwindCSS, Vanilla JS}
-
-\begin{itemize}
-  \item Built a hand-rolled personal site with custom components and no framework or CMS.
-\end{itemize}
+\begin{tabular}{@{}ll}
+  \textbf{Languages}  & Python, JavaScript, TypeScript, C/C++ \\[2pt]
+  \textbf{Frontend}   & React, Next.js, TailwindCSS, HTML/CSS \\[2pt]
+  \textbf{Backend}    & Node.js, Flask, REST APIs, Microservices \\[2pt]
+  \textbf{AI / ML}    & LLM Applications, Prompt Engineering, AI Workflows, RAG, OpenCV, SAM~2, AI-Assisted Development \\[2pt]
+  \textbf{Databases}  & PostgreSQL, Supabase, SQLite \\[2pt]
+  \textbf{Tools}      & Git, Docker, Claude Code, Cursor \\[2pt]
+  \textbf{Expertise}  & Applied AI, Experimentation, Automation, Distributed Systems, Computer Vision, Full-Stack Development \\
+\end{tabular}
 
 \end{document}

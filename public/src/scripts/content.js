@@ -60,39 +60,25 @@ const siteContent = {
         title: "experience",
         jobs: [
             {
-                title: "project lead developer",
-                company: "alvora",
-                companyUrl: "https://www.linkedin.com/company/alvora-group/",
-                duration: "oct 2025 - present",
-                description: "developing a full-stack <strong>operations platform</strong> with role-based portals using <strong>React</strong>, <strong>Node.js</strong>, <strong>TypeScript</strong>, and <strong>PostgreSQL</strong>.<br> <br>designing and integrating <strong>microservices</strong> for scheduling and data synchronization, enabling automated workflows and inter-service communication across the platform."
-            },
-            {
                 title: "software engineer",
                 company: "alvora",
                 companyUrl: "https://www.linkedin.com/company/alvora-group/",
+                duration: "oct 2025 - present",
+                description: "primary author of the backend (<strong>Express/TypeScript</strong>, <strong>PostgreSQL</strong>, no ORM): 15 domains covering booking lifecycle, scheduling, billing, and admin reporting; <strong>41 test suites</strong> with enforced CI coverage.<br> <br>migrated the platform off Supabase to self-hosted <strong>Better Auth</strong> (invite-only onboarding, role-based access, Google OAuth). built the <strong>React 19</strong> frontend with dual role-based portals, and an <strong>iCal sync bridge</strong> integrating a Timefold scheduling solver and billing microservice."
+            },
+            {
+                title: "software engineer intern",
+                company: "alvora",
+                companyUrl: "https://www.linkedin.com/company/alvora-group/",
                 duration: "aug 2025 - sep 2025",
-                description: "built a vacation rental monitoring platform scraping <strong>~3,000 listings</strong> daily, across major rental marketplaces. optimized bandwidth from <strong>~2 MB to &lt;30 KB</strong> per property using <strong>API-based data extraction</strong>."
+                description: "built a tiered scraping pipeline processing <strong>~3,000 listings/day</strong>: direct JSON API first (~30 KB) with a <strong>Playwright</strong> browser fallback (~2 MB), reducing per-property bandwidth by <strong>98.5%</strong>.<br> <br>authored 107 of 113 commits across the ingestion service; implemented batch scheduling, IP rotation, health monitoring, and a <strong>FastAPI + PostgreSQL</strong> storage pipeline."
             },
             {
-                title: "engineer intern",
-                company: "openblood",
-                companyUrl: "https://openblood.app/",
-                duration: "aug 2025 - dec 2025",
-                description: "building <strong>openblood website</strong> with <strong>GSAP</strong>, <strong>HTML</strong>, <strong>TailwindCSS</strong> with smooth animations, modern UI, clean design system."
-            },
-            {
-                title: "software development engineer",
-                company: "boundspec",
-                companyUrl: "https://www.boundspec.com/",
-                duration: "apr 2025 - sept 2025",
-                description: "built role-based dashboards for <strong>doctor-patient booking</strong> system with dynamic ui/ux. developed <strong>core features for rydr</strong>, a biker community app — club creation, feed with maps. integrated <strong>sanity cms</strong> for dynamic content across prajna and boundspec websites. contributed full-stack features for production apps, using <strong>react native + supabase</strong>."
-            },
-            {
-                title: "remote python developer intern",
+                title: "python developer intern",
                 company: "celebrare",
                 companyUrl: "https://in.linkedin.com/company/celebrarecompany",
                 duration: "nov 2024 - apr 2025",
-                description: "developed <strong>automated image processing pipelines</strong> using python and opencv. rewrote <strong>face recognition pipeline</strong> from python to c++ achieving <strong>5–8x performance gain</strong>. optimized vision models, reducing <strong>average processing time by 91.11%</strong>. maintained <strong>99% accuracy</strong>, added support for multiple orientations/formats."
+                description: "benchmarked multiple <strong>face-recognition models</strong> across image datasets, measuring accuracy, latency, and throughput; experimented with clustering algorithms to improve recognition quality.<br> <br>rewrote the production pipeline from <strong>python to C++</strong>, achieving a <strong>5–8x speedup</strong> and reducing average processing latency by <strong>91%</strong>."
             }
         ]
     },
