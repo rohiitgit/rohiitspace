@@ -180,6 +180,13 @@
     <!-- Content Wrapper for boundaries -->
     <div class="content-wrapper"></div>
 
+    <!-- Sakura pixel sky behind the hero; the dotted paper sheet below slides
+         over it on scroll (both sized/parallaxed by sakura-sky.js) -->
+    <div id="sakura-sky" class="sakura-sky" aria-hidden="true">
+        <canvas id="sakura-sky-canvas"></canvas>
+    </div>
+    <div id="paper-sheet" class="paper-sheet" aria-hidden="true"></div>
+
     <!-- Main Content -->
     <main class="max-w-4xl mx-auto px-4 pt-20">
         <div class="grid grid-cols-12 gap-4">
@@ -419,6 +426,11 @@
         </footer>
     </main>
 
+    <!-- Pixelated river at the very end of the page — the pair lands here -->
+    <div id="pixel-river" aria-hidden="true">
+        <canvas id="pixel-river-canvas"></canvas>
+    </div>
+
     <!-- Floating Social Tab -->
     <div
         class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-black/90 dark:bg-white/90 backdrop-blur-sm border border-white/10 dark:border-black/10 rounded-full px-5 py-3 flex gap-4 z-[100] shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl md:bottom-5 md:px-5 md:py-3 md:gap-4">
@@ -429,6 +441,7 @@
 
     <script src="src/scripts/main.js"></script>
     <script src="src/scripts/pixel-character.js"></script>
+    <script src="src/scripts/sakura-sky.js"></script>
 </body>
 
 </html>

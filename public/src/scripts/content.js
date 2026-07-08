@@ -174,8 +174,8 @@ const siteContent = {
     // Footer
     footer: {
         built: "built using html, tailwind css & vanilla js",
-        inspired: "inspired by <a href=\"https://tailwindcss.com/\" class=\"underline\">tailwindcss</a>.",
-        copyright: "© 2025 rohit. all rights reserved."
+        inspired: "inspired by <a href=\"https://tailwindcss.com/\" class=\"underline\">tailwindcss</a>, berserk.",
+        copyright: "© 2026 rohit. all rights reserved."
     },
 
     // Social Links
