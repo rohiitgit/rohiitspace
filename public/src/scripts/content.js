@@ -89,7 +89,7 @@ const siteContent = {
         items: [
             {
                 title: "fynl-it",
-                description: "fullstack tool to <strong>automate invoice follow-up emails</strong> with progressive ai tone. integrated <strong>secure payment detection</strong> using razorpay upi.",
+                description: "ai-powered <strong>invoice follow-up platform</strong> integrating gemini ai, supabase, and razorpay to automate payment reminders. event-driven workflows with <strong>configurable escalation rules</strong> and prompt-based communication.",
                 technologies: ["next.js", "supabase", "gemini ai", "tailwindcss"],
                 links: {
                     live: "https://fynl-it.vercel.app/"
@@ -104,16 +104,16 @@ const siteContent = {
                 }
             },
             {
-                title: "web3 referral platform landing page",
-                description: "created <strong>responsive, animated landing page</strong> for blockchain referral startup. built <strong>reusable and performant ui components</strong>.",
-                technologies: ["next.js", "tailwindcss"],
+                title: "mailsync",
+                description: "ai-powered <strong>email intelligence platform</strong> that syncs mailboxes over persistent imap. <strong>semantic search</strong> with elasticsearch + qdrant and retrieval-augmented generation for natural-language querying, on fault-tolerant background workers.",
+                technologies: ["node.js", "imap", "elasticsearch", "qdrant", "gemini"],
                 links: {
-                    live: "https://web3-referral-landing.vercel.app/"
+                    github: "https://github.com/rohiitgit/mailsync"
                 }
             },
             {
                 title: "kdoc",
-                description: "document processing pipeline in <strong>go</strong>. api accepts pdf uploads, stores jobs in <strong>sqlite</strong>, enqueues work to <strong>redis streams</strong>. worker dequeues, extracts text, handles retries and <strong>dlq</strong>. includes reconciler for stuck docs, prometheus metrics, load test tool. 108 tests, zero races, ~750 docs/s throughput.",
+                description: "document processing pipeline in <strong>go</strong> with concurrent worker pools on <strong>redis streams</strong> — retries, dead-letter queues, and observability tooling. <strong>load-tested to 30k documents</strong> and validated with a 108-test suite.",
                 technologies: ["go", "sqlite", "redis", "docker", "prometheus"],
                 links: {
                     github: "https://github.com/rohiitgit/kdoc"

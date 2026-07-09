@@ -37,7 +37,7 @@
 
 % Header
 \begin{center}
-  {\large\textbf{Rohit}}\\[2pt]
+  {\Large\textbf{Rohit}}\\[3pt]
   \small
   \href{mailto:rohitcodes03@gmail.com}{rohitcodes03@gmail.com}
   \enspace\textcolor{rule}{|}\enspace
@@ -46,10 +46,11 @@
   \href{https://rohiit.space}{rohiit.space}
   \enspace\textcolor{rule}{|}\enspace
   \href{https://github.com/rohiitgit}{github.com/rohiitgit}
+  \enspace\textcolor{rule}{|}\enspace
+  \href{https://linkedin.com/in/rohiitcodes}{linkedin.com/in/rohiitcodes}
 \end{center}
-
 \vspace{1pt}
-\noindent\small Applied AI Engineer focused on building production AI systems using LLM-assisted workflows, experimentation, automation, and scalable software infrastructure.
+\noindent\small Software Engineer specializing in backend systems, AI-powered products, and scalable infrastructure. Experienced building production software across distributed systems, automation, computer vision, and LLM applications with a focus on performance, reliability, and developer productivity.
 \vspace{2pt}
 
 % Featured
@@ -57,9 +58,9 @@
 
 \entry{WebGIS Platform, ISRO Smart India Hackathon 2024}{National Finalist}
 \begin{itemize}
-  \item Built an AI-assisted geospatial analysis platform using Meta SAM~2 for satellite-image segmentation and downstream decision workflows.
-  \item Designed end-to-end experimentation pipelines across a CV backend, REST APIs, and browser-based GIS visualisation.
-  \item Rapidly iterated under hackathon constraints and translated research ideas into usable product features.
+    \item Built an AI-assisted WebGIS platform using Meta SAM~2 for satellite-image segmentation and geospatial analysis workflows.
+    \item Developed the computer vision backend, REST APIs, and browser-based GIS interface under Smart India Hackathon constraints.
+    \item National Finalist among 500+ teams, rapidly translating research ideas into production-ready features.
 \end{itemize}
 
 % Experience
@@ -67,7 +68,7 @@
 
 \entry{Alvora — Software Engineer}{Oct 2025 – Present}
 \begin{itemize}
-  \item Primary author of the backend (Express/TypeScript, PostgreSQL, no ORM): 15 domains covering booking lifecycle, cleaner scheduling, billing, and admin reporting; 41 test suites with enforced CI coverage.
+  \item Led backend development (Express, TypeScript, PostgreSQL) across 15 business domains including bookings, scheduling, billing, and reporting; authored 41 automated test suites with CI enforcement.
   \item Migrated the platform off Supabase: replaced Supabase Auth with self-hosted Better Auth (invite-only onboarding, role-based access, Google OAuth) and ported all DB access to a direct \texttt{pg} pool.
   \item Primary author of the React~19 frontend: dual role-based portals (management/operations), 12 feature modules, i18n, and map-based scheduling views.
   \item Built the iCal synchronisation bridge integrating a Timefold scheduling solver and a billing microservice.
@@ -83,52 +84,46 @@
 \vspace{3pt}
 \entry{Celebrare — Python Developer Intern}{Nov 2024 – Apr 2025}
 \begin{itemize}
-  \item Benchmarked multiple face-recognition models across image datasets, measuring accuracy, latency, and throughput to identify the best-performing architecture.
-  \item Experimented with clustering algorithms to optimise model outputs and improve recognition quality.
+  \item Evaluated and benchmarked multiple face-recognition architectures across production datasets, measuring latency, throughput, and accuracy.
+  \item Optimized recognition quality through clustering-based experimentation and preprocessing techniques.
   \item Rewrote the production pipeline from Python to C++, achieving a 5–8\texttimes\ speedup and reducing average processing latency by 91\%.
 \end{itemize}
 
 % Projects
 \section*{Projects}
 
-\entry{Fynl-It}{Next.js · Supabase · Gemini AI · TailwindCSS}
+\entry{\href{https://fynl-it.vercel.app/}{Fynl-It}}{Next.js · Supabase · Gemini AI · TailwindCSS}
 \begin{itemize}
-  \item Built an AI-powered workflow system that automated invoice follow-ups using LLM-driven communication and escalation logic.
-  \item Experimented with prompt strategies and automation flows to improve reliability and reduce manual intervention.
-  \item Integrated payment reconciliation and state-driven workflow execution.
+  \item Built an AI-powered invoice follow-up platform integrating Gemini AI, Supabase, and Razorpay to automate payment reminders.
+    \item Designed event-driven workflow execution with configurable escalation rules and prompt-based communication generation.
+    \item Reduced manual follow-up effort through automated scheduling and payment reconciliation.
 \end{itemize}
-
 \vspace{3pt}
-\entry{Kdoc}{Go · Redis · SQLite · Docker}
+\entry{\href{https://github.com/rohiitgit/mailsync}{Mailsync}}{Node.js · IMAP · Elasticsearch · Qdrant · Gemini}
 \begin{itemize}
-  \item Built a fault-tolerant document-processing system using Redis Streams, concurrent workers, retries, and observability tooling.
+\item Built an AI-powered email intelligence platform that continuously synchronized mailboxes through persistent IMAP connections.
+\item Implemented semantic search using Elasticsearch and Qdrant with retrieval-augmented generation for natural-language querying.
+\item Designed scalable background workers, incremental synchronization, and fault-tolerant indexing pipelines.
+\end{itemize}
+\entry{\href{https://github.com/rohiitgit/kdoc}{Kdoc}}{Go · Redis · SQLite · Docker}
+\begin{itemize}
+  \item Built concurrent worker pools using Redis Streams with retries, dead-letter queues, and observability tooling.
   \item Load-tested to 30k documents; validated reliability with a 108-test suite.
 \end{itemize}
-
 \vspace{3pt}
-\entry{NodeMaid}{Node.js · npm}
-\begin{itemize}
-  \item Published a cross-platform CLI utility that recursively removes \texttt{node\_modules} safely and reclaims storage automatically.
-\end{itemize}
-
-\vspace{3pt}
-\entry{rohiit.space}{HTML · TailwindCSS · JavaScript}
-\begin{itemize}
-  \item Hand-rolled portfolio and technical writing platform, no framework, no CMS.
-\end{itemize}
 
 % Skills
 \section*{Skills}
 
 \noindent
 \begin{tabular}{@{}ll}
-  \textbf{Languages}  & Python, JavaScript, TypeScript, C/C++ \\[2pt]
+  \textbf{Languages}  & Python, Go, TypeScript, JavaScript, C/C++ \\[2pt]
   \textbf{Frontend}   & React, Next.js, TailwindCSS, HTML/CSS \\[2pt]
-  \textbf{Backend}    & Node.js, Flask, REST APIs, Microservices \\[2pt]
-  \textbf{AI / ML}    & LLM Applications, Prompt Engineering, AI Workflows, RAG, OpenCV, SAM~2, AI-Assisted Development \\[2pt]
-  \textbf{Databases}  & PostgreSQL, Supabase, SQLite \\[2pt]
-  \textbf{Tools}      & Git, Docker, Claude Code, Cursor \\[2pt]
-  \textbf{Expertise}  & Applied AI, Experimentation, Automation, Distributed Systems, Computer Vision, Full-Stack Development \\
+  \textbf{Backend}    & Node.js, Express, Flask, REST APIs, Microservices \\[2pt]
+  \textbf{Databases}  & PostgreSQL, Redis, SQLite, Supabase, Elasticsearch, Qdrant \\[2pt]
+  \textbf{AI}    & LLM Applications, RAG, Prompt Engineering, OpenCV, SAM~2, Computer Vision \\[2pt]
+  \textbf{Tools}      & Git, Docker, Playwright, Claude Code, Cursor \\[2pt]
+  \textbf{Core Skills}& Distributed Systems, Automation, Performance Optimization, Scalable Backend Systems, AI Integration \\
 \end{tabular}
 
 \end{document}
