@@ -435,12 +435,6 @@ section {
     z-index: 1;
 }
 
-/* The volleyball is the timeline's fill indicator now — the orange dot is
-   retired (kept out of the DOM paint entirely). */
-.timeline-dot-animated {
-    display: none;
-}
-
 /* TLDR Container Hover Glow Effect */
 .tldr-container {
     transition: all 0.3s ease;

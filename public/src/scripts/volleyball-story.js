@@ -214,12 +214,9 @@
 
     // ─── State ────────────────────────────────────────────────────────────────
     let overlay, octx;
-    let docH = 0, maxScroll = 1, darkNow = null;
     let flowT = 0;
     let reduced = false;
     const A = { serverY: 0, spikerY: 0, expTop: 0, expBot: 0 };
-
-    const isDark = () => document.documentElement.classList.contains('dark');
 
     // The separator band is 40px tall with lines at its top and bottom edges —
     // players stand on the UPPER line. Find the separator right after a section.
@@ -304,6 +301,12 @@
         const vw = overlay.width, vh = overlay.height;
         g.clearRect(0, 0, vw, vh);
 
+        // Anchors are read every frame so the phase thresholds and the live
+        // per-frame bar/rail measurements always come from the same layout —
+        // otherwise a lazy image resizing the page between cached-anchor updates
+        // makes the ball ride one geometry while the bars fill from another.
+        computeAnchors();
+
         const s = window.scrollY;
         const spin = Math.floor(flowT * 6);
 
@@ -313,9 +316,9 @@
         // stand on the full-width separator lines, out in the left margin so
         // the players are clear of the centered content column
         const contentLeft = Math.max(0, vw / 2 - 512);    // max-w-4xl left edge
+        // both players stand at the same left-margin x, clear of the content
         const serverX = Math.max(12 * S, contentLeft - 20 * S);
-        const spikerX = Math.max(12 * S, contentLeft - 20 * S);
-        A.serverX0 = serverX; A.spikerX0 = spikerX;
+        const spikerX = serverX;
         const serverTop = serverFeetV - 18 * S;            // sprite top-left y
         const spikerTop = spikerFeetV - 18 * S;
         const serverHand = { x: serverX + 9 * S, y: serverTop - 4 * S };
@@ -375,7 +378,7 @@
             // TRAVEL — ball descends across the timeline's fillable span
             // (railTop → railBot) so the ball and the bar it drives move in
             // lockstep, 1:1, with no pre-first-item dead zone.
-            const t = smooth((s - P3) / (P4 - P3));
+            const t = smooth((s - P3) / Math.max(1, P4 - P3));
             ballX = railXNow();
             const ballDocY = lerp(A.railTop, A.railBot, t);
             ballY = ballDocY - s;
@@ -385,7 +388,7 @@
             // left it (bottom of the fill bar, at the rail x) to the spike
             // contact point, so there's no sideways-then-up dogleg. Both ends
             // match their neighbours exactly (railBot→FINALE's spikeX/spikeY).
-            const t = smooth((s - P4) / (P5 - P4));
+            const t = smooth((s - P4) / Math.max(1, P5 - P4));
             const jump = smooth(clamp01((t - 0.35) / 0.65)) * vh * 0.14; // higher than normal
             spikerState = t < 0.35 ? 'crouch' : 'spike';
             drawSpiker(g, spikerX, spikerTop - jump, spikerState);
@@ -459,8 +462,6 @@
         octx.imageSmoothingEnabled = true;
     }
     function refreshDoc() {
-        docH = document.body.offsetHeight;
-        maxScroll = Math.max(1, docH - window.innerHeight);
         computeAnchors();
     }
 
@@ -479,7 +480,6 @@
                 requestAnimationFrame(() => tryInit(attempts + 1));
                 return;
             }
-            darkNow = isDark();
             setupOverlay();
             refreshDoc();
 
@@ -487,6 +487,9 @@
                 const still = () => { computeAnchors(); drawStill(); };
                 window.addEventListener('scroll', still, { passive: true });
                 window.addEventListener('resize', () => { setupOverlay(); computeAnchors(); still(); });
+                // sections grow as lazy images load below the fold; re-anchor the
+                // static tableau so it doesn't drift off the separator lines
+                if (window.ResizeObserver) new ResizeObserver(still).observe(document.body);
                 still();
                 return;
             }
@@ -505,7 +508,6 @@
                 const dt = Math.min(ts - lastTime, 48);
                 lastTime = ts;
                 flowT += dt / 1000;
-                if (isDark() !== darkNow) darkNow = isDark();
                 renderStory();
                 requestAnimationFrame(loop);
             }

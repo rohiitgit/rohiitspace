@@ -385,6 +385,11 @@
     let flowT = 0;
     let riverTopDoc = 0;     // document y of the river canvas top
     let riverH = 0;          // canvas css height
+    // Once the heroine commits to the fall, the finale anchors (river position
+    // and page length) are latched so a lazy image loading further down the
+    // page can't shift the shoreline mid-dive and snap the diver. Cleared when
+    // the user scrolls back above the tip-over, keeping the story reversible.
+    let finaleAnchor = null;
     const RIVER_SURF = 36;   // art row of the waterline / grass line — the
                              // air rows above it hold the cave
 
@@ -398,9 +403,8 @@
         rctx.imageSmoothingEnabled = false;
     }
 
-    function drawRiver(dt) {
+    function drawRiver() {
         if (!rctx || !riverH) return;
-        flowT += dt / 1000;
         const g = rctx;
         const w = riverCanvas.width, h = riverCanvas.height;
         const P = RIVER_THEME[darkNow ? 'dark' : 'light'];
@@ -639,17 +643,34 @@
         const feetCanvasY = groundY + BODY_H * S;
         const edgeV = { x: rect.left + EDGE, y: rect.top + feetCanvasY };
 
-        const D = maxScroll;
+        // Latch the finale anchors just before the dive into the water so lazy
+        // content loading below can't shift the shoreline or page length
+        // mid-dive and snap the diver. We latch on the APPROACH to the dive (not
+        // at the far-earlier tip-over) so the captured geometry is the settled,
+        // near-footer layout — by then images above have long since loaded.
+        // Cleared once the user scrolls back well above the approach, so the
+        // story stays reversible and re-latches fresh on the next descent.
+        const liveDiveStart = riverH
+            ? Math.min(maxScroll - 220, Math.max(CATCH0 + 300, riverTopDoc - vh))
+            : maxScroll + 9999;
+        if (riverH && s >= liveDiveStart - vh) {
+            finaleAnchor ??= { riverTopDoc, riverH, maxScroll };
+        } else if (s < liveDiveStart - vh * 1.5) {
+            finaleAnchor = null;
+        }
+        const aRiverTopDoc = finaleAnchor ? finaleAnchor.riverTopDoc : riverTopDoc;
+        const aRiverH = finaleAnchor ? finaleAnchor.riverH : riverH;
+        const D = finaleAnchor ? finaleAnchor.maxScroll : maxScroll;
 
         // shoreline geometry: waterline + where the land ends
-        const surfaceDoc = riverTopDoc + RIVER_SURF * RIVER_SCALE;
+        const surfaceDoc = aRiverTopDoc + RIVER_SURF * RIVER_SCALE;
         const shoreX = vw * 0.75;
         const entryX = cruiseX(vw) + 4 * S;          // where they hit the water
         // Finale is anchored to the shoreline entering the viewport (not a
         // fixed offset from the page bottom) so the fall accelerates and the
         // splash lands while the water is on screen, near the footer.
-        const shoreEnter = riverTopDoc - vh;         // river band's top edge hits viewport bottom
-        const E0 = riverH
+        const shoreEnter = aRiverTopDoc - vh;        // river band's top edge hits viewport bottom
+        const E0 = aRiverH
             ? Math.min(D - 220, Math.max(CATCH0 + 300, shoreEnter)) // dive begins as shore appears
             : D + 9999;
         const E1 = Math.min(E0 + 130, D - 110);      // splash / swim start
@@ -693,7 +714,7 @@
         const landYDoc = surfaceDoc;                 // grass line = waterline
         const landX = shoreX - 46 * S;               // stand spot on the land
         let herSwim = null, himSwim = null, ashore = 0;
-        if (swm > 0 && riverH) {
+        if (swm > 0 && aRiverH) {
             ashore = smooth((swm - 0.72) / 0.24);
             const st = smooth(Math.min(1, swm / 0.8));
             const surfVY = surfaceDoc - s;
@@ -912,7 +933,7 @@
                     const feetY = groundY + BODY_H * S;
                     drawHeroineStand(g, rect.left + EDGE - 15 * S, rect.top + feetY - BODY_H * S, 'left');
                     drawMale(g, rect.left + Math.round(char.x), rect.top + groundY, 0, 'idle', 'right');
-                    drawRiver(0);
+                    drawRiver();
                 };
                 window.addEventListener('scroll', still, { passive: true });
                 window.addEventListener('resize', () => { setupCliff(); setupOverlay(); refreshDoc(); still(); });
@@ -943,13 +964,17 @@
                 if (!lastTime) lastTime = ts;
                 const dt = Math.min(ts - lastTime, 48);
                 lastTime = ts;
+                // Flow clock advances every frame so the swim animation (which
+                // reads flowT) keeps moving even when the river is off-screen
+                // and drawRiver is skipped.
+                flowT += dt / 1000;
                 if (isDark() !== darkNow) { darkNow = isDark(); drawCliff(); }
                 update(dt);
                 renderStory(dt);
                 // river animates whenever any part of it is near the viewport
                 if (riverCanvas) {
                     const rt = riverCanvas.getBoundingClientRect();
-                    if (rt.top < window.innerHeight + 200 && rt.bottom > -200) drawRiver(dt);
+                    if (rt.top < window.innerHeight + 200 && rt.bottom > -200) drawRiver();
                 }
                 requestAnimationFrame(loop);
             }

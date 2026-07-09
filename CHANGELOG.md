@@ -1,5 +1,59 @@
 # Changelog
 
+## [2026-07-09 23:13] — code-review fixes across all source files
+
+Fixed the findings from the full engineering review of the site's five source
+files. Surgical changes only; verified with a headless Chromium pass (all five
+volleyball stages render, timeline bars still fill to 100% from the ball, both
+story overlays present, no JS exceptions).
+
+- **api/server.js** (security + correctness): CORS now matches `*.vercel.app`
+  as a real host suffix instead of a substring (closes the
+  `evil-vercel.app.attacker.com` bypass); OAuth state secret fails closed
+  instead of signing with an empty key; OAuth redirect base is limited to a
+  trusted-host allowlist and the reflected `?error=` value is URL-encoded;
+  token seeding no longer clobbers a token refreshed during the lambda's life
+  (was forcing a re-refresh every request); concurrent refreshes share one
+  in-flight promise; recent-tracks re-auth keys off the real 401 status, not a
+  string match; GitHub GraphQL response is null-guarded; internal error
+  messages are no longer echoed to clients.
+- **main.js**: `isSafeUrl` now rejects `data:`/`vbscript:` (they slipped through
+  the relative-path branch); removed the dead `header.offsetHeight` deep-link
+  math (no header exists) in favor of a fixed -24 offset; dropped the retired
+  `timeline-dot-animated` div and the empty `populateNavigation` stub;
+  `showContentLoadError` no longer stacks overlays; Lenis teardown cancels its
+  rAF loop and nulls `window.lenisInstance`; anchor-click listeners are now
+  cleanup-tracked.
+- **pixel-character.js**: finale anchors latch when the heroine tips over so a
+  lazy image loading below can't shift the shoreline and snap the diver
+  mid-dive (cleared above the tip-over, stays reversible); the flow clock now
+  advances every frame so the swim animation doesn't freeze when the river is
+  off-screen.
+- **volleyball-story.js**: anchors are read every frame so the phase thresholds
+  and the live bar/rail measurements share one layout (fixes drift when the page
+  grows); guarded the TRAVEL/SPIKE phase divisors against non-positive spans;
+  the reduced-motion tableau now re-anchors on body resize; removed dead state
+  (`docH`, `maxScroll`, `darkNow`, `isDark`, `A.serverX0/spikerX0`).
+- **main.css**: removed the now-unused `.timeline-dot-animated` rule.
+
+Second pass (self-review of the above fixes):
+- **pixel-character.js**: the finale-anchor latch fired at the tip-over
+  (scroll ~190px, top of the page) — far too early, so it captured a still-
+  growing layout and would freeze a stale shoreline for the whole descent.
+  Moved the latch to the dive APPROACH (within one viewport of the live dive
+  start, near the footer) with hysteresis, so it captures the settled layout
+  right before it matters and still re-latches fresh on each descent.
+- **api/server.js**: `loadTokens` early-return meant a rotated
+  `SPOTIFY_REFRESH_TOKEN` env var was never picked up on a warm container.
+  Env is now authoritative for the refresh token (adopted when it differs from
+  memory), while the in-memory access token is still kept when the env refresh
+  token is unchanged — so rotation works without forcing a re-refresh every
+  call.
+
+Files: api/server.js, public/src/scripts/main.js,
+public/src/scripts/pixel-character.js, public/src/scripts/volleyball-story.js,
+public/src/styles/main.css
+
 ## [2026-07-09] — volleyball finale reworked to fully scroll-driven
 
 - Replaced the time-based scroll-lock finale with a pure scroll-driven one: the

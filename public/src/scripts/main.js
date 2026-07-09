@@ -35,12 +35,17 @@ function validateContent(content, schema) {
 function isSafeUrl(url) {
     if (!url || typeof url !== 'string') return false;
 
+    const lower = url.trim().toLowerCase();
+    // Reject the script-bearing pseudo-protocols outright. data: has no "://"
+    // so it would otherwise slip through the relative-path branch below and can
+    // carry executable HTML (data:text/html,<script>…>) in an href/src.
+    if (lower.startsWith('javascript:') || lower.startsWith('data:') ||
+        lower.startsWith('vbscript:') || lower.includes('<script')) {
+        return false;
+    }
+
     // Allow relative paths (for local assets)
     if (url.startsWith('/') || url.startsWith('./') || url.startsWith('../') || !url.includes('://')) {
-        // Simple validation: no script tags or javascript: protocol
-        if (url.toLowerCase().includes('javascript:') || url.toLowerCase().includes('<script')) {
-            return false;
-        }
         return true;
     }
 
@@ -64,6 +69,8 @@ const activeObservers = [];
 
 // Store Lenis instance for cleanup
 let lenisInstance = null;
+// Lenis' own requestAnimationFrame loop id, so teardown can cancel it
+let lenisRafId = null;
 
 // Ripple animation function
 function createRippleAnimation(x, y, targetTheme, callback) {
@@ -242,9 +249,6 @@ function populateContent() {
         // Populate meta tags
         if (content.meta) updateMetaTags(content.meta);
 
-        // Populate navigation
-        if (content.navigation) populateNavigation(content.navigation);
-
         // Populate personal info
         if (content.personal) populatePersonalInfo(content.personal);
 
@@ -287,9 +291,13 @@ function populateContent() {
 
 // Show user-friendly error message when content fails to load
 function showContentLoadError() {
+    // Multiple init/populate catch blocks can call this; only ever show one
+    // overlay instead of stacking a fresh full-screen dialog per failure.
+    if (document.getElementById('content-load-error')) return;
     const mainContent = document.querySelector('main');
     if (mainContent) {
         const errorDiv = document.createElement('div');
+        errorDiv.id = 'content-load-error';
         errorDiv.className = 'fixed inset-0 flex items-center justify-center bg-gray-50 dark:bg-black z-50';
         errorDiv.innerHTML = `
             <div class="text-center p-8 max-w-md">
@@ -363,12 +371,6 @@ function updateMetaTags(meta) {
     } catch (error) {
         console.error('Error updating meta tags:', error.message);
     }
-}
-
-function populateNavigation(navigation) {
-    // Navigation is now static in HTML to prevent flash
-    // This function is kept for compatibility but doesn't modify existing content
-    // The static navigation in HTML will be enhanced by the active section highlighting
 }
 
 function populatePersonalInfo(personal) {
@@ -469,7 +471,6 @@ function populateExperienceSection(experience) {
         jobsContainer.innerHTML = experience.jobs.map((job, index) => `
             <div class="timeline-item border-l-2 border-gray-200 dark:border-gray-600 pl-4 md:pl-6 relative">
                 <div class="timeline-item-progress" data-item="${index}"></div>
-                <div class="timeline-dot-animated" data-item="${index}"></div>
                 <div class="space-y-2">
                     <div>
                         <h3 class="font-medium text-lg sm:text-xl">${escapeHtml(job.title)}</h3>
@@ -746,15 +747,20 @@ function cleanupAllResources() {
     cleanupTypingAnimations();
 
     // Cleanup Lenis
+    if (lenisRafId !== null) {
+        cancelAnimationFrame(lenisRafId);
+        lenisRafId = null;
+    }
     if (lenisInstance && typeof lenisInstance.destroy === 'function') {
         try {
             lenisInstance.destroy();
-            lenisInstance = null;
             console.log('Lenis instance destroyed');
         } catch (error) {
             console.error('Error destroying Lenis:', error.message);
         }
     }
+    lenisInstance = null;
+    window.lenisInstance = null;
 }
 
 // Initialize Lenis Smooth Scroll
@@ -772,13 +778,13 @@ function initLenis() {
         // Animation frame loop for Lenis
         function raf(time) {
             lenis.raf(time);
-            requestAnimationFrame(raf);
+            lenisRafId = requestAnimationFrame(raf);
         }
-        requestAnimationFrame(raf);
+        lenisRafId = requestAnimationFrame(raf);
 
         // Handle anchor links with Lenis
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
+            addEventListenerWithCleanup(anchor, 'click', function (e) {
                 const href = this.getAttribute('href');
 
                 // Skip empty hashes
@@ -821,20 +827,18 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(() => {
             const targetSection = document.querySelector(window.location.hash);
             if (targetSection) {
-                const header = document.querySelector('header');
-                const headerHeight = header ? header.offsetHeight : 0;
-
-                // Use Lenis if available, otherwise fallback to native
+                // No fixed header on this page, so a small constant offset keeps
+                // the target clear of the viewport top (matches the -24 used by
+                // the in-page nav clicks).
                 if (lenisInstance) {
                     lenisInstance.scrollTo(targetSection, {
-                        offset: -(headerHeight + 20),
+                        offset: -24,
                         duration: 1.2,
                         immediate: false
                     });
                 } else {
-                    const targetPosition = targetSection.offsetTop - headerHeight - 20;
                     window.scrollTo({
-                        top: targetPosition,
+                        top: targetSection.offsetTop - 24,
                         behavior: 'smooth'
                     });
                 }

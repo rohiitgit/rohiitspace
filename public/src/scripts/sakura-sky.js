@@ -224,18 +224,23 @@
                 c.x += c.speed * dt;
                 if (c.x > canvas.width) c.x = -cloudSprites[c.sprite].width;
             }
-            if (elapsed >= nextGustAt && gusts.length < 2) {
-                const pts = makeGustPoints();
-                const gustWidth = pts[pts.length - 1][0]; // paths only ever move right
-                gusts.push({
-                    pts,
-                    head: 0,
-                    tail: 30 + Math.floor(Math.random() * 20),
-                    speed: 70 + Math.random() * 40, // points / s
-                    x0: Math.floor(Math.random() * Math.max(1, canvas.width - gustWidth)),
-                    y0: Math.floor(canvas.height * (0.1 + Math.random() * 0.5)),
-                });
+            if (elapsed >= nextGustAt) {
+                // Advance the schedule whenever the clock passes it, even when
+                // the 2-gust cap blocks the spawn — otherwise nextGustAt stalls
+                // while gusts are full and every later gust fires back-to-back.
                 nextGustAt = elapsed + 4 + Math.random() * 6;
+                if (gusts.length < 2) {
+                    const pts = makeGustPoints();
+                    const gustWidth = pts[pts.length - 1][0]; // paths only ever move right
+                    gusts.push({
+                        pts,
+                        head: 0,
+                        tail: 30 + Math.floor(Math.random() * 20),
+                        speed: 70 + Math.random() * 40, // points / s
+                        x0: Math.floor(Math.random() * Math.max(1, canvas.width - gustWidth)),
+                        y0: Math.floor(canvas.height * (0.1 + Math.random() * 0.5)),
+                    });
+                }
             }
             for (const g of gusts) g.head += g.speed * dt;
             gusts = gusts.filter((g) => g.head - g.tail < g.pts.length);
@@ -273,6 +278,21 @@
                 boundary.style.top = top + 'px';
                 boundary.style.height = Math.max(0, bottom - top) + 'px';
             }
+        };
+
+        // Resize the canvas and repaint the sky/paper without reseeding petals
+        // or clouds. Used when the hero height settles (e.g. the display font
+        // loads) so the scene shifts into place instead of popping to a fresh
+        // random layout.
+        const relayout = () => {
+            const heroBottom = hero.offsetTop + hero.offsetHeight;
+            wrapper.style.height = (heroBottom + SKY_EXTRA) + 'px';
+            layoutPaper();
+            canvas.width = Math.ceil(wrapper.clientWidth / PIXEL);
+            canvas.height = Math.ceil(wrapper.clientHeight / PIXEL);
+            bandSpace = Math.round((heroBottom - PAPER_FADE) / PIXEL);
+            paintSky();
+            if (stillMode) drawFrame();
         };
 
         const start = () => {
@@ -353,7 +373,7 @@
         // settles instead of waiting for the 150ms-debounced ResizeObserver,
         // so there's no visible jump on cold load.
         if (document.fonts?.ready instanceof Promise) {
-            document.fonts.ready.then(() => { start(); layoutPaper(); });
+            document.fonts.ready.then(relayout);
         }
     }
 

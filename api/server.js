@@ -13,16 +13,27 @@ let spotifyTokens = {
     expires_at: null
 };
 
-// Load tokens from environment variables (primary) and file (secondary)
+// Seed tokens from environment variables (primary) or file (secondary).
+// Environment is authoritative for the *refresh* token, so a rotated
+// SPOTIFY_REFRESH_TOKEN is picked up even on a warm container. But once the env
+// refresh token is in memory, we keep the in-memory access token instead of
+// resetting it from the (stale) env access token every request — otherwise each
+// call would force a re-refresh, and /tmp isn't shared across invocations.
 async function loadTokens() {
-    // First, try to load from environment variables (most reliable for serverless)
-    if (process.env.SPOTIFY_REFRESH_TOKEN) {
-        spotifyTokens.refresh_token = process.env.SPOTIFY_REFRESH_TOKEN;
-        spotifyTokens.access_token = process.env.SPOTIFY_ACCESS_TOKEN || null;
-        spotifyTokens.expires_at = process.env.SPOTIFY_TOKEN_EXPIRY ? Number.parseInt(process.env.SPOTIFY_TOKEN_EXPIRY) : null;
-        console.log('Loaded tokens from environment variables');
+    const envRefresh = process.env.SPOTIFY_REFRESH_TOKEN;
+    if (envRefresh) {
+        if (spotifyTokens.refresh_token !== envRefresh) {
+            // First load, or the env var was rotated out-of-band — adopt it and
+            // take the matching env access token/expiry as the starting point.
+            spotifyTokens.refresh_token = envRefresh;
+            spotifyTokens.access_token = process.env.SPOTIFY_ACCESS_TOKEN || null;
+            spotifyTokens.expires_at = process.env.SPOTIFY_TOKEN_EXPIRY ? Number.parseInt(process.env.SPOTIFY_TOKEN_EXPIRY) : null;
+            console.log('Loaded tokens from environment variables');
+        }
         return;
     }
+
+    if (spotifyTokens.refresh_token) return;
 
     // Fallback: try to load from file
     try {
@@ -64,12 +75,25 @@ const allowedOrigins = [
     'http://127.0.0.1:3000'
 ];
 
+function isAllowedOrigin(origin) {
+    if (!origin) return false;
+    if (allowedOrigins.includes(origin)) return true;
+    // Allow Vercel preview deployments, but match the host as a proper suffix
+    // so "https://evil-vercel.app.attacker.com" can't slip through a substring
+    // check while credentials are enabled.
+    try {
+        const host = new URL(origin).hostname;
+        return host === 'vercel.app' || host.endsWith('.vercel.app');
+    } catch {
+        return false;
+    }
+}
+
 function getCorsHeaders(origin) {
-    const isAllowedOrigin = allowedOrigins.includes(origin) ||
-                          origin?.includes('vercel.app');
+    const allowed = isAllowedOrigin(origin);
 
     return {
-        'Access-Control-Allow-Origin': isAllowedOrigin ? origin : allowedOrigins[0],
+        'Access-Control-Allow-Origin': allowed ? origin : allowedOrigins[0],
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         'Access-Control-Allow-Credentials': 'true',
@@ -82,14 +106,35 @@ function normalizePathname(pathname) {
     return pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
 }
 
+// Trusted hosts we're willing to build OAuth redirect URLs for. The Host
+// header is attacker-controllable, so a request for an unknown host falls back
+// to the canonical origin rather than reflecting it into a redirect.
+const trustedRedirectHosts = new Set([
+    'rohiit.space',
+    'www.rohiit.space',
+    'rohiitspace.vercel.app',
+    'localhost:3000',
+    '127.0.0.1:3000'
+]);
+const CANONICAL_ORIGIN = 'https://rohiit.space';
+
 function getBaseUrl(req) {
-    const proto = req.headers['x-forwarded-proto'] || 'https';
     const host = req.headers.host;
-    return `${proto}://${host}`;
+    if (host && trustedRedirectHosts.has(host)) {
+        const proto = host.startsWith('localhost') || host.startsWith('127.0.0.1') ? 'http' : 'https';
+        return `${proto}://${host}`;
+    }
+    return CANONICAL_ORIGIN;
 }
 
 function getStateSecret() {
-    return process.env.SPOTIFY_STATE_SECRET || process.env.SPOTIFY_CLIENT_SECRET || '';
+    const secret = process.env.SPOTIFY_STATE_SECRET || process.env.SPOTIFY_CLIENT_SECRET;
+    if (!secret) {
+        // Signing with an empty key makes the OAuth state forgeable, so fail
+        // closed instead of accepting any attacker-supplied state.
+        throw new Error('OAuth state secret is not configured');
+    }
+    return secret;
 }
 
 function base64UrlEncode(value) {
@@ -119,22 +164,23 @@ function isValidOAuthState(state) {
     const [encodedPayload, providedSignature] = state.split('.');
     if (!encodedPayload || !providedSignature) return false;
 
-    const expectedSignature = crypto
-        .createHmac('sha256', getStateSecret())
-        .update(encodedPayload)
-        .digest('base64url');
-
-    const expectedBuffer = Buffer.from(expectedSignature);
-    const providedBuffer = Buffer.from(providedSignature);
-    if (expectedBuffer.length !== providedBuffer.length) return false;
-    if (!crypto.timingSafeEqual(expectedBuffer, providedBuffer)) return false;
-
     try {
+        const expectedSignature = crypto
+            .createHmac('sha256', getStateSecret())
+            .update(encodedPayload)
+            .digest('base64url');
+
+        const expectedBuffer = Buffer.from(expectedSignature);
+        const providedBuffer = Buffer.from(providedSignature);
+        if (expectedBuffer.length !== providedBuffer.length) return false;
+        if (!crypto.timingSafeEqual(expectedBuffer, providedBuffer)) return false;
+
         const parsed = JSON.parse(base64UrlDecode(encodedPayload));
         if (!parsed || typeof parsed.ts !== 'number') return false;
         // 10 minute expiry window for auth redirects
         return Date.now() - parsed.ts <= 10 * 60 * 1000;
     } catch {
+        // Missing secret or malformed payload — fail closed.
         return false;
     }
 }
@@ -193,7 +239,7 @@ async function handler(req, res) {
         res.status(404).json({ error: 'Not found' });
     } catch (error) {
         console.error('Function error:', error);
-        res.status(500).json({ error: 'Internal server error', message: error.message });
+        res.status(500).json({ error: 'Internal server error' });
     }
 }
 
@@ -224,7 +270,7 @@ async function handleCallback(req, res, searchParams) {
     const baseUrl = getBaseUrl(req);
 
     if (error) {
-        return res.redirect(`${baseUrl}?error=${error}`);
+        return res.redirect(`${baseUrl}?error=${encodeURIComponent(error)}`);
     }
 
     if (!code) {
@@ -258,7 +304,7 @@ async function handleCallback(req, res, searchParams) {
         const tokenData = tokenResponse.data;
 
         if (tokenData.error) {
-            return res.redirect(`${baseUrl}?error=${tokenData.error}`);
+            return res.redirect(`${baseUrl}?error=${encodeURIComponent(tokenData.error)}`);
         }
 
         // Store tokens
@@ -279,7 +325,21 @@ async function handleCallback(req, res, searchParams) {
     }
 }
 
-async function refreshAccessToken() {
+// Shared in-flight refresh so parallel requests that all find an expired token
+// trigger exactly one refresh call instead of racing (which can invalidate each
+// other's rotated refresh token).
+let refreshInFlight = null;
+
+function refreshAccessToken() {
+    if (!refreshInFlight) {
+        refreshInFlight = doRefreshAccessToken().finally(() => {
+            refreshInFlight = null;
+        });
+    }
+    return refreshInFlight;
+}
+
+async function doRefreshAccessToken() {
     if (!spotifyTokens.refresh_token) {
         throw new Error('No refresh token available');
     }
@@ -357,7 +417,12 @@ async function handleRecentTracks(req, res) {
     } catch (error) {
         console.error('Error fetching recent tracks:', error);
 
-        if (error.message.includes('No valid token')) {
+        // Re-auth when our own "no token" signal fires or Spotify rejects the
+        // token with a 401; anything else is a generic failure. Don't echo the
+        // raw error message back to the client.
+        const needsAuth = error.response?.status === 401 ||
+                          error.message?.includes('No valid token');
+        if (needsAuth) {
             res.status(401).json({
                 error: 'Authentication required',
                 message: 'Need to authenticate with Spotify first',
@@ -365,8 +430,7 @@ async function handleRecentTracks(req, res) {
             });
         } else {
             res.status(500).json({
-                error: 'Failed to fetch tracks',
-                message: error.message
+                error: 'Failed to fetch tracks'
             });
         }
     }
@@ -423,7 +487,17 @@ async function handleGitHubContributions(req, res) {
             { query },
             { headers: { Authorization: `Bearer ${token}` } }
         );
-        const calendar = response.data.data.user.contributionsCollection.contributionCalendar;
+        // GraphQL returns 200 with an `errors` array on failure, and `user` is
+        // null for an unknown login — guard the deep path so a bad response is a
+        // clean 502 instead of a TypeError.
+        if (response.data.errors?.length) {
+            console.error('GitHub GraphQL errors:', response.data.errors);
+            return res.status(502).json({ error: 'Failed to fetch GitHub contributions' });
+        }
+        const calendar = response.data?.data?.user?.contributionsCollection?.contributionCalendar;
+        if (!calendar) {
+            return res.status(502).json({ error: 'Failed to fetch GitHub contributions' });
+        }
         githubCache = { data: calendar, expires_at: Date.now() + 60 * 60 * 1000 };
         res.json(calendar);
     } catch (error) {
