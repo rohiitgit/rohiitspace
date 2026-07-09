@@ -174,7 +174,7 @@ const siteContent = {
     // Footer
     footer: {
         built: "built using html, tailwind css & vanilla js",
-        inspired: "inspired by <a href=\"https://tailwindcss.com/\" class=\"underline\">tailwindcss</a>, berserk.",
+        inspired: "inspired by <a href=\"https://tailwindcss.com/\" class=\"underline\">tailwindcss</a>, berserk & haikyuu!!",
         copyright: "© 2026 rohit. all rights reserved."
     },
 

@@ -108,6 +108,64 @@ stands). Verified via screenshot sweeps at every story phase, light + dark.
       the left of the land; band 260px, RIVER_SURF 36. Verified light + dark,
       no console errors, couple/story geometry unaffected.
 
+## Round 8 — navbar → section indicator (2026-07-09)
+
+- [x] Removed fixed navbar; theme toggle floated top-right (id preserved).
+- [x] Right-edge tick rail, 6 ticks, IntersectionObserver active tracking
+      (`-45%` band, winner by ratio, hero fallback), click/keyboard jump via
+      Lenis, hover labels, light+dark, mobile scale-down, reduced-motion.
+- [x] Removed dead code: highlightActiveSection (threw on header.offsetHeight),
+      requestHighlightTick, initMobileMenu; hero 7rem→2rem, pt-20→pt-8,
+      scroll-margin 100→24.
+- [x] Verified: no header in DOM, no console errors, correct active tick when
+      each section is centered (all 6), click lands at projTop=24, toggle
+      flips theme, hover reveals label, mobile rail present. Light + dark.
+
+## Round 9 — theme toggle into bottom dock (2026-07-09)
+
+- [x] Moved theme toggle from top-right float into the social dock (divider +
+      matching icon style). Removed `.theme-toggle-float` CSS. id/spans kept.
+- [x] Verified: float gone, btn inside dock, resting bg transparent (matches
+      social icons), toggles theme, no console errors, top-right clear,
+      light + dark.
+
+## Round 10 — pixel-animation load audit + font-swap fix (2026-07-09)
+
+- [x] Audited all 3 pixel systems (sky, cliff/story, river/cave) via 3 parallel
+      code audits + runtime tests. No races, no errors, correct theme on first
+      paint, self-healing geometry.
+- [x] Fixed the one real cold-load imperfection: font-swap hero reflow now
+      triggers an immediate `document.fonts.ready` recompute in sakura-sky.js
+      and pixel-character.js (no more 150ms-debounced jump).
+- [x] Verified gap≈0 (paper↔hero) across 5 cold loads, desktop + mobile, no
+      console errors.
+
+## Round 11 — fall timing to shoreline (2026-07-09)
+
+- [x] Re-anchored dive/splash (E0/E1) to the river band entering the viewport
+      instead of fixed offset from page bottom. Fall accelerates + splash now
+      happen on-screen near the footer; 130px swim window preserved.
+- [x] Verified: no early plunge during achievements, splash on visible water,
+      swim visible; ordering CATCH0<catchEnd<E0<E1<D holds at vh 900/1300/650;
+      no console errors.
+
+## Round 12 — volleyball scroll-story (2026-07-09)
+
+- [x] New volleyball-story.js (own overlay, independent of cliff story).
+- [x] Original generic pixel athletes #9 (server, back) + #10 (spiker, front),
+      pixel volleyball with spin, jersey-number pixel-digit font.
+- [x] Phases: ball enters from left → server catch/serve → travel down exp
+      timeline → spiker high jump/spike → scroll-lock + screen-fill zoom +
+      parallax → resume.
+- [x] True scroll-lock via window.lenisInstance.stop()/start() + wheel/touch/
+      key preventDefault; one-shot guard (no re-trap on scroll up/down).
+- [x] Reduced-motion static tableau (no lock). Both themes. Left-margin
+      positioning clear of content text.
+- [x] Verified: real wheel blocked during lock, resumes after ~900ms; reduced
+      motion scrolls freely; cliff story unaffected; no console errors.
+- [ ] LATER: remove the experience .timeline-item-progress bar-fill so the
+      ball fully replaces it (deferred per user).
+
 ## Review
 
 - Sky renders behind the hero in both themes; petals/clouds/gusts animate.

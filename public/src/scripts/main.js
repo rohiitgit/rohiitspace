@@ -160,72 +160,65 @@ function cleanupTypingAnimations() {
 
 // Theme toggle functionality
 function initTheme() {
-    const themeToggle = document.getElementById('theme-toggle');
-    if (!themeToggle) {
-        console.error('Theme toggle button not found');
-        return;
-    }
-
-    const html = document.documentElement;
-
-    // Always start in light mode for fastest loading
-    // Apply saved preference after initial render
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-        html.classList.add('dark');
-    }
-
-    // Debounce flag to prevent rapid clicks
+    // The core toggle (class + localStorage) is wired by the head-level inline
+    // script so it responds from first paint. Here we only expose the ripple
+    // animation the inline handler calls via window.__themeRipple, with a
+    // debounce so rapid clicks don't stack ripple containers.
     let isThemeChanging = false;
 
-    // Theme toggle event listener with ripple animation
-    const themeClickHandler = function () {
-        // Prevent rapid clicks during animation only
-        if (isThemeChanging) {
-            console.log('Theme change already in progress, ignoring click');
-            return;
-        }
-
-        console.log('Theme toggle clicked');
-
-        // Get the button position for ripple origin
-        const rect = themeToggle.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-
-        // Determine if switching to dark or light
-        const isDarkMode = html.classList.contains('dark');
-        const targetTheme = isDarkMode ? 'light' : 'dark';
-
-        // Toggle theme IMMEDIATELY (don't wait for callback)
-        html.classList.toggle('dark');
-
-        // Save theme preference
-        if (html.classList.contains('dark')) {
-            localStorage.setItem('theme', 'dark');
-            console.log('Switched to dark theme');
-        } else {
-            localStorage.setItem('theme', 'light');
-            console.log('Switched to light theme');
-        }
-
-        // Set debounce flag AFTER theme change
+    window.__themeRipple = function (centerX, centerY, targetTheme) {
+        if (isThemeChanging) return;
         isThemeChanging = true;
-
-        // Create ripple animation (visual only, theme already changed)
-        createRippleAnimation(centerX, centerY, targetTheme, function () {
-            // Theme already toggled above, this is just for the animation
-        });
-
-        // Reset debounce flag after short delay (just enough to prevent double-clicks)
-        setTimeout(() => {
-            isThemeChanging = false;
-        }, 300); // Short delay to prevent accidental double-clicks
+        createRippleAnimation(centerX, centerY, targetTheme, function () {});
+        setTimeout(() => { isThemeChanging = false; }, 300);
     };
+}
 
-    addEventListenerWithCleanup(themeToggle, 'click', themeClickHandler);
+// Right-edge tick rail: highlights the section in view and jumps on click.
+function initSectionIndicator() {
+    const ticks = Array.from(document.querySelectorAll('.rail-tick'));
+    if (!ticks.length) return;
 
-    // Note: Removed system theme listener for better performance
+    // Pair each tick with its section (skip any target that isn't rendered,
+    // e.g. the hidden #music section).
+    const pairs = ticks
+        .map(tick => ({ tick, section: document.getElementById(tick.dataset.target) }))
+        .filter(p => p.section);
+    if (!pairs.length) return;
+
+    const setActive = (activeSection) => {
+        pairs.forEach(({ tick, section }) => {
+            tick.setAttribute('aria-current', section === activeSection ? 'true' : 'false');
+        });
+    };
+    setActive(pairs[0].section); // hero active until the observer resolves
+
+    // Track which sections are in the active band, then pick the best one so
+    // the rail never blanks out when nothing is strictly intersecting.
+    const ratios = new Map();
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => ratios.set(e.target, e.isIntersecting ? e.intersectionRatio : 0));
+        let best = null, bestRatio = -1;
+        pairs.forEach(({ section }) => {
+            const r = ratios.get(section) || 0;
+            if (r > bestRatio) { best = section; bestRatio = r; }
+        });
+        if (best && bestRatio > 0) setActive(best);
+    }, { rootMargin: '-45% 0px -45% 0px', threshold: [0, 0.01, 0.5, 1] });
+
+    pairs.forEach(({ section }) => observer.observe(section));
+    activeObservers.push(observer);
+
+    // Click / keyboard (Enter, Space fire click on <button>) → smooth scroll.
+    pairs.forEach(({ tick, section }) => {
+        addEventListenerWithCleanup(tick, 'click', function () {
+            if (lenisInstance && typeof lenisInstance.scrollTo === 'function') {
+                lenisInstance.scrollTo(section, { offset: -24 });
+            } else {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
 }
 
 // Content Population Functions
@@ -682,28 +675,28 @@ function populateSocialLinks(social) {
         socialElement.className = 'flex gap-4';
         socialElement.innerHTML = `
             <a href="${social.twitter}"
-                class="w-10 h-10 rounded-full flex items-center justify-center bg-transparent text-gray-300 dark:text-gray-700 transition-all duration-300 hover:bg-accent hover:text-white hover:scale-110 md:w-10 md:h-10"
+                class="w-10 h-10 rounded-full flex items-center justify-center bg-transparent text-gray-300 dark:text-gray-300 transition-all duration-300 hover:bg-accent hover:text-white hover:scale-110 md:w-10 md:h-10"
                 aria-label="Twitter" title="Twitter">
                 <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                 </svg>
             </a>
             <a href="${social.linkedin}"
-                class="w-10 h-10 rounded-full flex items-center justify-center bg-transparent text-gray-300 dark:text-gray-700 transition-all duration-300 hover:bg-accent hover:text-white hover:scale-110 md:w-10 md:h-10"
+                class="w-10 h-10 rounded-full flex items-center justify-center bg-transparent text-gray-300 dark:text-gray-300 transition-all duration-300 hover:bg-accent hover:text-white hover:scale-110 md:w-10 md:h-10"
                 aria-label="LinkedIn" title="LinkedIn">
                 <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                 </svg>
             </a>
             <a href="${social.github}"
-                class="w-10 h-10 rounded-full flex items-center justify-center bg-transparent text-gray-300 dark:text-gray-700 transition-all duration-300 hover:bg-accent hover:text-white hover:scale-110 md:w-10 md:h-10"
+                class="w-10 h-10 rounded-full flex items-center justify-center bg-transparent text-gray-300 dark:text-gray-300 transition-all duration-300 hover:bg-accent hover:text-white hover:scale-110 md:w-10 md:h-10"
                 aria-label="GitHub" title="GitHub">
                 <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
                 </svg>
             </a>
             <a href="${social.cal}"
-                class="w-10 h-10 rounded-full flex items-center justify-center bg-transparent text-gray-300 dark:text-gray-700 transition-all duration-300 hover:bg-accent hover:text-white hover:scale-110 md:w-10 md:h-10"
+                class="w-10 h-10 rounded-full flex items-center justify-center bg-transparent text-gray-300 dark:text-gray-300 transition-all duration-300 hover:bg-accent hover:text-white hover:scale-110 md:w-10 md:h-10"
                 aria-label="Schedule a call" title="Schedule a call">
                 <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z" />
@@ -773,17 +766,8 @@ function initLenis() {
     }
 
     try {
-        // Create Lenis instance with custom options
-        const lenis = new Lenis({
-            duration: 1.2,        // Animation duration (seconds)
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Custom easing (smooth)
-            direction: 'vertical', // Scroll direction
-            gestureDirection: 'vertical', // Touch gesture direction
-            smooth: true,         // Enable smooth scrolling
-            smoothTouch: false,   // Disable smooth scroll on touch devices (better performance)
-            touchMultiplier: 2,   // Touch sensitivity
-            infinite: false,      // Disable infinite scroll
-        });
+        // Default Lenis config.
+        const lenis = new Lenis();
 
         // Animation frame loop for Lenis
         function raf(time) {
@@ -806,17 +790,7 @@ function initLenis() {
                 const targetElement = document.querySelector(href);
                 if (targetElement) {
                     e.preventDefault();
-
-                    // Get header height for offset
-                    const header = document.querySelector('header');
-                    const headerHeight = header ? header.offsetHeight : 0;
-
-                    // Scroll to element with offset
-                    lenis.scrollTo(targetElement, {
-                        offset: -(headerHeight + 20), // 20px extra padding
-                        duration: 1.2,
-                        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
-                    });
+                    lenis.scrollTo(targetElement, { offset: -24 });
                 }
             });
         });
@@ -833,49 +807,14 @@ function initLenis() {
 document.addEventListener('DOMContentLoaded', function () {
     // Initialize Lenis smooth scroll
     lenisInstance = initLenis();
+    // Expose so volleyball-story.js can lock/unlock scroll for its finale
+    window.lenisInstance = lenisInstance;
 
     // Initialize theme
     initTheme();
 
-    // Highlight active section in navigation with throttling
-    let highlightTicking = false;
-
-    function highlightActiveSection() {
-        const sections = document.querySelectorAll('section[id]');
-        const navLinks = document.querySelectorAll('nav a[href^="#"]');
-
-        let current = '';
-        const headerHeight = document.querySelector('header').offsetHeight;
-
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop - headerHeight - 50;
-            if (window.pageYOffset >= sectionTop) {
-                current = section.getAttribute('id');
-            }
-        });
-
-        navLinks.forEach(link => {
-            link.classList.remove('text-accent');
-            if (link.getAttribute('href') === '#' + current) {
-                link.classList.add('text-accent');
-            }
-        });
-
-        highlightTicking = false;
-    }
-
-    function requestHighlightTick() {
-        if (!highlightTicking) {
-            requestAnimationFrame(highlightActiveSection);
-            highlightTicking = true;
-        }
-    }
-
-    // Listen for scroll events with throttling
-    addEventListenerWithCleanup(window, 'scroll', requestHighlightTick, { passive: true });
-
-    // Initial call to highlight correct section on page load
-    highlightActiveSection();
+    // Right-edge section indicator: track the section in view + jump on click
+    initSectionIndicator();
 
     // Handle anchor links when page loads (from external navigation)
     if (window.location.hash) {
@@ -967,129 +906,8 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Mobile menu toggle functionality
-    function initMobileMenu() {
-        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-        const mobileNav = document.getElementById('mobile-nav');
-
-        if (mobileMenuToggle && mobileNav) {
-            const mobileMenuClickHandler = function () {
-                const isHidden = mobileNav.classList.contains('hidden');
-
-                if (isHidden) {
-                    mobileNav.classList.remove('hidden');
-                    mobileMenuToggle.innerHTML = '<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-                } else {
-                    mobileNav.classList.add('hidden');
-                    mobileMenuToggle.innerHTML = '<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-                }
-            };
-
-            addEventListenerWithCleanup(mobileMenuToggle, 'click', mobileMenuClickHandler);
-
-            // Close mobile menu when clicking on a link
-            mobileNav.querySelectorAll('a').forEach(link => {
-                const linkClickHandler = function () {
-                    mobileNav.classList.add('hidden');
-                    mobileMenuToggle.innerHTML = '<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-                };
-                addEventListenerWithCleanup(link, 'click', linkClickHandler);
-            });
-        }
-    }
-
-    initMobileMenu();
-
-    // Timeline animation
-    function initTimelineAnimation() {
-        const timelineItems = document.querySelectorAll('.timeline-item');
-        const timelineProgressLines = document.querySelectorAll('.timeline-item-progress');
-        const timelineDots = document.querySelectorAll('.timeline-dot-animated');
-
-        if (timelineItems.length === 0) {
-            return;
-        }
-
-        let timelineTicking = false;
-
-        function updateTimelineAnimation() {
-            const windowHeight = window.innerHeight;
-            const midpoint = windowHeight * 0.35; // 20% from top of viewport
-
-            timelineItems.forEach((item, index) => {
-                const itemRect = item.getBoundingClientRect();
-                const progressLine = timelineProgressLines[index];
-                const dot = timelineDots[index];
-
-                if (!progressLine || !dot) return;
-
-                // Check if item is in view
-                const itemTop = itemRect.top;
-                const itemBottom = itemRect.bottom;
-                const itemHeight = itemRect.height;
-
-                // Item is visible when any part is in viewport
-                const isVisible = itemTop < windowHeight && itemBottom > 0;
-
-                if (!isVisible) {
-                    // Reset if not visible
-                    progressLine.style.height = '0%';
-                    dot.classList.remove('visible');
-                    dot.style.top = '0px';
-                    return;
-                }
-
-                // Calculate progress based on midpoint intersection
-                let progress = 0;
-
-                if (itemTop <= midpoint && itemBottom >= midpoint) {
-                    // Midpoint is within this item
-                    const distanceFromTop = midpoint - itemTop;
-                    progress = Math.min(1, Math.max(0, distanceFromTop / itemHeight));
-
-                    // Show dot and progress line
-                    dot.classList.add('visible');
-
-                    // Position dot based on progress within this item
-                    const dotPosition = progress * (itemHeight - 20); // Account for dot size
-                    dot.style.top = dotPosition + 'px';
-
-                    // Progress line height follows the dot position
-                    progressLine.style.height = (progress * 100) + '%';
-                } else if (itemBottom < midpoint) {
-                    // Item is completely above midpoint - fully completed
-                    progress = 1;
-                    progressLine.style.height = '100%';
-                    dot.classList.remove('visible'); // Hide dot when item is complete
-                } else {
-                    // Item is below midpoint - not started yet
-                    progress = 0;
-                    progressLine.style.height = '0%';
-                    dot.classList.remove('visible');
-                }
-            });
-
-            timelineTicking = false;
-        }
-
-        function requestTimelineTick() {
-            if (!timelineTicking) {
-                requestAnimationFrame(updateTimelineAnimation);
-                timelineTicking = true;
-            }
-        }
-
-        // Listen for scroll events with throttling
-        addEventListenerWithCleanup(window, 'scroll', requestTimelineTick, { passive: true });
-        addEventListenerWithCleanup(window, 'resize', requestTimelineTick, { passive: true });
-
-        // Delay initial call to ensure content population and layout have settled
-        requestAnimationFrame(() => {
-            requestAnimationFrame(updateTimelineAnimation);
-        });
-    }
-
-    initTimelineAnimation();
+    // Timeline progress bars are filled by the volleyball story
+    // (fillBarsToBall in volleyball-story.js); the old orange dot is retired.
 
     // Contact form submission
     const contactForm = document.getElementById('contact-form');

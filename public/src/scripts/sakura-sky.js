@@ -348,6 +348,13 @@
             attributes: true,
             attributeFilter: ['class'],
         });
+        // The display font (Instrument Serif) loads after DOMContentLoaded and
+        // shrinks the hero by up to ~60px. Reposition immediately when it
+        // settles instead of waiting for the 150ms-debounced ResizeObserver,
+        // so there's no visible jump on cold load.
+        if (document.fonts?.ready instanceof Promise) {
+            document.fonts.ready.then(() => { start(); layoutPaper(); });
+        }
     }
 
     if (document.readyState === 'loading') {

@@ -645,8 +645,14 @@
         const surfaceDoc = riverTopDoc + RIVER_SURF * RIVER_SCALE;
         const shoreX = vw * 0.75;
         const entryX = cruiseX(vw) + 4 * S;          // where they hit the water
-        const E0 = riverH ? Math.max(CATCH0 + 500, D - 380) : D + 9999; // dive begins
-        const E1 = Math.max(E0 + 80, D - 260);       // splash / swim start
+        // Finale is anchored to the shoreline entering the viewport (not a
+        // fixed offset from the page bottom) so the fall accelerates and the
+        // splash lands while the water is on screen, near the footer.
+        const shoreEnter = riverTopDoc - vh;         // river band's top edge hits viewport bottom
+        const E0 = riverH
+            ? Math.min(D - 220, Math.max(CATCH0 + 300, shoreEnter)) // dive begins as shore appears
+            : D + 9999;
+        const E1 = Math.min(E0 + 130, D - 110);      // splash / swim start
         const catchEnd = Math.min(Math.max(CATCH0 + 250, D * CATCH_END_FRAC), E0 - 60);
         const swm = (s - E1) / Math.max(1, D - E1);  // swim progress 0..1
 
@@ -926,6 +932,11 @@
                 new ResizeObserver(refreshDoc).observe(document.body);
             }
             window.addEventListener('resize', () => { setupCliff(); setupOverlay(); refreshDoc(); });
+            // Recompute once the display font settles (it shrinks the hero,
+            // shifting the river's document position and maxScroll).
+            if (document.fonts?.ready instanceof Promise) {
+                document.fonts.ready.then(() => { setupCliff(); refreshDoc(); });
+            }
 
             let lastTime = 0;
             function loop(ts) {

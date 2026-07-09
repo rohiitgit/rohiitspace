@@ -1,5 +1,10 @@
 /* Custom Website Styles */
 
+/* Body text — Plus Jakarta Sans (headings stay serif, small UI labels mono) */
+body {
+    font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
 /* Prevent FOUC - Hide content until populated, but exclude structural elements */
 [data-content] {
     opacity: 0;
@@ -44,15 +49,15 @@ h2[data-content] {
 
 /* ===== HERO UPGRADES ===== */
 
-/* Hero fills the first screen (7rem ≈ fixed header + section offsets) so the
-   sky owns the viewport on load and the paper transition starts below the
-   fold. min-height only — short screens fall back to natural content height.
-   The photo and greeting stay clustered at the top; all extra space goes
-   into the open sky between them and the tldr card, which anchors to the
-   bottom of the hero. */
+/* Hero fills the first screen (2rem top breathing room now that the fixed
+   navbar is gone) so the sky owns the viewport on load and the paper
+   transition starts below the fold. min-height only — short screens fall back
+   to natural content height. The photo and greeting stay clustered at the
+   top; all extra space goes into the open sky between them and the tldr
+   card, which anchors to the bottom of the hero. */
 #hero {
-    min-height: calc(100vh - 7rem);
-    min-height: calc(100svh - 7rem);
+    min-height: calc(100vh - 2rem);
+    min-height: calc(100svh - 2rem);
     display: flex;
 }
 
@@ -171,12 +176,10 @@ h4, h5, h6 {
     font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace);
 }
 
-/* Always show navigation and logo immediately */
+/* Always show logo/name content immediately */
 [data-content="personal.name"],
 [data-content="navigation"],
-[data-content="navigation-mobile"],
-header,
-nav {
+[data-content="navigation-mobile"] {
     opacity: 1 !important;
 }
 
@@ -186,6 +189,16 @@ nav {
     position: fixed;
     inset: 0;
     z-index: 30;
+    pointer-events: none;
+    image-rendering: pixelated;
+}
+
+/* Volleyball story overlay — its own canvas, above the cliff overlay so the
+   ball is never hidden behind the cliff characters */
+.pixel-overlay-vb {
+    position: fixed;
+    inset: 0;
+    z-index: 31;
     pointer-events: none;
     image-rendering: pixelated;
 }
@@ -411,27 +424,10 @@ section {
     z-index: 1;
 }
 
+/* The volleyball is the timeline's fill indicator now — the orange dot is
+   retired (kept out of the DOM paint entirely). */
 .timeline-dot-animated {
-    position: absolute;
-    left: -8px;
-    top: 0;
-    width: 12px;
-    height: 12px;
-    background: #c2703a;
-    border: 2px solid white;
-    border-radius: 50%;
-    z-index: 2;
-    transition: all 0.3s ease;
-    box-shadow: 0 0 0 3px rgba(194, 112, 58, 0.2);
-    opacity: 0;
-}
-
-.timeline-dot-animated.visible {
-    opacity: 1;
-}
-
-.dark .timeline-dot-animated {
-    border-color: #000;
+    display: none;
 }
 
 /* TLDR Container Hover Glow Effect */
@@ -537,15 +533,6 @@ section {
         gap: 1rem;
     }
 
-    /* Better mobile navigation spacing */
-    nav a {
-        padding: 0.75rem 1rem;
-        min-height: 44px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
     /* Mobile-friendly form elements */
     input, textarea, select {
         min-height: 44px;
@@ -569,11 +556,6 @@ section {
     .project-card,
     .tldr-container {
         padding: 1.5rem;
-    }
-
-    /* Larger click areas for navigation */
-    header nav a {
-        padding: 0.75rem 1rem;
     }
 }
 
@@ -633,30 +615,125 @@ html.lenis {
     pointer-events: none;
 }
 
-/* Active nav link — JS adds text-accent class on scroll */
-nav a {
-    position: relative;
-    transition: color 0.2s ease;
-}
-
-nav a.text-accent {
-    font-weight: 600;
-}
-
-nav a.text-accent::after {
-    content: '';
-    position: absolute;
-    bottom: -3px;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: var(--color-accent);
-    border-radius: 1px;
-}
-
-/* Offset sections for fixed header - This makes hash navigation work properly */
+/* Small scroll offset so tick-jumps and hash nav land just below the top */
 section[id] {
-    scroll-margin-top: 100px;
+    scroll-margin-top: 24px;
+}
+
+/* ===== Section indicator (right-edge tick rail) ===== */
+
+/* The rail sits centered on the right edge; the nav itself is click-through
+   so only the ticks (and their hover zone) capture the pointer. */
+.section-rail {
+    position: fixed;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 14px;
+    pointer-events: none;
+}
+
+/* A tick is a short horizontal line; the active one is wider + accent. */
+.rail-tick {
+    position: relative;
+    width: 20px;
+    height: 2px;
+    padding: 0;
+    border: 0;
+    border-radius: 1px;
+    background: rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+    pointer-events: auto;
+    transition: width 0.25s ease, background-color 0.25s ease, opacity 0.25s ease;
+}
+
+.dark .rail-tick {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.rail-tick:hover,
+.rail-tick:focus-visible {
+    width: 28px;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.dark .rail-tick:hover,
+.dark .rail-tick:focus-visible {
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.rail-tick[aria-current="true"] {
+    width: 34px;
+    background: var(--color-accent);
+}
+
+.rail-tick:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+}
+
+/* The section name slides out to the LEFT of the tick on hover/focus. */
+.rail-label {
+    position: absolute;
+    right: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%) translateX(6px);
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace);
+    font-size: 0.7rem;
+    line-height: 1.4;
+    white-space: nowrap;
+    color: #1f2937;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.dark .rail-label {
+    color: #f3f4f6;
+    background: rgba(20, 20, 24, 0.9);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+}
+
+.rail-tick:hover .rail-label,
+.rail-tick:focus-visible .rail-label {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+}
+
+@media (max-width: 640px) {
+    .section-rail {
+        right: 8px;
+        gap: 10px;
+    }
+    /* keep the ticks thin lines — the global mobile touch-target rule
+       (min 44×44 + padding) would otherwise square them off */
+    .rail-tick {
+        width: 14px;
+        height: 2px;
+        min-width: 0;
+        min-height: 0;
+        padding: 0;
+    }
+    .rail-tick:hover,
+    .rail-tick:focus-visible { width: 18px; }
+    .rail-tick[aria-current="true"] { width: 22px; }
+    /* reveal the label on tap (no hover on touch) */
+    .rail-tick:active .rail-label { opacity: 1; transform: translateY(-50%) translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rail-tick { transition: background-color 0.25s ease; }
+    .rail-label { transition: opacity 0.2s ease; transform: translateY(-50%); }
+    .rail-tick:hover .rail-label,
+    .rail-tick:focus-visible .rail-label { transform: translateY(-50%); }
 }
 
 /* GitHub Contributions Graph — skipped for layout/paint until it nears the

@@ -52,10 +52,10 @@
     }
     </script>
 
-    <!-- Google Fonts - Display heading font -->
+    <!-- Google Fonts - Instrument Serif (display) + Plus Jakarta Sans (body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Favicons -->
     <link rel="icon" type="image/webp" href="assets/images/pfp.webp">
@@ -69,13 +69,33 @@
     <script src="src/config/config.js"></script>
     <script src="src/scripts/content.js"></script>
 
-    <!-- Prevent theme flash -->
+    <!-- Prevent theme flash + wire the toggle before main.js loads, so it
+         responds from first paint. main.js later adds the ripple visual. -->
     <script>
         (function() {
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'dark') {
                 document.documentElement.classList.add('dark');
             }
+
+            // Attach the core toggle as soon as the button exists — don't wait
+            // for DOMContentLoaded / Lenis. main.js sets window.__themeRipple
+            // once loaded to add the ripple animation.
+            function wireToggle() {
+                const btn = document.getElementById('theme-toggle');
+                if (!btn) { requestAnimationFrame(wireToggle); return; }
+                btn.addEventListener('click', function() {
+                    const html = document.documentElement;
+                    const toDark = !html.classList.contains('dark');
+                    html.classList.toggle('dark', toDark);
+                    localStorage.setItem('theme', toDark ? 'dark' : 'light');
+                    if (window.__themeRipple) {
+                        const rect = btn.getBoundingClientRect();
+                        window.__themeRipple(rect.left + rect.width / 2, rect.top + rect.height / 2, toDark ? 'dark' : 'light');
+                    }
+                });
+            }
+            wireToggle();
         })();
     </script>
 
@@ -111,72 +131,7 @@
 </head>
 
 <body
-    class="bg-gray-50 dark:bg-black text-gray-900 dark:text-white font-mono text-sm leading-relaxed transition-all duration-300">
-    <!-- Header -->
-    <header
-        class="fixed top-0 left-0 right-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800 z-50 transition-all duration-300">
-        <div class="max-w-4xl mx-auto px-4 py-4">
-            <div class="grid grid-cols-12 gap-4 items-center">
-                <!-- Logo / Hamburger Menu -->
-                <div class="col-span-2">
-                    <!-- Logo - Desktop Only -->
-                    <a href="#" class="hidden md:block font-semibold text-base text-accent" data-content="personal.name">rohit</a>
-                    <!-- Hamburger Menu - Mobile Only -->
-                    <button id="mobile-menu-toggle"
-                        class="md:hidden p-3 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-                        aria-label="Toggle mobile menu">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" />
-                        </svg>
-                    </button>
-                </div>
-
-                <!-- Navigation - Desktop Only -->
-                <nav class="hidden md:block col-span-8">
-                    <div class="flex justify-between items-center" data-content="navigation">
-                        <a href="#about" class="font-medium hover:text-accent transition-colors">about</a>
-                        <a href="#experience" class="font-medium hover:text-accent transition-colors">experience</a>
-                        <a href="#projects" class="font-medium hover:text-accent transition-colors">projects</a>
-                        <a href="#achievements" class="font-medium hover:text-accent transition-colors">achievements</a>
-                    </div>
-                </nav>
-
-                <!-- Mobile Navigation Spacer -->
-                <div class="md:hidden col-span-8"></div>
-
-                <!-- Theme Toggle -->
-                <div class="col-span-2 justify-self-end">
-                    <button id="theme-toggle"
-                        class="p-3 rounded-lg bg-gray-100 dark:bg-gray-900 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors min-h-[44px] min-w-[44px]"
-                        aria-label="Toggle dark mode">
-                        <span id="theme-toggle-light" class="block dark:hidden">
-                            <svg class="w-5 h-5 text-gray-900" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                            </svg>
-                        </span>
-                        <span id="theme-toggle-dark" class="hidden dark:block">
-                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75zM7.5 12a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0zM18.894 6.166a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 1 0 1.06 1.061l1.591-1.59zM21.75 12a.75.75 0 0 1-.75.75h-2.25a.75.75 0 0 1 0-1.5H21a.75.75 0 0 1 .75.75zM17.834 18.894a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 1 0-1.061 1.06l1.59 1.591zM12 18a.75.75 0 0 1 .75.75V21a.75.75 0 0 1-1.5 0v-2.25A.75.75 0 0 1 12 18zM7.758 17.303a.75.75 0 0 0-1.061-1.06l-1.591 1.59a.75.75 0 0 0 1.06 1.061l1.591-1.59zM6 12a.75.75 0 0 1-.75.75H3a.75.75 0 0 1 0-1.5h2.25A.75.75 0 0 1 6 12zM6.697 7.757a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 0 0-1.061 1.06l1.59 1.591z" />
-                            </svg>
-                        </span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Mobile Navigation Menu - Full Width -->
-            <div id="mobile-nav" class="hidden md:hidden mt-4 py-4 border-t border-gray-200 dark:border-gray-800">
-                <div class="grid grid-cols-1 gap-2 text-center" data-content="navigation-mobile">
-                    <a href="#about" class="py-3 font-medium hover:text-accent transition-colors min-h-[44px] flex items-center justify-center touch-action-manipulation">about</a>
-                    <a href="#experience" class="py-3 font-medium hover:text-accent transition-colors min-h-[44px] flex items-center justify-center touch-action-manipulation">experience</a>
-                    <a href="#projects" class="py-3 font-medium hover:text-accent transition-colors min-h-[44px] flex items-center justify-center touch-action-manipulation">projects</a>
-                    <a href="#achievements" class="py-3 font-medium hover:text-accent transition-colors min-h-[44px] flex items-center justify-center touch-action-manipulation">achievements</a>
-                </div>
-            </div>
-        </div>
-    </header>
-
+    class="bg-gray-50 dark:bg-black text-gray-900 dark:text-white text-sm leading-relaxed transition-all duration-300">
     <!-- Content Wrapper for boundaries -->
     <div class="content-wrapper"></div>
 
@@ -188,7 +143,7 @@
     <div id="paper-sheet" class="paper-sheet" aria-hidden="true"></div>
 
     <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 pt-20">
+    <main class="max-w-4xl mx-auto px-4 pt-8">
         <div class="grid grid-cols-12 gap-4">
             <!-- Hero Section -->
             <section id="hero" class="col-span-12 pt-8">
@@ -434,16 +389,47 @@
         <canvas id="pixel-river-canvas"></canvas>
     </div>
 
-    <!-- Floating Social Tab -->
+    <!-- Section indicator — vertical tick rail on the right edge; ticks track
+         the section in view and jump to it on click (wired in main.js). -->
+    <nav class="section-rail" aria-label="page sections">
+        <button class="rail-tick" data-target="hero" aria-current="true" aria-label="home"><span class="rail-label">home</span></button>
+        <button class="rail-tick" data-target="about" aria-label="about"><span class="rail-label">about</span></button>
+        <button class="rail-tick" data-target="experience" aria-label="experience"><span class="rail-label">experience</span></button>
+        <button class="rail-tick" data-target="projects" aria-label="projects"><span class="rail-label">projects</span></button>
+        <button class="rail-tick" data-target="github" aria-label="github"><span class="rail-label">github</span></button>
+        <button class="rail-tick" data-target="achievements" aria-label="achievements"><span class="rail-label">achievements</span></button>
+    </nav>
+
+    <!-- Floating Social Tab (also holds the theme toggle) -->
     <div
-        class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-black/90 dark:bg-white/90 backdrop-blur-sm border border-white/10 dark:border-black/10 rounded-full px-5 py-3 flex gap-4 z-[100] shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl md:bottom-5 md:px-5 md:py-3 md:gap-4">
+        class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-black/90 dark:bg-gray-900/90 backdrop-blur-sm border border-white/10 dark:border-white/10 rounded-full px-5 py-3 flex items-center gap-4 z-[100] shadow-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl md:bottom-5 md:px-5 md:py-3 md:gap-4">
         <div data-content="social">
             <!-- Social links will be populated dynamically -->
         </div>
+        <!-- Divider between the social links and the theme control -->
+        <span class="w-px h-5 bg-white/20 dark:bg-black/20"></span>
+        <!-- Theme toggle — id + sun/moon spans preserved (wired by the inline
+             script in <head>); styled to match the social icons. -->
+        <button id="theme-toggle"
+            class="w-10 h-10 rounded-full flex items-center justify-center bg-transparent text-gray-300 dark:text-gray-300 transition-all duration-300 hover:bg-accent hover:text-white hover:scale-110"
+            aria-label="Toggle dark mode">
+            <span id="theme-toggle-light" class="block dark:hidden">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
+            </span>
+            <span id="theme-toggle-dark" class="hidden dark:block">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                        d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75zM7.5 12a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0zM18.894 6.166a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 1 0 1.06 1.061l1.591-1.59zM21.75 12a.75.75 0 0 1-.75.75h-2.25a.75.75 0 0 1 0-1.5H21a.75.75 0 0 1 .75.75zM17.834 18.894a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 1 0-1.061 1.06l1.59 1.591zM12 18a.75.75 0 0 1 .75.75V21a.75.75 0 0 1-1.5 0v-2.25A.75.75 0 0 1 12 18zM7.758 17.303a.75.75 0 0 0-1.061-1.06l-1.591 1.59a.75.75 0 0 0 1.06 1.061l1.591-1.59zM6 12a.75.75 0 0 1-.75.75H3a.75.75 0 0 1 0-1.5h2.25A.75.75 0 0 1 6 12zM6.697 7.757a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 0 0-1.061 1.06l1.59 1.591z" />
+                </svg>
+            </span>
+        </button>
     </div>
 
     <script src="src/scripts/main.js"></script>
     <script src="src/scripts/pixel-character.js"></script>
+    <script src="src/scripts/volleyball-story.js"></script>
     <script src="src/scripts/sakura-sky.js"></script>
 </body>
 

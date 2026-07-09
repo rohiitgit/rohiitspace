@@ -1,5 +1,98 @@
 # Changelog
 
+## [2026-07-09] — volleyball finale reworked to fully scroll-driven
+
+- Replaced the time-based scroll-lock finale with a pure scroll-driven one: the
+  ball's zoom toward the viewer is now a function of scrollY, pinned to viewport
+  center and growing to fill the screen. The whole story (serve → travel →
+  spike → screen-fill) is now reverse-scrollable like the cliff story — scroll
+  up and every phase, including the ball zoom, rewinds. The background "slows"
+  (doesn't stop) by spreading the finale over ~2.2 viewport-heights of scroll,
+  so the content crawls/parallaxes behind the approaching ball without
+  hijacking the scroll engine. Players fade + drift for depth as the ball takes
+  over. Removed the Lenis stop()/start() lock and the wheel/touch blocking.
+  Verified: ball scales with scroll and reverses; reduced-motion scrolls freely;
+  no console errors.
+
+## [2026-07-09] — volleyball scroll-story (about → experience)
+
+- New self-contained scroll animation in `public/src/scripts/volleyball-story.js`
+  (own overlay canvas `.pixel-overlay-vb` at z-31, independent of the cliff
+  story). Two original generic pixel athletes — a server (#9, back to viewer)
+  on the about→experience line and a spiker (#10, facing viewer) on the
+  experience→projects line — act out a rally driven by scroll: a ball arcs in
+  from the left into the server's hands, he serves, it travels down the
+  experience timeline rail, the spiker leaps high and spikes it at the camera,
+  then the finale locks scroll (Lenis `.stop()` + wheel/touch/key block) while
+  the ball zooms up to fill the screen with a parallax drift, then releases and
+  the page resumes from where it locked. Narrative motion is scroll-driven
+  (reversible); the screen-fill is a one-shot timed lock (guarded so scrolling
+  back up/down never re-traps). Reduced-motion → static tableau, no lock.
+  - Supporting edits: `main.js` exposes `window.lenisInstance` (1 line);
+    `main.css` adds `.pixel-overlay-vb`; `index.html` adds the script tag.
+    Experience bar-fill (`.timeline-item-progress`) left untouched (removed in
+    a later step).
+  - Verified: all phases render light+dark; real wheel is blocked during the
+    lock and scroll resumes after ~900ms; reduced-motion scrolls freely; cliff
+    story + river still animate; no console errors.
+  - Style pass: both players wear the same dark navy team kit (white numbers 9
+    / 10); the ball is a paneled volleyball (white/red/green vertical panels,
+    dark outline) — small pixel sprite for the rally, geometry-drawn panels for
+    the finale zoom. Original art matching a generic paneled-volleyball look.
+
+## [2026-07-09] — fall/splash now timed to the shoreline appearing
+
+- The scroll-story's dive+splash was anchored to fixed offsets from the page
+  bottom (`D-380`/`D-260`), so the fast fall happened during the achievements
+  section and the pair plunged into water that was still off-screen. Re-anchored
+  `E0`/`E1` in `renderStory()` to `riverTopDoc - vh` (the shoreline entering the
+  viewport): the fall accelerates as the grass/water scrolls into view, the
+  splash lands on visible water, and a full 130px swim-to-shore plays out
+  on-screen before the ending. Clamped so `CATCH0 < catchEnd < E0 < E1 < D`
+  holds on tall + short viewports. Verified via screenshots at every finale
+  beat, no console errors. (`pixel-character.js`)
+
+## [2026-07-09] — smoother cold load (font-swap reflow fix)
+
+- The display font (Instrument Serif) loads after DOMContentLoaded and shrinks
+  the hero by ~12px desktop / ~63px mobile. Previously the sky, paper sheet,
+  and boundary columns repositioned ~150ms later via the debounced hero
+  ResizeObserver — a visible late jump. Now both sky and story scripts also
+  recompute on `document.fonts.ready`, so they settle in lockstep with the
+  font. Verified: paper-sheet top aligns to hero bottom (gap ≈ 0) across 5
+  cold loads each on desktop + mobile, no console errors.
+  (`sakura-sky.js`, `pixel-character.js`)
+- Audit result (no code change needed): no race conditions, no wrong-theme
+  flash (inline head script sets theme pre-paint), no use-before-init, no
+  div-by-zero; all pixel layers self-heal via ResizeObservers; achievements
+  image already reserves space via width/height attrs.
+
+## [2026-07-09] — theme toggle moved into the bottom social dock
+
+- Relocated the theme toggle from its top-right float into the floating social
+  pill at bottom-center, after a subtle divider, styled to match the social
+  icons (transparent at rest, accent on hover). Top-right of the hero is now
+  fully clear. id + sun/moon spans preserved so the head-level wiring still
+  works from first paint. Removed the now-unused `.theme-toggle-float` CSS.
+
+## [2026-07-09] — navbar → right-edge section indicator
+
+- Removed the fixed top navbar (logo, desktop nav, mobile hamburger + menu)
+  so the hero sky flows edge to edge. Replaced it with a vertical tick rail on
+  the right edge: one short horizontal tick per visible section (home, about,
+  experience, projects, github, achievements), the active tick widening to
+  accent color, section name revealed on hover, click/Enter jumps via Lenis.
+  Theme toggle moved to its own fixed top-right button (id preserved).
+  - `index.html`: header removed, `.theme-toggle-float` + `.section-rail`
+    added, `main` `pt-20`→`pt-8`.
+  - `main.js`: removed `highlightActiveSection`/`requestHighlightTick` (the
+    former threw on `header.offsetHeight` once the header was gone) and
+    `initMobileMenu`; added `initSectionIndicator()` (IntersectionObserver,
+    `-45%` active band, winner by ratio, hero fallback).
+  - `main.css`: rail/tick/label/toggle styles (light+dark, mobile scale-down,
+    reduced-motion, focus-visible); removed dead nav CSS; hero `7rem`→`2rem`;
+    `scroll-margin-top` `100px`→`24px`.
+
 ## [2026-07-09] — cave with bonfire on the shoreline
 
 - Stone cave on the left of the land at the page bottom: jittered rock dome
