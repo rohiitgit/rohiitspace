@@ -17,7 +17,9 @@ body {
 
 /* Display Typography - Heading Overhaul */
 h1, h2, h3 {
-    font-family: var(--font-display, 'Instrument Serif', Georgia, serif);
+    font-family: var(--font-display, 'Playfair Display', Georgia, serif);
+    /* override the Tailwind font-bold/semibold utilities on the headings */
+    font-weight: 500 !important;
     letter-spacing: -0.01em;
 }
 
@@ -171,9 +173,18 @@ h2[data-content] {
     }
 }
 
-/* h4+ stays monospace (small UI labels, cert titles) */
+/* h4+ stays monospace (small UI labels) */
 h4, h5, h6 {
     font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace);
+}
+
+/* Certification titles and side-project (nodemaid) titles use the display
+   font + weight 500 like the other headings, not the h4 mono default
+   (font-weight override beats the Tailwind font-bold/semibold utilities) */
+[data-content="achievements"] h4,
+[data-content="sideProjects.items"] h4 {
+    font-family: var(--font-display, 'Playfair Display', Georgia, serif);
+    font-weight: 500 !important;
 }
 
 /* Always show logo/name content immediately */

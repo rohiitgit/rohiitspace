@@ -52,10 +52,10 @@
     }
     </script>
 
-    <!-- Google Fonts - Instrument Serif (display) + Plus Jakarta Sans (body) -->
+    <!-- Google Fonts - Playfair Display (headings) + Plus Jakarta Sans (body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Favicons -->
     <link rel="icon" type="image/webp" href="assets/images/pfp.webp">
@@ -159,7 +159,9 @@
                                 class="w-full h-full object-cover"
                                 width="80"
                                 height="80"
-                                loading="lazy"
+                                loading="eager"
+                                fetchpriority="high"
+                                decoding="async"
                                 data-content="personal.profileImage">
                         </div>
                     </div>

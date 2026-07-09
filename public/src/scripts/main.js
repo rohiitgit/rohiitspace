@@ -1077,7 +1077,7 @@ function createTrackListItem(track) {
 
     listItem.innerHTML = `
         <div class="w-12 h-12 bg-gray-200 dark:bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
-            ${imageUrl && isSafeUrl(imageUrl) ? `<img src="${imageUrl}" alt="${albumName}" class="w-full h-full object-cover">` :
+            ${imageUrl && isSafeUrl(imageUrl) ? `<img src="${imageUrl}" alt="${albumName}" class="w-full h-full object-cover" loading="lazy" decoding="async">` :
             `<div class="w-full h-full flex items-center justify-center">
                 <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
@@ -1111,7 +1111,7 @@ function createTrackCard(track) {
 
     card.innerHTML = `
         <div class="aspect-square bg-gray-200 dark:bg-gray-800 rounded-lg mb-3 overflow-hidden">
-            ${imageUrl && isSafeUrl(imageUrl) ? `<img src="${imageUrl}" alt="${albumName}" class="w-full h-full object-cover">` :
+            ${imageUrl && isSafeUrl(imageUrl) ? `<img src="${imageUrl}" alt="${albumName}" class="w-full h-full object-cover" loading="lazy" decoding="async">` :
             `<div class="w-full h-full flex items-center justify-center">
                 <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>

@@ -275,12 +275,21 @@
     }
 
     function railXNow() {
-        // per-frame: the experience timeline's left rail, in viewport-X
-        const tl = document.querySelector('.timeline-container') ||
-                   document.querySelector('.timeline-item') ||
+        // per-frame: viewport-X of the fill line's CENTER, so the ball (drawn
+        // centered on this x) sits with the line through its middle. Measure
+        // the actual `.timeline-item-progress` bar rather than assuming its
+        // offset — in layout it renders at the item's left edge, 2px wide, so
+        // its centre is item.left + 1.
+        const bar = document.querySelector('.timeline-item-progress');
+        if (bar) {
+            const r = bar.getBoundingClientRect();
+            return r.left + r.width / 2;
+        }
+        const tl = document.querySelector('.timeline-item') ||
+                   document.querySelector('.timeline-container') ||
                    document.getElementById('experience');
         if (!tl) return window.innerWidth * 0.2;
-        return tl.getBoundingClientRect().left - 2 * S;
+        return tl.getBoundingClientRect().left + 1;
     }
 
     // The finale occupies a long scroll range (see FIN below) so the ball's
@@ -400,11 +409,13 @@
             const up = smooth(clamp01(z / 0.25));         // reaches the top quickly
             const cx = lerp(spikeX, vw / 2 + (0.5 - e) * 40 * S, up); // slight swing
             const cy = lerp(spikeY, vh * 0.14, up);       // spiked toward the TOP
-            // fade-out over the last 25%: the ball keeps zooming into its white
-            // center while its opacity drops to 0, so it dissolves naturally
-            // (camera passing through it) instead of snapping off.
-            const fade = smooth(clamp01((z - 0.75) / 0.25));
-            const radius = lerp(4 * S, Math.max(vw, vh) * 0.85, e) * (1 + fade * 1.6);
+            // fade-out begins when the ball's diameter covers about HALF the
+            // screen height (radius ≈ vh/4), then runs to the end: it keeps
+            // zooming into its white center while opacity drops to 0, so it
+            // dissolves naturally (camera passing through it), not a snap.
+            const baseR = lerp(4 * S, Math.max(vw, vh) * 0.85, e);
+            const fade = smooth(clamp01((baseR - vh * 0.25) / (vh * 0.35)));
+            const radius = baseR * (1 + fade * 1.6);
             // players stay near their spots but drift away for depth (parallax),
             // clamped so they don't chase the scroll off-screen
             const spikerNowTop = Math.max(-vh * 0.3, spikerTop - vh * 0.14);

@@ -8,7 +8,7 @@
   --color-accent-secondary: #a0522d;
   --color-accent-warm: #d4943c;
   --font-mono: ui-monospace, SFMono-Regular, monospace;
-  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-display: 'Playfair Display', Georgia, serif;
 }
 
 /* Ripple animation for theme toggle */
