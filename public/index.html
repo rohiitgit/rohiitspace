@@ -351,11 +351,14 @@
             </div>
         </section>
 
+        <!-- Recently played (Spotify) is disabled for now: remove the two
+             `hidden` attributes below and restore the initSpotify() call in
+             main.js to re-enable. -->
         <!-- Section Separator -->
-        <div class="section-separator"></div>
+        <div class="section-separator" hidden></div>
 
         <!-- Recently Played Music Section -->
-        <section id="music" class="transition-all duration-300">
+        <section id="music" class="transition-all duration-300" hidden>
             <div class="grid grid-cols-12 gap-6">
                 <!-- Section Title - 12 columns -->
                 <div class="col-span-12">

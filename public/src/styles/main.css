@@ -62,10 +62,14 @@ h2[data-content] {
 }
 
 /* The bottom margin keeps the card's last lines clear of the fold and the
-   floating social dock, with open pink sky visible beneath it */
+   floating social dock, with open pink sky visible beneath it. z-index keeps
+   the card above the cliff canvas (z-5) — without it the card only wins once
+   the scroll parallax transform demotes the canvas into a stacking context. */
 #hero > .grid > div:last-child {
     align-self: end;
     margin-bottom: 10rem;
+    position: relative;
+    z-index: 6;
 }
 
 /* Hero Name Animated Underline */
@@ -187,10 +191,12 @@ nav {
 }
 
 /* Pixel shoreline at the page's end: land on the left three quarters, open
-   water on the right — the falling pair splashes down and swims ashore. */
+   water on the right — the falling pair splashes down and swims ashore. The
+   extra height above the waterline gives the cave room to stand on the
+   ground. */
 #pixel-river {
     position: relative;
-    height: 150px;
+    height: 260px;
 }
 
 #pixel-river canvas {
@@ -273,8 +279,8 @@ nav {
     right: 0;
     z-index: 10;
     pointer-events: none;
-    -webkit-mask-image: linear-gradient(to bottom, transparent, black 160px);
-    mask-image: linear-gradient(to bottom, transparent, black 160px);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 160px, black calc(100% - 48px), transparent);
+    mask-image: linear-gradient(to bottom, transparent, black 160px, black calc(100% - 48px), transparent);
 }
 
 .content-wrapper::before,
@@ -653,21 +659,18 @@ section[id] {
     scroll-margin-top: 100px;
 }
 
-/* GitHub Contributions Graph */
+/* GitHub Contributions Graph — skipped for layout/paint until it nears the
+   viewport; the graph itself is a single canvas (see renderGitHubHeatmap) */
+#github {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 320px;
+}
+
 .github-graph-scroll {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
 
-.github-graph-scroll svg {
+.github-graph-scroll canvas {
     display: block;
-}
-
-.github-cell {
-    cursor: default;
-    transition: opacity 0.15s ease;
-}
-
-.github-cell:hover {
-    opacity: 0.75;
 }

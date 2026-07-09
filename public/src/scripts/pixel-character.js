@@ -67,6 +67,11 @@
         dark:  { deep: '#081426', mid: '#0a1a30', up: '#10254a', surf: '#1c3a6e', foam: '#9db8e8', glint: '#4a6aa8' },
     };
 
+    const FIRE = {
+        core: '#ffe38a', mid: '#ff9a3d', outer: '#e0521f',
+        log: '#5a3413', logD: '#3d2209', dark: '#150c06', smoke: '#8a8a8a',
+    };
+
     // ─── Pixel helpers ────────────────────────────────────────────────────────
     function r(k, bx, by, bw, bh) { return [k, bx, by, bw, bh]; }
     function rnd(a, b) { return a + Math.random() * (b - a); }
@@ -380,7 +385,8 @@
     let flowT = 0;
     let riverTopDoc = 0;     // document y of the river canvas top
     let riverH = 0;          // canvas css height
-    const RIVER_SURF = 8;    // art row of the waterline / grass line
+    const RIVER_SURF = 36;   // art row of the waterline / grass line — the
+                             // air rows above it hold the cave
 
     function buildRiver() {
         if (!riverDiv || !riverCanvas) return;
@@ -438,6 +444,127 @@
             if (det(i) > 0.55) px(g, K.grass, tx, RIVER_SURF - 1, 1, 1);
             px(g, K.rockD, tx, RIVER_SURF + 8 + Math.floor(det(i + 11) * Math.max(1, h - RIVER_SURF - 12)), 3, 2);
         }
+
+        drawCave(g, K);
+    }
+
+    // ─── Stone cave on the left of the land, bonfire burning inside ─────────
+    const CAVE = { x: 6, w: 48, h: 30 };   // art px; sits on the grass line
+    const CAVE_ROCK = { base: '#3a3a40', dk: '#26262c', lt: '#55555e', edge: '#191920' };
+
+    function drawCave(g, K) {
+        const G = RIVER_SURF;              // ground row
+        const R = CAVE_ROCK;
+        const halfW = CAVE.w / 2;
+        const cx = CAVE.x + halfW;         // arch center column
+        const CAP = 13;                    // rounded-cap rows of the ∩ arch
+
+        // ∩ silhouette: straight sides, circular cap — row half-widths
+        const halves = [];
+        for (let i = 0; i < CAVE.h; i++) {
+            const half = i < CAP
+                ? Math.max(3, Math.round(halfW * Math.sqrt(1 - ((CAP - i) / CAP) ** 2)))
+                : halfW;
+            halves.push(half);
+            px(g, R.base, Math.round(cx - half), G - CAVE.h + i, half * 2, 1);
+        }
+
+        // stacked-stone masonry: dark seams every course, running-bond joints,
+        // and a highlight on each stone's top edge
+        for (let i = 0; i < CAVE.h; i++) {
+            const y = G - CAVE.h + i;
+            const half = halves[i];
+            const course = Math.floor(i / 3);
+            if (i % 3 === 2) {
+                px(g, R.dk, Math.round(cx - half) + 1, y, half * 2 - 2, 1);
+            } else if (i % 3 === 0) {
+                const stoneW = 6 + (course % 2);
+                const off = (course % 2) * 3 + Math.floor(det(course) * 2);
+                for (let x = cx - half + off; x < cx + half - 1; x += stoneW) {
+                    px(g, R.dk, Math.round(x), y, 1, 2);
+                    px(g, R.lt, Math.round(x) + 2, y, 2, 1);
+                }
+            }
+        }
+
+        // outline + a couple of tumbled boulders at the base for a natural foot
+        for (let i = 0; i < CAVE.h; i++) {
+            const y = G - CAVE.h + i;
+            px(g, R.edge, Math.round(cx - halves[i]), y, 1, 1);
+            px(g, R.edge, Math.round(cx + halves[i]) - 1, y, 1, 1);
+        }
+        px(g, R.base, CAVE.x - 4, G - 3, 5, 3);
+        px(g, R.lt, CAVE.x - 3, G - 3, 2, 1);
+        px(g, R.edge, CAVE.x - 4, G - 1, 1, 1);
+        px(g, R.base, CAVE.x + CAVE.w - 1, G - 2, 4, 2);
+        px(g, R.lt, CAVE.x + CAVE.w, G - 2, 2, 1);
+        // moss tufts on the crown
+        px(g, K.grassD, Math.round(cx) - 3, G - CAVE.h - 1, 4, 1);
+        px(g, K.grass, Math.round(cx) + 4, G - CAVE.h, 2, 1);
+
+        // entrance: dark ∩ arch opening down to the ground
+        const EH = 20, ER = 8;             // entrance height / cap rows
+        for (let i = 0; i < EH; i++) {
+            const y = G - EH + i;
+            const ehalf = i < ER
+                ? Math.max(2, Math.round(8 * Math.sqrt(1 - ((ER - i) / ER) ** 2)))
+                : 8;
+            px(g, FIRE.dark, Math.round(cx - ehalf), y, ehalf * 2, 1);
+            px(g, R.edge, Math.round(cx - ehalf) - 1, y, 1, 1);
+            px(g, R.edge, Math.round(cx + ehalf), y, 1, 1);
+        }
+
+        // bonfire on the cave floor
+        const fx = Math.round(cx);
+        const fy = G - 1;
+        const flick = Math.floor(flowT * 9) % 3;
+
+        // warm glow spilling out (stronger in the dark theme)
+        const pulse = 0.05 * Math.sin(flowT * 11);
+        g.globalAlpha = (darkNow ? 0.22 : 0.11) + pulse;
+        g.fillStyle = FIRE.mid;
+        g.fillRect(fx - 8, fy - 10, 16, 11);
+        g.globalAlpha = (darkNow ? 0.14 : 0.07) + pulse;
+        g.fillRect(fx - 12, fy - 14, 24, 15);
+        g.globalAlpha = 1;
+
+        // logs + stone ring
+        px(g, FIRE.logD, fx - 4, fy, 8, 1);
+        px(g, FIRE.log, fx - 3, fy - 1, 6, 1);
+        px(g, K.rockD, fx - 6, fy, 2, 1);
+        px(g, K.rockD, fx + 4, fy, 2, 1);
+
+        // flames: three flicker frames
+        px(g, FIRE.outer, fx - 3, fy - 4, 6, 3);
+        px(g, FIRE.mid, fx - 2, fy - 5, 4, 3);
+        px(g, FIRE.core, fx - 1, fy - 4, 2, 2);
+        if (flick === 0) {
+            px(g, FIRE.mid, fx - 1, fy - 7, 2, 2);
+            px(g, FIRE.outer, fx + 2, fy - 5, 1, 1);
+        } else if (flick === 1) {
+            px(g, FIRE.mid, fx, fy - 7, 2, 2);
+            px(g, FIRE.core, fx - 1, fy - 5, 1, 1);
+            px(g, FIRE.outer, fx - 3, fy - 5, 1, 1);
+        } else {
+            px(g, FIRE.mid, fx - 2, fy - 6, 2, 1);
+            px(g, FIRE.core, fx, fy - 6, 1, 2);
+        }
+
+        // embers rising inside the entrance
+        for (let k = 0; k < 2; k++) {
+            const rise = (flowT * (7 + k * 3) + k * 5) % 12;
+            g.globalAlpha = 1 - rise / 12;
+            g.fillStyle = k ? FIRE.core : FIRE.mid;
+            g.fillRect(fx - 1 + Math.round(Math.sin(flowT * 3 + k * 2) * 2), Math.round(fy - 6 - rise), 1, 1);
+        }
+        // smoke drifting from the cave mouth
+        for (let k = 0; k < 3; k++) {
+            const rise = (flowT * 4 + k * 6) % 18;
+            g.globalAlpha = 0.35 * (1 - rise / 18);
+            g.fillStyle = FIRE.smoke;
+            g.fillRect(fx + 6 + Math.round(rise * 0.4), Math.round(G - EH - 2 - rise), 2, 1);
+        }
+        g.globalAlpha = 1;
     }
 
     // ─── Splash & ripples (overlay space) ─────────────────────────────────────

@@ -65,7 +65,14 @@ Cliff + heroine + falling catch + river. Everything scroll-driven (pure
 function of scrollY → reversible), time only for cosmetics (walk cycles,
 water flow, splash).
 
-- [ ] Rewrite pixel-character.js as the story engine:
+All items below completed (including user-directed revisions: cliff to the
+left screen edge, standing-watch male, short-haired heroine, no-flip fall
+orientation, frame-continuity fixes at every phase seam, and the river
+redesigned from a curved channel to a natural shoreline — land on the left
+3/4 of the page bottom, open water on the right, pair swims ashore and
+stands). Verified via screenshot sweeps at every story phase, light + dark.
+
+- [x] Rewrite pixel-character.js as the story engine:
       cliff canvas (#pixel-hero-canvas) draws a floating rock island; both
       characters render on a new fixed full-viewport overlay canvas (z-30,
       pointer-events none) positioned off the cliff's live bounding rect.
@@ -82,6 +89,24 @@ water flow, splash).
 - [ ] Reduced motion: static scene (both standing on cliff), still river.
 - [ ] Verify: node --check; screenshots at ~8 scroll positions, light+dark,
       mobile width; check hands-touch and splash frames.
+
+## Round 6 — production smoothness (2026-07-09)
+
+- [x] `#github` content-visibility + intrinsic size (main.css).
+- [x] Contributions graph SVG → single canvas, DPR-scaled, tooltip kept.
+- [x] Achievements image `width/height` — doc height now stable across a
+      full scroll (2px vs 255px drift).
+- [x] Music section hidden (`hidden` attrs + initSpotify() commented out);
+      Spotify backend/UI code dormant for a future Last.fm swap (deferred).
+- [x] Verified: no spotify requests, no console errors, canvas graph parity
+      in light theme (dark path unchanged, re-renders via theme observer).
+
+## Round 7 — shoreline cave (2026-07-09)
+
+- [x] Boundary columns end above the shoreline scene with a 48px fade.
+- [x] Stone cave + animated bonfire (flicker frames, embers, glow, smoke) on
+      the left of the land; band 260px, RIVER_SURF 36. Verified light + dark,
+      no console errors, couple/story geometry unaffected.
 
 ## Review
 

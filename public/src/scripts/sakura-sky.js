@@ -264,8 +264,14 @@
             }
             if (boundary) {
                 const top = heroBottom - PAPER_FADE;
+                // the columns dissolve just above the shoreline scene (cave,
+                // ground and water live inside #pixel-river)
+                const river = document.getElementById('pixel-river');
+                const bottom = river
+                    ? river.getBoundingClientRect().top + window.scrollY + 8
+                    : docHeight;
                 boundary.style.top = top + 'px';
-                boundary.style.height = Math.max(0, docHeight - top) + 'px';
+                boundary.style.height = Math.max(0, bottom - top) + 'px';
             }
         };
 

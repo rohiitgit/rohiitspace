@@ -609,6 +609,7 @@ function populateAchievementsSection(achievements) {
                                     <img src="${achievement.image}"
                                          alt="${safeImageAlt}"
                                          class="w-full max-w-sm rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-300"
+                                         width="2048" height="1365"
                                          loading="lazy"
                                          onerror="this.parentElement.innerHTML='<p class=\\'text-sm text-gray-500 dark:text-gray-400 italic\\'>Image unavailable (LinkedIn hotlink protection)</p>';">
                                 </div>
@@ -1136,8 +1137,9 @@ document.addEventListener('DOMContentLoaded', function () {
         addEventListenerWithCleanup(contactForm, 'submit', contactFormSubmitHandler);
     }
 
-    // Spotify Integration
-    initSpotify();
+    // Spotify Integration — disabled while the "recently played" section is
+    // hidden (see #music in index.html); re-enable both together
+    // initSpotify();
 
     // GitHub Contributions
     loadGitHubContributions();
@@ -1485,26 +1487,49 @@ function renderGitHubHeatmap(calendar) {
         }
     });
 
-    // Build SVG
-    let cells = '';
+    // Paint one canvas instead of ~370 SVG rects — constant paint cost while
+    // scrolling. DPR-scaled so cells stay crisp on retina displays.
+    const dpr = window.devicePixelRatio || 1;
+    const canvas = document.createElement('canvas');
+    canvas.width = svgW * dpr;
+    canvas.height = svgH * dpr;
+    canvas.style.width = svgW + 'px';
+    canvas.style.height = svgH + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    ctx.font = '9px ui-monospace, monospace';
+    ctx.fillStyle = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)';
+    monthLabels.forEach(({ x, label }) => ctx.fillText(label, x, LABEL_HEIGHT - 5));
+
     weeks.forEach((week, wi) => {
         week.contributionDays.forEach((day, di) => {
             const x = wi * STEP;
             const y = LABEL_HEIGHT + di * STEP;
-            const fill = levels[getLevel(day.contributionCount)];
-            const title = `${day.date}: ${day.contributionCount} contribution${day.contributionCount !== 1 ? 's' : ''}`;
-            cells += `<rect class="github-cell" x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="2" fill="${fill}"><title>${escapeHtml(title)}</title></rect>`;
+            ctx.fillStyle = levels[getLevel(day.contributionCount)];
+            if (ctx.roundRect) {
+                ctx.beginPath();
+                ctx.roundRect(x, y, CELL, CELL, 2);
+                ctx.fill();
+            } else {
+                ctx.fillRect(x, y, CELL, CELL);
+            }
         });
     });
 
-    let labels = monthLabels.map(({ x, label }) =>
-        `<text x="${x}" y="${LABEL_HEIGHT - 5}" font-size="9" fill="currentColor" opacity="0.5" font-family="ui-monospace,monospace">${label}</text>`
-    ).join('');
-
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">${labels}${cells}</svg>`;
+    // per-day tooltip: map cursor to a cell and set the native title
+    canvas.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const wi = Math.floor((e.clientX - rect.left) / STEP);
+        const di = Math.floor((e.clientY - rect.top - LABEL_HEIGHT) / STEP);
+        const day = weeks[wi] && weeks[wi].contributionDays[di];
+        canvas.title = day
+            ? `${day.date}: ${day.contributionCount} contribution${day.contributionCount !== 1 ? 's' : ''}`
+            : '';
+    });
 
     const scrollEl = document.querySelector('#github-graph .github-graph-scroll');
-    scrollEl.innerHTML = svg;
+    scrollEl.replaceChildren(canvas);
 
     const totalEl = document.getElementById('github-total');
     if (totalEl) {
