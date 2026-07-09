@@ -653,6 +653,10 @@ section[id] {
     position: relative;
     width: 20px;
     height: 2px;
+    /* the global mobile touch-target rule (button { min 44×44 }, ≤768px)
+       otherwise squares these thin ticks off on tablet widths */
+    min-width: 0 !important;
+    min-height: 0 !important;
     padding: 0;
     border: 0;
     border-radius: 1px;
