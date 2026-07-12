@@ -36,11 +36,11 @@
       ]
     },
     {
-      "source": "/Rohit - Aug 2025.pdf",
+      "source": "/rohit.pdf",
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
+          "value": "public, max-age=3600, must-revalidate"
         }
       ]
     }
