@@ -64,14 +64,14 @@ const siteContent = {
                 company: "alvora",
                 companyUrl: "https://www.linkedin.com/company/alvora-group/",
                 duration: "oct 2025 - present",
-                description: "primary author of the backend (<strong>Express/TypeScript</strong>, <strong>PostgreSQL</strong>, no ORM): 15 domains covering booking lifecycle, scheduling, billing, and admin reporting; <strong>41 test suites</strong> with enforced CI coverage.<br> <br>migrated the platform off Supabase to self-hosted <strong>Better Auth</strong> (invite-only onboarding, role-based access, Google OAuth). built the <strong>React 19</strong> frontend with dual role-based portals, and an <strong>iCal sync bridge</strong> integrating a Timefold scheduling solver and billing microservice."
+                description: "led backend development (<strong>Express/TypeScript</strong>, <strong>PostgreSQL</strong>, no ORM) across 15 domains covering booking lifecycle, scheduling, billing, and admin reporting; shipped <strong>113 PRs (102 merged)</strong> across 8 platform repos.<br> <br>fixed the <strong>Timefold</strong> scheduling solver on real data: finds <strong>41 of 41 cleaners</strong> (was 12) and cuts weekly avoidable waiting from <strong>1,815 to 135 min</strong>. migrated auth off Supabase to self-hosted <strong>Better Auth</strong>, core contributor to the <strong>React 19</strong> frontend, stood up observability with <strong>6 dashboards and 13 alerts</strong>, and stabilized the billing service with a <strong>480-test suite</strong>."
             },
             {
                 title: "software engineer intern",
                 company: "alvora",
                 companyUrl: "https://www.linkedin.com/company/alvora-group/",
                 duration: "aug 2025 - sep 2025",
-                description: "built a tiered scraping pipeline processing <strong>~3,000 listings/day</strong>: direct JSON API first (~30 KB) with a <strong>Playwright</strong> browser fallback (~2 MB), reducing per-property bandwidth by <strong>98.5%</strong>.<br> <br>authored 107 of 113 commits across the ingestion service; implemented batch scheduling, IP rotation, health monitoring, and a <strong>FastAPI + PostgreSQL</strong> storage pipeline."
+                description: "built a daily scraping pipeline covering <strong>3,000+ listings</strong>: a nightly bootstrap captures each site's internal APIs so scrapers call them directly instead of loading pages, with check-in/check-out change detection and Telegram alerts.<br> <br>shipped <strong>40 merged PRs</strong> to the ingestion service; implemented batch scheduling, IP rotation, health monitoring, and a <strong>PostgreSQL</strong> storage pipeline, deployed with Docker on Hetzner."
             },
             {
                 title: "python developer intern",
