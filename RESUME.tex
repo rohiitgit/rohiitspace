@@ -1,129 +1,91 @@
-\documentclass[9.5pt,a4paper]{article}
-
-\usepackage[margin=0.5in, top=0.45in, bottom=0.45in]{geometry}
-\usepackage{enumitem}
-\usepackage[hidelinks]{hyperref}
-\usepackage{titlesec}
-\usepackage{xcolor}
+\documentclass[10pt,a4paper]{article}
 \usepackage[T1]{fontenc}
-\usepackage[activate=false]{microtype}
-
-\definecolor{accent}{RGB}{30, 30, 30}
-\definecolor{rule}{RGB}{180, 180, 180}
-
-\titleformat{\section}
-  {\normalsize\bfseries\color{accent}}
-  {}{0em}{}
-  [\vspace{0.5pt}\textcolor{rule}{\titlerule[0.4pt]}\vspace{1pt}]
-
-\titlespacing*{\section}{0pt}{6pt}{2pt}
-
-\setlist[itemize]{
-  leftmargin=1.1em,
-  itemsep=0.8pt,
-  topsep=1.5pt,
-  parsep=0pt,
-  label=\textbullet
-}
-
-\newcommand{\entry}[2]{%
-  \noindent\textbf{#1}\hfill{\small\textit{#2}}%
-}
-
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{tabularx}
+\usepackage[hidelinks]{hyperref}
 \pagestyle{empty}
+\setlength{\parindent}{0pt}
 \setlength{\parskip}{0pt}
 
+\titleformat{\section}{\normalsize\bfseries}{}{0pt}{}[\vspace{4pt}{\color{black!25}\titlerule}]
+\titlespacing*{\section}{0pt}{8pt}{6pt}
+
+\setlist[itemize]{leftmargin=10pt,labelsep=5pt,itemsep=0pt,parsep=0pt,topsep=0pt,partopsep=0pt}
+\newcommand{\entry}[2]{\textbf{#1}\hfill\textit{#2}\par}
+\newcommand{\sep}{\enspace{\color{black!40}|}\enspace}
+
 \begin{document}
-
-% Header
+\small
 \begin{center}
-  {\Large\textbf{Rohit}}\\[3pt]
-  \small
-  \href{mailto:rohitcodes03@gmail.com}{rohitcodes03@gmail.com}
-  \enspace\textcolor{rule}{|}\enspace
-  +91 90277 42255
-  \enspace\textcolor{rule}{|}\enspace
-  \href{https://rohiit.space}{rohiit.space}
-  \enspace\textcolor{rule}{|}\enspace
-  \href{https://github.com/rohiitgit}{github.com/rohiitgit}
-  \enspace\textcolor{rule}{|}\enspace
-  \href{https://linkedin.com/in/rohiitcodes}{linkedin.com/in/rohiitcodes}
+{\Large\bfseries Rohit}\par\vspace{2pt}
+\href{mailto:rohitcodes03@gmail.com}{rohitcodes03@gmail.com}\sep +91 90277 42255\sep \href{https://rohiit.space}{rohiit.space}\sep \href{https://github.com/rohiitgit}{github.com/rohiitgit}\sep \href{https://linkedin.com/in/rohiitcodes}{linkedin.com/in/rohiitcodes}
 \end{center}
-\vspace{1pt}
-\noindent\small Software Engineer specializing in backend systems, AI-powered products, and scalable infrastructure. Experienced building production software across distributed systems, automation, computer vision, and LLM applications with a focus on performance, reliability, and developer productivity.
-\vspace{2pt}
+\vspace{-4pt}
+Software Engineer specializing in backend systems, AI-powered products, and scalable infrastructure. Experienced building production software across distributed systems, automation, computer vision, and LLM applications with a focus on performance, reliability, and developer productivity.
 
-% Featured
 \section*{Featured AI Project}
-
 \entry{WebGIS Platform, ISRO Smart India Hackathon 2024}{National Finalist}
 \begin{itemize}
-    \item Built an AI-assisted WebGIS platform using Meta SAM~2 for satellite-image segmentation and geospatial analysis workflows.
-    \item Developed the computer vision backend, REST APIs, and browser-based GIS interface under Smart India Hackathon constraints.
-    \item National Finalist among 500+ teams, rapidly translating research ideas into production-ready features.
+\item Built an AI-assisted WebGIS platform using Meta SAM 2 for satellite-image segmentation and geospatial analysis workflows.
+\item Developed the computer vision backend, REST APIs, and browser-based GIS interface under Smart India Hackathon constraints.
+\item National Finalist among 500+ teams, rapidly translating research ideas into production-ready features.
 \end{itemize}
 
-% Experience
 \section*{Experience}
-
-\entry{Alvora — Software Engineer}{Oct 2025 – Present}
+\entry{Alvora --- Software Engineer}{Oct 2025 -- Present}
 \begin{itemize}
-  \item Led backend development (Express, TypeScript, PostgreSQL) across 15 business domains including bookings, scheduling, billing, and reporting; authored 41 automated test suites with CI enforcement.
-  \item Migrated the platform off Supabase: replaced Supabase Auth with self-hosted Better Auth (invite-only onboarding, role-based access, Google OAuth) and ported all DB access to a direct \texttt{pg} pool.
-  \item Primary author of the React~19 frontend: dual role-based portals (management/operations), 12 feature modules, i18n, and map-based scheduling views.
-  \item Built the iCal synchronisation bridge integrating a Timefold scheduling solver and a billing microservice.
+\item Shipped 113 PRs (102 merged) and 438 commits across 8 Alvora platform repos: backend, frontend, scheduling solver, vehicle tracking, billing, and observability.
+\item Led backend development (Express, TypeScript, PostgreSQL) across 15 business domains; replaced Supabase with self-hosted Better Auth (Google OAuth, invite flow, role-based access) and a direct pg pool; authored 41 test suites with CI enforcement.
+\item Built Airbnb listing scraping and photo sync, Cloudflare R2 storage, invoice PDFs, and Google Calendar/iCal sync bridging the Timefold solver and billing microservice; hardened the API with an SSRF guard, rate limiters, and central error handling.
+\item Core contributor to the React 19 frontend: built the contracts UI, property creation from a listing link, and solver-assigned bookings; led a review pass adding stale-response guards to every data hook, 4-language i18n, and a11y (420 tests passing).
+\item Fixed the Java Timefold solver on real data: finds 41 of 41 cleaners (was 12), fully plans an infeasible 3-van day (32 of 32 stops, was 16), and cuts weekly avoidable waiting from 1,815 to 135 min; added live-day replanning.
+\item Built live vehicle tracking (Traccar, Redis) with PR CI and end-to-end tests; stood up Loki/Grafana observability with 6 dashboards as code and 13 Telegram alerts; stabilized the FastAPI billing service and wrote its 480-test suite.
+\end{itemize}
+\entry{Alvora --- Software Engineer Intern}{Aug 2025 -- Sep 2025}
+\begin{itemize}
+\item Built a daily scraping pipeline covering 3,000+ listings: a nightly bootstrap captures each site's internal APIs so the scrapers call them directly instead of loading pages, with check-in/check-out change detection and Telegram alerts.
+\item Shipped 40 merged PRs (65 commits) to the ingestion service; implemented batch scheduling, IP rotation, health monitoring, and a PostgreSQL storage pipeline, deployed with Docker on Hetzner.
+\item Engineered the data collection infrastructure used to accumulate months of property data for downstream machine learning model training and evaluation.
+\end{itemize}
+\entry{Celebrare --- Python Developer Intern}{Nov 2024 -- Apr 2025}
+\begin{itemize}
+\item Evaluated and benchmarked multiple face-recognition architectures across production datasets, measuring latency, throughput, and accuracy.
+\item Optimized recognition quality through clustering-based experimentation and preprocessing techniques.
+\item Rewrote the production pipeline from Python to C++, achieving a 5--8$\times$ speedup and reducing average processing latency by 91\%.
 \end{itemize}
 
-\vspace{3pt}
-\entry{Alvora — Software Engineer Intern}{Aug 2025 – Sep 2025}
-\begin{itemize}
-  \item Built a tiered scraping pipeline processing \textasciitilde3,000 listings/day: direct JSON API first (\textasciitilde30\,KB), Playwright browser fallback (\textasciitilde2\,MB), reducing per-property bandwidth by 98.5\%.
-  \item Authored 107 of 113 commits across the ingestion service; implemented batch scheduling, IP rotation, health monitoring, and a FastAPI + PostgreSQL storage pipeline.
-\end{itemize}
-
-\vspace{3pt}
-\entry{Celebrare — Python Developer Intern}{Nov 2024 – Apr 2025}
-\begin{itemize}
-  \item Evaluated and benchmarked multiple face-recognition architectures across production datasets, measuring latency, throughput, and accuracy.
-  \item Optimized recognition quality through clustering-based experimentation and preprocessing techniques.
-  \item Rewrote the production pipeline from Python to C++, achieving a 5–8\texttimes\ speedup and reducing average processing latency by 91\%.
-\end{itemize}
-
-% Projects
 \section*{Projects}
-
-\entry{\href{https://fynl-it.vercel.app/}{Fynl-It}}{Next.js · Supabase · Gemini AI · TailwindCSS}
+\entry{\href{https://github.com/rohiitgit/rb}{rb (Repository Brain)} --- Code-Intelligence Engine}{Rust $\cdot$ PostgreSQL $\cdot$ Apache AGE $\cdot$ Tree-sitter $\cdot$ Docker}
 \begin{itemize}
-  \item Built an AI-powered invoice follow-up platform integrating Gemini AI, Supabase, and Razorpay to automate payment reminders.
-    \item Designed event-driven workflow execution with configurable escalation rules and prompt-based communication generation.
-    \item Reduced manual follow-up effort through automated scheduling and payment reconciliation.
+\item Built a deterministic Rust CLI and HTTP service (12 crates) that indexes Git repos into a queryable code graph (functions, endpoints, DB tables, DI wiring), answering caller, impact, and request-path queries with file:line evidence across 6 languages.
+\item Ran SCIP indexers in sandboxed Docker behind an HTTPS allow-list proxy with a Tree-sitter fallback; stored graphs in Postgres + Apache AGE and shipped an \texttt{rb check} architecture gate for CI.
+\item Benchmarked against independent answer keys: 122 of 130 judged edges correct; 88.7\% precision and 75.8\% recall on endpoints; stress-tested over 18 fixtures and 13 public repos.
 \end{itemize}
-\vspace{3pt}
-\entry{\href{https://github.com/rohiitgit/mailsync}{Mailsync}}{Node.js · IMAP · Elasticsearch · Qdrant · Gemini}
+\entry{\href{https://github.com/rohiitgit/kdoc}{Kdoc} --- Distributed PDF Processing Pipeline}{Go $\cdot$ Redis Streams $\cdot$ SQLite $\cdot$ Prometheus $\cdot$ Docker}
+\begin{itemize}
+\item Built a Go API and scalable workers on Redis Streams consumer groups with admission control, distributed locks, retries, a replayable dead-letter queue, and stuck-job recovery.
+\item Load-tested with 600 simulated devices at $\sim$700 docs/s (0.65s avg latency); traced saturation at 10k--30k docs to SQLite write serialization.
+\item Wrote a race-clean 108-test suite that caught 3 production bugs; added 11 Prometheus metrics and 4 alert rules.
+\end{itemize}
+\entry{\href{https://github.com/rohiitgit/mailsync}{Mailsync}}{Node.js $\cdot$ IMAP $\cdot$ Elasticsearch $\cdot$ Qdrant $\cdot$ Gemini}
 \begin{itemize}
 \item Built an AI-powered email intelligence platform that continuously synchronized mailboxes through persistent IMAP connections.
 \item Implemented semantic search using Elasticsearch and Qdrant with retrieval-augmented generation for natural-language querying.
 \item Designed scalable background workers, incremental synchronization, and fault-tolerant indexing pipelines.
 \end{itemize}
-\entry{\href{https://github.com/rohiitgit/kdoc}{Kdoc}}{Go · Redis · SQLite · Docker}
-\begin{itemize}
-  \item Built concurrent worker pools using Redis Streams with retries, dead-letter queues, and observability tooling.
-  \item Load-tested to 30k documents; validated reliability with a 108-test suite.
-\end{itemize}
-\vspace{3pt}
 
-% Skills
 \section*{Skills}
-
-\noindent
-\begin{tabular}{@{}ll}
-  \textbf{Languages}  & Python, Go, TypeScript, JavaScript, C/C++ \\[2pt]
-  \textbf{Frontend}   & React, Next.js, TailwindCSS, HTML/CSS \\[2pt]
-  \textbf{Backend}    & Node.js, Express, Flask, REST APIs, Microservices \\[2pt]
-  \textbf{Databases}  & PostgreSQL, Redis, SQLite, Supabase, Elasticsearch, Qdrant \\[2pt]
-  \textbf{AI}    & LLM Applications, RAG, Prompt Engineering, OpenCV, SAM~2, Computer Vision \\[2pt]
-  \textbf{Tools}      & Git, Docker, Playwright, Claude Code, Cursor \\[2pt]
-  \textbf{Core Skills}& Distributed Systems, Automation, Performance Optimization, Scalable Backend Systems, AI Integration \\
-\end{tabular}
-
+\begin{tabularx}{\textwidth}{@{}l@{\hspace{12pt}}X@{}}
+\textbf{Languages} & Python, Go, TypeScript, JavaScript, Java, C/C++ \\
+\textbf{Frontend} & React, Next.js, TailwindCSS, HTML/CSS \\
+\textbf{Backend} & Node.js, Express, FastAPI, Flask, REST APIs, Microservices, Timefold Solver \\
+\textbf{Databases} & PostgreSQL, Redis, SQLite, Supabase, Elasticsearch, Qdrant \\
+\textbf{AI} & LLM Applications, RAG, Prompt Engineering, OpenCV, SAM 2, Computer Vision \\
+\textbf{Tools} & Git, Docker, CI Pipelines, Grafana, Loki/Promtail, Playwright, Claude Code, Cursor \\
+\textbf{Core Skills} & Distributed Systems, Automation, Performance Optimization, Scalable Backend Systems, AI Integration \\
+\end{tabularx}
 \end{document}
