@@ -118,6 +118,23 @@ const siteContent = {
                 links: {
                     github: "https://github.com/rohiitgit/kdoc"
                 }
+            },
+            {
+                title: "ony",
+                description: "tap any song link and it opens in <strong>your music app</strong>. a spotify, apple music, youtube music, or youtube link from whatsapp or a browser opens the same song — <strong>no account, no api key</strong>. set it up once and never open it again.",
+                technologies: ["android", "kotlin"],
+                links: {
+                    live: "https://rohiitgit.github.io/ony/",
+                    github: "https://github.com/rohiitgit/ony"
+                }
+            },
+            {
+                title: "nohog",
+                description: "stops spotlight (<strong>mds_stores</strong>) from indexing <strong>node_modules</strong> and other dev junk. indexing 20,000 files cost spotlight <strong>298.7 s</strong> of cpu versus <strong>0 s</strong> when excluded (14 to 16 ms per file); on rohit's mac, <strong>183,045 files</strong> across <strong>9 folders</strong> stay out of the index. no sudo, self-healing.",
+                technologies: ["swift", "macos", "homebrew"],
+                links: {
+                    github: "https://github.com/rohiitgit/nohog"
+                }
             }
         ]
     },
