@@ -489,6 +489,22 @@ function populateExperienceSection(experience) {
     }
 }
 
+function renderProjectBadge(badge) {
+    if (!badge || typeof badge !== 'object') return '';
+    if (!isSafeUrl(badge.href) || !isSafeUrl(badge.src)) return '';
+
+    const width = Number(badge.width);
+    const height = Number(badge.height);
+    const safeWidth = Number.isFinite(width) && width > 0 ? Math.round(width) : 250;
+    const safeHeight = Number.isFinite(height) && height > 0 ? Math.round(height) : 54;
+
+    return `
+        <a class="project-badge" href="${escapeHtml(badge.href)}" target="_blank" rel="noopener noreferrer">
+            <img alt="${escapeHtml(badge.alt || '')}" width="${safeWidth}" height="${safeHeight}" src="${escapeHtml(badge.src)}">
+        </a>
+    `;
+}
+
 function populateProjectsSection(projects) {
     const titleElement = document.querySelector('[data-content="projects.title"]');
     if (titleElement) {
@@ -510,13 +526,16 @@ function populateProjectsSection(projects) {
                                 <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-xs font-medium">${escapeHtml(tech)}</span>
                             `).join('')}
                         </div>
-                        <div class="flex gap-6 mt-auto">
-                            ${project.links.live && isSafeUrl(project.links.live) ? `
-                                <a href="${project.links.live}" class="text-accent hover:text-amber-700 font-medium text-sm transition-colors">live →</a>
-                            ` : ''}
-                            ${project.links.github && isSafeUrl(project.links.github) ? `
-                                <a href="${project.links.github}" class="text-accent hover:text-amber-700 font-medium text-sm transition-colors">github →</a>
-                            ` : ''}
+                        <div class="mt-auto flex flex-col items-start gap-4">
+                            <div class="flex gap-6">
+                                ${project.links.live && isSafeUrl(project.links.live) ? `
+                                    <a href="${project.links.live}" class="text-accent hover:text-amber-700 font-medium text-sm transition-colors">live →</a>
+                                ` : ''}
+                                ${project.links.github && isSafeUrl(project.links.github) ? `
+                                    <a href="${project.links.github}" class="text-accent hover:text-amber-700 font-medium text-sm transition-colors">github →</a>
+                                ` : ''}
+                            </div>
+                            ${renderProjectBadge(project.badge)}
                         </div>
                     </div>
                 `).join('')}

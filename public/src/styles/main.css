@@ -564,6 +564,57 @@ section {
     }
 }
 
+/* Optional project badge (Product Hunt and similar). Sits under the link row
+   and reserves its intrinsic box so the image cannot shift the card. */
+a.project-badge {
+    display: inline-flex;
+    flex: 0 1 auto;
+    align-items: center;
+    line-height: 0;
+    max-width: 100%;
+    padding: 0;
+    min-width: 0;
+    min-height: 0;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(34, 29, 33, 0.16);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+a.project-badge img {
+    display: block;
+    width: 250px;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 250 / 54;
+}
+
+.dark a.project-badge {
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16);
+}
+
+a.project-badge:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 0 16px rgba(194, 112, 58, 0.28),
+        0 8px 16px rgba(34, 29, 33, 0.12);
+}
+
+.dark a.project-badge:hover {
+    box-shadow:
+        0 0 0 1px rgba(194, 112, 58, 0.5),
+        0 0 18px rgba(194, 112, 58, 0.32);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    a.project-badge {
+        transition: none;
+    }
+
+    a.project-badge:hover {
+        transform: none;
+    }
+}
+
 /* Focus styles for accessibility */
 *:focus-visible {
     outline: 2px solid var(--color-accent);

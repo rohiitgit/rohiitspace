@@ -134,6 +134,13 @@ const siteContent = {
                 links: {
                     live: "https://rohiitgit.github.io/ony/",
                     github: "https://github.com/rohiitgit/ony"
+                },
+                badge: {
+                    href: "https://www.producthunt.com/products/ony?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-ony",
+                    src: "https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1302558&theme=dark&t=1793726129436",
+                    alt: "Ony - one music link, any music app. | Product Hunt",
+                    width: 250,
+                    height: 54
                 }
             }
         ]
