@@ -118,6 +118,23 @@ const siteContent = {
                 links: {
                     github: "https://github.com/rohiitgit/kdoc"
                 }
+            },
+            {
+                title: "nohog",
+                description: "keeps your mac from <strong>slowing down and heating up</strong>. macos wastes effort scanning thousands of developer junk files, and nohog makes it skip them — then keeps that up on its own.",
+                technologies: ["swift", "macos", "homebrew"],
+                links: {
+                    github: "https://github.com/rohiitgit/nohog"
+                }
+            },
+            {
+                title: "ony",
+                description: "a friend sends a spotify, apple music, or youtube link. tap it and the <strong>same song opens in the music app you use</strong>. set it up once and you never have to open it again.",
+                technologies: ["android", "kotlin"],
+                links: {
+                    live: "https://rohiitgit.github.io/ony/",
+                    github: "https://github.com/rohiitgit/ony"
+                }
             }
         ]
     },
