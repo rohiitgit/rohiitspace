@@ -3,16 +3,16 @@ const siteContent = {
     // Meta Information
     meta: {
         title: "Rohit | Software Engineer in Bangalore | rohiitspace",
-        description: "Rohit's portfolio - Computer science grad building fullstack apps, computer vision solutions, and automation tools. SIH 2024 finalist.",
+        description: "Rohit's portfolio - Studied computer science and builds fullstack apps, computer vision solutions, and automation tools. SIH 2024 finalist.",
         keywords: "rohit, portfolio, developer, computer science, fullstack, computer vision, python, javascript, react",
         author: "Rohit",
         url: "https://www.rohiit.space/",
         siteName: "rohiitspace",
         ogTitle: "Rohit - Software Developer",
-        ogDescription: "Computer science grad building fullstack apps, computer vision solutions, and automation tools. SIH 2024 finalist working at OpenBlood.",
+        ogDescription: "Studied computer science and builds fullstack apps, computer vision solutions, and automation tools. SIH 2024 finalist working at OpenBlood.",
         ogImage: "https://www.rohiit.space/pfp.webp",
         twitterTitle: "Rohit - Software Developer",
-        twitterDescription: "Computer science grad building fullstack apps, computer vision solutions, and automation tools. SIH 2024 finalist working at OpenBlood.",
+        twitterDescription: "Studied computer science and builds fullstack apps, computer vision solutions, and automation tools. SIH 2024 finalist working at OpenBlood.",
         twitterImage: "https://www.rohiit.space/pfp.webp"
     },
 
@@ -50,7 +50,7 @@ const siteContent = {
     about: {
         title: "about me",
         content: [
-            "i'm a computer science grad who just likes building stuff that works. Whether it's <strong>full-stack apps</strong>, <strong>computer vision</strong> or <strong>automation</strong>, i'll pick up whatever tool gets the job done.",
+            "i studied computer science and just like building stuff that works. Whether it's <strong>full-stack apps</strong>, <strong>computer vision</strong> or <strong>automation</strong>, i'll pick up whatever tool gets the job done.",
             "right now, I'm in <strong>bangalore</strong>, hacking on real problems and trying to solve them with code. i like to move fast, take initiative, and believe in just getting things done."
         ]
     },
